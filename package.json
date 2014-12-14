@@ -1,0 +1,25 @@
+{
+  "name": "pocket-physics",
+  "version": "1.0.0",
+  "description": "Verlet physics extracted from pocket-ces demos",
+  "main": "accelerate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kirbysayshi/pocket-physics"
+  },
+  "keywords": [
+    "verlet",
+    "physics",
+    "pocket-ces",
+    "game"
+  ],
+  "author": "Drew Petersen <kirbysayshi@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kirbysayshi/pocket-physics/issues"
+  },
+  "homepage": "https://github.com/kirbysayshi/pocket-physics"
+}
