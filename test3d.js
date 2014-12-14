@@ -4,6 +4,7 @@ var v3 = require('./v3');
 var accelerate3d = require('./accelerate3d');
 var inertia3d = require('./inertia3d');
 var maintainDistance3d = require('./distanceconstraint3d');
+var springDistance3d = require('./springconstraint3d');
 
 test('3d', function(t) {
 
@@ -102,5 +103,31 @@ test('3d rigid constraint with unequal mass', function(t) {
 
   t.equal(point1.cpos.x, 0.019607843137254943, 'force was equally applied');
   t.equal(point2.cpos.x, 10.019607843137255, 'force was equally applied');
+  t.end();
+})
+
+test('3d spring constraint with equal mass', function(t) {
+  var point1 = {
+    cpos: { x: 0, y: 0, z: 0 },
+    ppos: { x: 0, y: 0, z: 0 },
+    acel: { x: 0, y: 0, z: 0 },
+    mass: 25
+  }
+
+  var point2 = {
+    cpos: { x: 10, y: 0, z: 0 },
+    ppos: { x: 10, y: 0, z: 0 },
+    acel: { x: 0, y: 0, z: 0 },
+    mass: 25
+  }
+
+  accelerate3d(point1, 1);
+  accelerate3d(point2, 1);
+  springDistance3d(point2, point1, 0.1, 0.9);
+  inertia3d(point1, 1);
+  inertia3d(point2, 1);
+
+  t.equal(point2.acel.x, -0.036000000000000004, 'point2 moves towards point1');
+
   t.end();
 })
