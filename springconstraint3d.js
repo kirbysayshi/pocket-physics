@@ -20,6 +20,6 @@ module.exports = function solve(follower, target, stiffness, damping) {
 
   debug('delta * stiffness * damping', delta)
 
-  if (p1.mass) v3.add(p1.acel, p1.acel, delta);
+  v3.add(p1.acel, p1.acel, delta);
 }
 
