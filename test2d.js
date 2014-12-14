@@ -1,9 +1,9 @@
 var test = require('tape');
 
-var accelerate = require('./accelerate');
-var inertia = require('./inertia');
+var accelerate2d = require('./accelerate2d');
+var inertia2d = require('./inertia2d');
 
-test('it works', function(t) {
+test('2d', function(t) {
 
   var point = {
     cpos: { x: 0, y: 0 },
@@ -12,8 +12,8 @@ test('it works', function(t) {
   }
 
   // 1 is the delta time between steps
-  accelerate(point, 1);
-  inertia(point);
+  accelerate2d(point, 1);
+  inertia2d(point);
 
   t.equals(point.cpos.x, 0.02, 'current position is correct');
   t.equals(point.ppos.x, 0.01, 'previous position is correct');

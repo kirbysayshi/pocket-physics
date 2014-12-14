@@ -4,7 +4,7 @@
   "description": "Verlet physics extracted from pocket-ces demos",
   "main": "accelerate.js",
   "scripts": {
-    "test": "tape test.js"
+    "test": "tape test*.js"
   },
   "repository": {
     "type": "git",
