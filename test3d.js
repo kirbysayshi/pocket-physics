@@ -5,6 +5,7 @@ var accelerate3d = require('./accelerate3d');
 var inertia3d = require('./inertia3d');
 var maintainDistance3d = require('./distanceconstraint3d');
 var springDistance3d = require('./springconstraint3d');
+var drag3d = require('./drag3d');
 
 test('3d', function(t) {
 
@@ -128,6 +129,18 @@ test('3d spring constraint with equal mass', function(t) {
   inertia3d(point2, 1);
 
   t.equal(point2.acel.x, -0.036000000000000004, 'point2 moves towards point1');
+  t.end();
+})
 
+test('3d drag', function(t) {
+  var point1 = {
+    cpos: { x: 10, y: 0, z: 0 },
+    ppos: { x: 9, y: 0, z: 0 },
+    acel: { x: 0, y: 0, z: 0 }
+  }
+
+  drag3d(point1, 0.9);
+
+  t.equal(point1.ppos.x, 9.1, 'drag is applied');
   t.end();
 })
