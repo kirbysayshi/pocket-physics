@@ -15,7 +15,7 @@ var point = {
   acel: { x: 10, y: 0 }
 }
 
-// 0.1 is the delta time between steps in milliseconds
+// 16 is the delta time between steps in milliseconds
 accelerate(point1, 16);
 inertia(point);
 
@@ -45,7 +45,7 @@ var point2 = {
 // Keep the points this far apart always.
 var goal = 10;
 
-// 0.1 is the delta time between steps in milliseconds
+// 16 is the delta time between steps in milliseconds
 accelerate(point1, 16);
 accelerate(point2, 16);
 constrain(point1, point2, goal);
