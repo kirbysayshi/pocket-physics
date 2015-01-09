@@ -6,6 +6,7 @@ var inertia3d = require('./inertia3d');
 var maintainDistance3d = require('./distanceconstraint3d');
 var springDistance3d = require('./springconstraint3d');
 var drag3d = require('./drag3d');
+var gravitation3d = require('./gravitation3d');
 
 test('3d', function(t) {
 
@@ -142,5 +143,28 @@ test('3d drag', function(t) {
   drag3d(point1, 0.9);
 
   t.equal(point1.ppos.x, 9.1, 'drag is applied');
+  t.end();
+})
+
+test('3d gravitation', function(t) {
+
+  var point1 = {
+    cpos: { x: 0, y: 0, z: 0 },
+    ppos: { x: 0, y: 0, z: 0 },
+    acel: { x: 0, y: 0, z: 0 },
+    mass : 2
+  }
+
+  var point2 = {
+    cpos: { x: 1, y: 1, z : 1 },
+    ppos: { x: 0, y: 0, z : 0 },
+    acel: { x: 0, y: 0, z : 0 },
+    mass : 34
+  }
+
+  gravitation3d(point1, point2, 1);
+  gravitation3d(point2, point1, 1);
+
+  t.equals(point1.acel.x, (point2.acel.x) * -1 , 'gravitation equal and opposite');
   t.end();
 })
