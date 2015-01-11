@@ -38,6 +38,12 @@ v2.distance = function(v1, v2) {
   return Math.sqrt(x*x + y*y);
 }
 
+v2.magnitude = function(v1) {
+  var x = v1.x;
+  var y = v1.y;
+  return Math.sqrt(x*x + y*y);
+}
+
 v2.normalize = function(out, a) {
   var x = a.x;
   var y = a.y;
