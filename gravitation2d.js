@@ -5,13 +5,16 @@ module.exports = function solve(obj1, obj2, gravityConstant) {
 
   // handle either obj not having mass
   if (!obj1.mass || !obj2.mass) return;
-
+  
   // accel on obj1 because obj2 exists
-  var accel1 = v2(); 
+  var accel1 = v2();
   var mag;
   var factor;
 
-  v2.sub(accel1, obj2, obj1);
+  var diffx = obj2.cpos.x - obj1.cpos.x;
+  var diffy = obj2.cpos.y - obj1.cpos.y;
+
+  v2.set(accel1, diffx, diffy);
   mag = v2.magnitude(accel1);
 
   // Newton's Law of Universal Gravitation -- Vector Form!
