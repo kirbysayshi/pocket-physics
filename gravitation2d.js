@@ -1,4 +1,5 @@
 var v2 = require('./v2');
+var accel1 = v2();
 
 module.exports = function solve(obj1, obj2, gravityConstant) {
   gravityConstant = gravityConstant || 0.99;
@@ -6,8 +7,6 @@ module.exports = function solve(obj1, obj2, gravityConstant) {
   // handle either obj not having mass
   if (!obj1.mass || !obj2.mass) return;
   
-  // accel on obj1 because obj2 exists
-  var accel1 = v2();
   var mag;
   var factor;
 
