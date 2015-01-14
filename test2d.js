@@ -3,6 +3,7 @@ var test = require('tape');
 var gravitation2d = require('./gravitation2d');
 var accelerate2d = require('./accelerate2d');
 var inertia2d = require('./inertia2d');
+var spring2d = require('./springconstraint2d');
 
 test('2d', function(t) {
 
@@ -44,5 +45,30 @@ test('2d gravitation', function(t) {
   t.equals(point1.acel.x, 1, 'gravitation1 is correct');
   t.equals(point2.acel.x, -1, 'gravitation2 is correct');
   t.equals(point1.acel.x, (point2.acel.x) * -1 , 'gravitation equal and opposite');
+  t.end();
+})
+
+test('2d spring constraint with equal mass', function(t) {
+  var point1 = {
+    cpos: { x: 0, y: 0 },
+    ppos: { x: 0, y: 0 },
+    acel: { x: 0, y: 0 },
+    mass: 25
+  }
+
+  var point2 = {
+    cpos: { x: 10, y: 0 },
+    ppos: { x: 10, y: 0 },
+    acel: { x: 0, y: 0 },
+    mass: 25
+  }
+
+  accelerate2d(point1, 1);
+  accelerate2d(point2, 1);
+  spring2d(point2, point1, 0.1, 0.9);
+  inertia2d(point1, 1);
+  inertia2d(point2, 1);
+
+  t.equal(point2.acel.x, -0.036000000000000004, 'point2 moves towards point1');
   t.end();
 })
