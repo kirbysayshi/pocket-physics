@@ -16,7 +16,7 @@ module.exports = function solve(p1, p2, goal) {
   // Difference between current distance and goal distance
   var diff = (deltaMag - goal) / deltaMag;
 
-  debug('delta mag', v3.magnitude(delta))
+  debug('delta mag', deltaMag)
   debug('diff', diff)
 
   // approximate mass
