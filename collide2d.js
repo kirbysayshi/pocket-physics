@@ -2,19 +2,24 @@ var v2 = require('./v2');
 var debug = require('debug')('pocket-physics:collide2d');
 
 // Preallocations!
-var velA = { x: 0, y: 0 };
-var velB = { x: 0, y: 0 };
+var vel1 = { x: 0, y: 0 };
+var vel2 = { x: 0, y: 0 };
 var diff = { x: 0, y: 0 };
 var move = { x: 0, y: 0 };
+
+// It's very important that this function not do any distance checking.
+// It is assumed that if this function is called, then the points are
+// definitely colliding, and that after being called with preserveInertia
+// === false, another call with === true should be made, even if the first
+// calculation has moved the points away from physically touching.
 
 module.exports = function(p1, p2, preserveInertia, damping) {
   var dist2 = v2.distance2(p1.cpos, p2.cpos);
   var target = p1.radius + p2.radius;
   var min2 = target * target;
-  if (dist2 > min2) return;
 
-  v2.sub(velA, p1.cpos, p1.ppos);
-  v2.sub(velB, p2.cpos, p2.ppos);
+  v2.sub(vel1, p1.cpos, p1.ppos);
+  v2.sub(vel2, p2.cpos, p2.ppos);
 
   v2.sub(diff, p1.cpos, p2.cpos);
   var dist = Math.sqrt(dist2);
@@ -22,24 +27,24 @@ module.exports = function(p1, p2, preserveInertia, damping) {
 
   debug('collision. dist %d, factor %d', dist, factor);
 
-  var imass1 = 1/(p1.mass || 1);
-  var imass2 = 1/(p2.mass || 1);
-  var imass = imass1 + imass2
+  var mass1 = p1.mass === undefined ? 1 : p1.mass;
+  var mass2 = p2.mass === undefined ? 1 : p2.mass;
+  var massT = mass1 + mass2;
 
-  debug('imass %d, imass1 %d, imass2 %d', imass, imass1, imass2);
+  debug('massT %d, mass1 %d, mass2 %d', massT, mass1, mass2);
 
   // Move a away
-  move.x = diff.x * factor * (imass1 * imass);
-  move.y = diff.y * factor * (imass1 * imass);
-  if (p1.mass > 0) {
+  move.x = diff.x * factor * (mass2 / massT);
+  move.y = diff.y * factor * (mass2 / massT);
+  if (mass1 > 0) {
     debug('moving p1', move);
     v2.sub(p1.cpos, p1.cpos, move);
   }
 
   // Move b away
-  move.x = diff.x * factor * (imass2 * imass);
-  move.y = diff.y * factor * (imass2 * imass);
-  if (p2.mass > 0) {
+  move.x = diff.x * factor * (mass1 / massT);
+  move.y = diff.y * factor * (mass1 / massT);
+  if (mass2 > 0) {
     debug('moving p2', move);
     v2.add(p2.cpos, p2.cpos, move);
   }
@@ -48,17 +53,17 @@ module.exports = function(p1, p2, preserveInertia, damping) {
 
   damping = damping || 1;
 
-  var f1 = (damping * (diff.x * velA.x + diff.y * velA.y)) / dist2;
-  var f2 = (damping * (diff.x * velB.x + diff.y * velB.y)) / dist2;
+  var f1 = (damping * (diff.x * vel1.x + diff.y * vel1.y)) / dist2;
+  var f2 = (damping * (diff.x * vel2.x + diff.y * vel2.y)) / dist2;
   debug('inertia. f1 %d, f2 %d', f1, f2);
 
-  velA.x += (f2 * diff.x - f1 * diff.x)// * (imass1 * imass);
-  velB.x += (f1 * diff.x - f2 * diff.x)// * (imass2 * imass);
-  velA.y += (f2 * diff.y - f1 * diff.y)// * (imass1 * imass);
-  velB.y += (f1 * diff.y - f2 * diff.y)// * (imass2 * imass);
+  vel1.x += (f2 * diff.x - f1 * diff.x) / mass1 // * (mass2 / massT);
+  vel2.x += (f1 * diff.x - f2 * diff.x) / mass2 // * (mass1 / massT);
+  vel1.y += (f2 * diff.y - f1 * diff.y) / mass1 // * (mass2 / massT);
+  vel2.y += (f1 * diff.y - f2 * diff.y) / mass2 // * (mass1 / massT);
 
-  debug('velocity. p1 %o, p2 %o', velA, velB);
+  debug('velocity. p1 %o, p2 %o', vel1, vel2);
 
-  if (p1.mass > 0) v2.set(p1.ppos, p1.cpos.x - velA.x, p1.cpos.y - velA.y);
-  if (p2.mass > 0) v2.set(p2.ppos, p2.cpos.x - velB.x, p2.cpos.y - velB.y);
+  v2.set(p1.ppos, p1.cpos.x - vel1.x, p1.cpos.y - vel1.y);
+  v2.set(p2.ppos, p2.cpos.x - vel2.x, p2.cpos.y - vel2.y);
 }

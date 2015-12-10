@@ -57,6 +57,13 @@ inertia(point1, dt);
 inertia(point2, dt);
 ```
 
+TODO
+====
+
+- [ ] mass and radius as separate arguments when needed instead of whole object
+- [ ] Use either `Infinity` or `Number.MAX_VALUE` to denote infinite mass (immoveable objects)
+- [ ] 3d collisions
+
 LICENSE
 =======
 

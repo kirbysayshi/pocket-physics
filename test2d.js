@@ -74,8 +74,9 @@ test('2d spring constraint with equal mass', function(t) {
   t.end();
 })
 
-test('2d collision with equal mass', function(t) {
-  // Mass is currently not used...
+test('2d collision with equal mass and inertia preserved', function(t) {
+
+  var damping = 0.99;
 
   var point1 = {
     cpos: { x: 0, y: 0 },
@@ -93,7 +94,7 @@ test('2d collision with equal mass', function(t) {
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
-  collide2d(point2, point1);
+  collide2d(point1, point2, false, damping);
 
   t.equal(point1.cpos.x, -0.5, 'point1 moves left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -107,23 +108,32 @@ test('2d collision with equal mass', function(t) {
   inertia2d(point1, 1);
   inertia2d(point2, 1);
 
-  // this should have no effect, since they've moved beyond each other already
-  collide2d(point2, point1, true);
-
-  t.equal(point1.cpos.x, -1, 'point1 continues to move left');
+  t.equal(point1.cpos.x, -1, 'point1 continues left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
-  t.equal(point1.ppos.x, -0.5, 'point1 has had inertia applied(x)');
-  t.equal(point1.ppos.y, 0, 'point1 has had inertia applied(y)');
-  t.equal(point2.cpos.x, 10, 'point2 continues to move right');
+  t.equal(point1.ppos.x, -0.5, 'point1 has inertia applied(x)');
+  t.equal(point1.ppos.y, 0, 'point1 has inertia applied(y)');
+  t.equal(point2.cpos.x, 10, 'point2 continues right');
   t.equal(point2.cpos.y, 0, 'point2 does not move vertically');
-  t.equal(point2.ppos.x, 9.5, 'point2 has had inertia applied(x)');
-  t.equal(point2.ppos.y, 0, 'point2 has had inertia applied(y)');
+  t.equal(point2.ppos.x, 9.5, 'point2 has inertia applied(x)');
+  t.equal(point2.ppos.y, 0, 'point2 has inertia applied(y)');
+
+  collide2d(point2, point1, true, damping);
+
+  t.equal(point1.cpos.x, -0.5, 'point1 is corrected left');
+  t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
+  t.equal(point1.ppos.x, -0.9900000000000001, 'point1 has inertia applied(x)');
+  t.equal(point1.ppos.y, 0, 'point1 has not had inertia applied(y)');
+  t.equal(point2.cpos.x, 9.5, 'point2 is corrected right');
+  t.equal(point2.cpos.y, 0, 'point2 does not move vertically');
+  t.equal(point2.ppos.x, 9.99, 'point2 has inertia applied(x)');
+  t.equal(point2.ppos.y, 0, 'point2 has inertia applied(y)');
 
   t.end();
 })
 
-test('2d collision with equal mass and inertia preserved', function(t) {
-  // Mass is currently not used...
+test('2d collision with inequal mass and inertia preserved', function(t) {
+
+  var damping = 0.99;
 
   var point1 = {
     cpos: { x: 0, y: 0 },
@@ -136,18 +146,98 @@ test('2d collision with equal mass and inertia preserved', function(t) {
     cpos: { x: 9, y: 0 },
     ppos: { x: 9, y: 0 },
     acel: { x: 0, y: 0 },
-    mass: 1, radius: 5
+    mass: 3, radius: 5
   }
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
-  collide2d(point2, point1, true);
+  collide2d(point2, point1, false, damping);
 
-  t.equal(point1.cpos.x, -0.5, 'point1 moves left');
+  t.equal(point1.cpos.x, -0.75, 'point1 moves left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
   t.equal(point1.ppos.x, 0, 'point1 has not had inertia applied(x)');
   t.equal(point1.ppos.y, 0, 'point1 has not had inertia applied(y)');
-  t.equal(point2.cpos.x, 9.5, 'point2 moves right');
+  t.equal(point2.cpos.x, 9.25, 'point2 moves right');
+  t.equal(point2.cpos.y, 0, 'point2 does not move vertically');
+  t.equal(point2.ppos.x, 9, 'point2 has not had inertia applied(x)');
+  t.equal(point2.ppos.y, 0, 'point2 has not had inertia applied(y)');
+
+  inertia2d(point1, 1);
+  inertia2d(point2, 1);
+
+  t.equal(point1.cpos.x, -1.5, 'point1 continues left');
+  t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
+  t.equal(point1.ppos.x, -0.75, 'point1 has inertia applied(x)');
+  t.equal(point1.ppos.y, 0, 'point1 has inertia applied(y)');
+  t.equal(point2.cpos.x, 9.5, 'point2 continues right');
+  t.equal(point2.cpos.y, 0, 'point2 does not move vertically');
+  t.equal(point2.ppos.x, 9.25, 'point2 had inertia applied(x)');
+  t.equal(point2.ppos.y, 0, 'point2 had inertia applied(y)');
+
+  collide2d(point2, point1, true, damping);
+
+  t.equal(point1.cpos.x, -0.75, 'point1 is corrected left');
+  t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
+  t.equal(point1.ppos.x, -0.9900000000000001, 'point1 has inertia applied(x)');
+  t.equal(point1.ppos.y, 0, 'point1 has not had inertia applied(y)');
+  t.equal(point2.cpos.x, 9.25, 'point2 is corrected right');
+  t.equal(point2.cpos.y, 0, 'point2 does not move vertically');
+  t.equal(point2.ppos.x, 9.33, 'point2 has inertia applied(x)');
+  t.equal(point2.ppos.y, 0, 'point2 has inertia applied(y)');
+
+  t.end();
+})
+
+test('2d collision, vs infinite mass and inertia preserved', function(t) {
+
+  var damping = 0.99;
+
+  var point1 = {
+    cpos: { x: 0, y: 0 },
+    ppos: { x: 0, y: 0 },
+    acel: { x: 0, y: 0 },
+    mass: 1, radius: 5
+  }
+
+  var point2 = {
+    cpos: { x: 9, y: 0 },
+    ppos: { x: 9, y: 0 },
+    acel: { x: 0, y: 0 },
+    mass: Number.MAX_VALUE, radius: 5
+  }
+
+  accelerate2d(point1, 1);
+  accelerate2d(point2, 1);
+  collide2d(point2, point1, false, damping);
+
+  t.equal(point1.cpos.x, -1, 'point1 moves left');
+  t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
+  t.equal(point1.ppos.x, 0, 'point1 has not had inertia applied(x)');
+  t.equal(point1.ppos.y, 0, 'point1 has not had inertia applied(y)');
+  t.equal(point2.cpos.x, 9, 'point2 does not move right');
+  t.equal(point2.cpos.y, 0, 'point2 does not move vertically');
+  t.equal(point2.ppos.x, 9, 'point2 has not had inertia applied(x)');
+  t.equal(point2.ppos.y, 0, 'point2 has not had inertia applied(y)');
+
+  inertia2d(point1, 1);
+  inertia2d(point2, 1);
+
+  t.equal(point1.cpos.x, -2, 'point1 continues left');
+  t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
+  t.equal(point1.ppos.x, -1, 'point1 has inertia applied(x)');
+  t.equal(point1.ppos.y, 0, 'point1 has inertia applied(y)');
+  t.equal(point2.cpos.x, 9, 'point2 does not continue right');
+  t.equal(point2.cpos.y, 0, 'point2 does not move vertically');
+  t.equal(point2.ppos.x, 9, 'point2 has not had inertia applied(x)');
+  t.equal(point2.ppos.y, 0, 'point2 has not had inertia applied(y)');
+
+  collide2d(point2, point1, true, damping);
+
+  t.equal(point1.cpos.x, -1, 'point1 is corrected left');
+  t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
+  t.equal(point1.ppos.x, -0.9900000000000001, 'point1 has inertia applied(x)');
+  t.equal(point1.ppos.y, 0, 'point1 has not had inertia applied(y)');
+  t.equal(point2.cpos.x, 9, 'point2 is not corrected right');
   t.equal(point2.cpos.y, 0, 'point2 does not move vertically');
   t.equal(point2.ppos.x, 9, 'point2 has not had inertia applied(x)');
   t.equal(point2.ppos.y, 0, 'point2 has not had inertia applied(y)');
