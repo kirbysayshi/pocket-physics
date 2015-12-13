@@ -7,6 +7,7 @@ var maintainDistance3d = require('./distanceconstraint3d');
 var springDistance3d = require('./springconstraint3d');
 var drag3d = require('./drag3d');
 var gravitation3d = require('./gravitation3d');
+var overlapspheresphere = require('./overlapspheresphere');
 
 test('3d', function(t) {
 
@@ -166,5 +167,25 @@ test('3d gravitation', function(t) {
   gravitation3d(point2, point1, 1);
 
   t.equals(point1.acel.x, (point2.acel.x) * -1 , 'gravitation equal and opposite');
+  t.end();
+})
+
+test('overlap spheres', function (t) {
+  var point1 = {
+    cpos: { x: 0, y: 0, z: 0 },
+    radius: 5
+  }
+
+  var point2 = {
+    cpos: { x: 9, y: 0, z: 0 },
+    radius: 5
+  }
+
+  var overlapping = overlapspheresphere(
+    point1.cpos.x, point1.cpos.y, point1.cpos.z, point1.radius,
+    point2.cpos.x, point2.cpos.y, point2.cpos.z, point2.radius
+  );
+
+  t.ok(overlapping, 'circles are overlapping');
   t.end();
 })
