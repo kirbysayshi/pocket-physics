@@ -30,19 +30,21 @@ test('2d gravitation', function(t) {
   var point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 },
-    mass : 1
+    acel: { x: 0, y: 0 }
   }
+
+  var p1mass = 1;
 
   var point2 = {
     cpos: { x: 1, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 },
-    mass : 1
+    acel: { x: 0, y: 0 }
   }
 
-  gravitation2d(point1, point2, 1);
-  gravitation2d(point2, point1, 1);
+  var p2mass = 1;
+
+  gravitation2d(point1, p1mass, point2, p2mass, 1);
+  gravitation2d(point2, p2mass, point1, p1mass, 1);
 
   t.equals(point1.acel.x, 1, 'gravitation1 is correct');
   t.equals(point2.acel.x, -1, 'gravitation2 is correct');
@@ -54,20 +56,21 @@ test('2d spring constraint with equal mass', function(t) {
   var point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 },
-    mass: 25
+    acel: { x: 0, y: 0 }
   }
 
   var point2 = {
     cpos: { x: 10, y: 0 },
     ppos: { x: 10, y: 0 },
-    acel: { x: 0, y: 0 },
-    mass: 25
+    acel: { x: 0, y: 0 }
   }
+
+  var p1mass = 25;
+  var p2mass = 25;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
-  spring2d(point2, point1, 0.1, 0.9);
+  spring2d(point2, p2mass, point1, p1mass, 0.1, 0.9);
   inertia2d(point1, 1);
   inertia2d(point2, 1);
 
@@ -82,20 +85,23 @@ test('2d collision with equal mass and inertia preserved', function(t) {
   var point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 },
-    mass: 1, radius: 5
+    acel: { x: 0, y: 0 }
   }
 
   var point2 = {
     cpos: { x: 9, y: 0 },
     ppos: { x: 9, y: 0 },
-    acel: { x: 0, y: 0 },
-    mass: 1, radius: 5
+    acel: { x: 0, y: 0 }
   }
+
+  var p1mass = 1;
+  var p2mass = 1;
+  var p1radius = 5;
+  var p2radius = 5;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
-  collide2d(point1, point2, false, damping);
+  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, false, damping);
 
   t.equal(point1.cpos.x, -0.5, 'point1 moves left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -118,7 +124,7 @@ test('2d collision with equal mass and inertia preserved', function(t) {
   t.equal(point2.ppos.x, 9.5, 'point2 has inertia applied(x)');
   t.equal(point2.ppos.y, 0, 'point2 has inertia applied(y)');
 
-  collide2d(point2, point1, true, damping);
+  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, true, damping);
 
   t.equal(point1.cpos.x, -0.5, 'point1 is corrected left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -139,20 +145,23 @@ test('2d collision with inequal mass and inertia preserved', function(t) {
   var point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 },
-    mass: 1, radius: 5
+    acel: { x: 0, y: 0 }
   }
 
   var point2 = {
     cpos: { x: 9, y: 0 },
     ppos: { x: 9, y: 0 },
-    acel: { x: 0, y: 0 },
-    mass: 3, radius: 5
+    acel: { x: 0, y: 0 }
   }
+
+  var p1mass = 1;
+  var p2mass = 3;
+  var p1radius = 5;
+  var p2radius = 5;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
-  collide2d(point2, point1, false, damping);
+  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, false, damping);
 
   t.equal(point1.cpos.x, -0.75, 'point1 moves left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -175,7 +184,7 @@ test('2d collision with inequal mass and inertia preserved', function(t) {
   t.equal(point2.ppos.x, 9.25, 'point2 had inertia applied(x)');
   t.equal(point2.ppos.y, 0, 'point2 had inertia applied(y)');
 
-  collide2d(point2, point1, true, damping);
+  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, true, damping);
 
   t.equal(point1.cpos.x, -0.75, 'point1 is corrected left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -196,20 +205,23 @@ test('2d collision, vs infinite mass and inertia preserved', function(t) {
   var point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 },
-    mass: 1, radius: 5
+    acel: { x: 0, y: 0 }
   }
 
   var point2 = {
     cpos: { x: 9, y: 0 },
     ppos: { x: 9, y: 0 },
-    acel: { x: 0, y: 0 },
-    mass: Number.MAX_VALUE, radius: 5
+    acel: { x: 0, y: 0 }
   }
+
+  var p1mass = 1;
+  var p2mass = Number.MAX_VALUE;
+  var p1radius = 5;
+  var p2radius = 5;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
-  collide2d(point2, point1, false, damping);
+  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, false, damping);
 
   t.equal(point1.cpos.x, -1, 'point1 moves left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -232,7 +244,7 @@ test('2d collision, vs infinite mass and inertia preserved', function(t) {
   t.equal(point2.ppos.x, 9, 'point2 has not had inertia applied(x)');
   t.equal(point2.ppos.y, 0, 'point2 has not had inertia applied(y)');
 
-  collide2d(point2, point1, true, damping);
+  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, true, damping);
 
   t.equal(point1.cpos.x, -1, 'point1 is corrected left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -248,18 +260,19 @@ test('2d collision, vs infinite mass and inertia preserved', function(t) {
 
 test('overlap circles', function (t) {
   var point1 = {
-    cpos: { x: 0, y: 0 },
-    radius: 5
+    cpos: { x: 0, y: 0 }
   }
 
   var point2 = {
-    cpos: { x: 9, y: 0 },
-    radius: 5
+    cpos: { x: 9, y: 0 }
   }
 
+  var p1radius = 5;
+  var p2radius = 5;
+
   var overlapping = overlapcirclecircle(
-    point1.cpos.x, point1.cpos.y, point1.radius,
-    point2.cpos.x, point2.cpos.y, point2.radius
+    point1.cpos.x, point1.cpos.y, p1radius,
+    point2.cpos.x, point2.cpos.y, p2radius
   );
 
   t.ok(overlapping, 'circles are overlapping');

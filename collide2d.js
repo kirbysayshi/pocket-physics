@@ -13,9 +13,9 @@ var move = { x: 0, y: 0 };
 // === false, another call with === true should be made, even if the first
 // calculation has moved the points away from physically touching.
 
-module.exports = function(p1, p2, preserveInertia, damping) {
+module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, damping) {
   var dist2 = v2.distance2(p1.cpos, p2.cpos);
-  var target = p1.radius + p2.radius;
+  var target = p1radius + p2radius;
   var min2 = target * target;
 
   v2.sub(vel1, p1.cpos, p1.ppos);
@@ -27,8 +27,8 @@ module.exports = function(p1, p2, preserveInertia, damping) {
 
   debug('collision. dist %d, factor %d', dist, factor);
 
-  var mass1 = p1.mass === undefined ? 1 : p1.mass;
-  var mass2 = p2.mass === undefined ? 1 : p2.mass;
+  var mass1 = p1mass === undefined ? 1 : p1mass;
+  var mass2 = p2mass === undefined ? 1 : p2mass;
   var massT = mass1 + mass2;
 
   debug('massT %d, mass1 %d, mass2 %d', massT, mass1, mass2);

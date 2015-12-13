@@ -1,9 +1,9 @@
 var v3 = require('./v3');
 var debug = require('debug')('pocket-physics:distanceconstraint');
 
-module.exports = function solve(p1, p2, goal) {
-  var imass1 = 1/(p1.mass || 1);
-  var imass2 = 1/(p2.mass || 1);
+module.exports = function solve(p1, p1mass, p2, p2mass, goal) {
+  var imass1 = 1/(p1mass || 1);
+  var imass2 = 1/(p2mass || 1);
   var imass = imass1 + imass2
 
   // Current relative vector
@@ -30,7 +30,7 @@ module.exports = function solve(p1, p2, goal) {
   debug('p1correction', p1correction)
   debug('p2correction', p2correction)
 
-  if (p1.mass) v3.add(p1.cpos, p1.cpos, p1correction);
-  if (p2.mass) v3.sub(p2.cpos, p2.cpos, p2correction);
+  if (p1mass) v3.add(p1.cpos, p1.cpos, p1correction);
+  if (p2mass) v3.sub(p2.cpos, p2.cpos, p2correction);
 }
 
