@@ -5,6 +5,7 @@ var accelerate2d = require('./accelerate2d');
 var inertia2d = require('./inertia2d');
 var spring2d = require('./springconstraint2d');
 var collide2d = require('./collide2d');
+var overlapcirclecircle = require('./overlapcirclecircle');
 
 test('2d', function(t) {
 
@@ -242,5 +243,25 @@ test('2d collision, vs infinite mass and inertia preserved', function(t) {
   t.equal(point2.ppos.x, 9, 'point2 has not had inertia applied(x)');
   t.equal(point2.ppos.y, 0, 'point2 has not had inertia applied(y)');
 
+  t.end();
+})
+
+test('overlap circles', function (t) {
+  var point1 = {
+    cpos: { x: 0, y: 0 },
+    radius: 5
+  }
+
+  var point2 = {
+    cpos: { x: 9, y: 0 },
+    radius: 5
+  }
+
+  var overlapping = overlapcirclecircle(
+    point1.cpos.x, point1.cpos.y, point1.radius,
+    point2.cpos.x, point2.cpos.y, point2.radius
+  );
+
+  t.ok(overlapping, 'circles are overlapping');
   t.end();
 })
