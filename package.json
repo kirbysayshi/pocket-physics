@@ -1,6 +1,6 @@
 {
   "name": "pocket-physics",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Verlet physics extracted from pocket-ces demos",
   "main": "accelerate.js",
   "scripts": {
