@@ -4,7 +4,7 @@ var gravitation2d = require('./gravitation2d');
 var accelerate2d = require('./accelerate2d');
 var inertia2d = require('./inertia2d');
 var spring2d = require('./springconstraint2d');
-var collide2d = require('./collide2d');
+var collideCircleCircle = require('./collidecirclecircle');
 var overlapcirclecircle = require('./overlapcirclecircle');
 
 test('2d', function(t) {
@@ -101,7 +101,7 @@ test('2d collision with equal mass and inertia preserved', function(t) {
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
-  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, false, damping);
+  collideCircleCircle(point1, p1radius, p1mass, point2, p2radius, p2mass, false, damping);
 
   t.equal(point1.cpos.x, -0.5, 'point1 moves left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -124,7 +124,7 @@ test('2d collision with equal mass and inertia preserved', function(t) {
   t.equal(point2.ppos.x, 9.5, 'point2 has inertia applied(x)');
   t.equal(point2.ppos.y, 0, 'point2 has inertia applied(y)');
 
-  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, true, damping);
+  collideCircleCircle(point1, p1radius, p1mass, point2, p2radius, p2mass, true, damping);
 
   t.equal(point1.cpos.x, -0.5, 'point1 is corrected left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -161,7 +161,7 @@ test('2d collision with inequal mass and inertia preserved', function(t) {
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
-  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, false, damping);
+  collideCircleCircle(point1, p1radius, p1mass, point2, p2radius, p2mass, false, damping);
 
   t.equal(point1.cpos.x, -0.75, 'point1 moves left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -184,7 +184,7 @@ test('2d collision with inequal mass and inertia preserved', function(t) {
   t.equal(point2.ppos.x, 9.25, 'point2 had inertia applied(x)');
   t.equal(point2.ppos.y, 0, 'point2 had inertia applied(y)');
 
-  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, true, damping);
+  collideCircleCircle(point1, p1radius, p1mass, point2, p2radius, p2mass, true, damping);
 
   t.equal(point1.cpos.x, -0.75, 'point1 is corrected left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -221,7 +221,7 @@ test('2d collision, vs infinite mass and inertia preserved', function(t) {
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
-  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, false, damping);
+  collideCircleCircle(point1, p1radius, p1mass, point2, p2radius, p2mass, false, damping);
 
   t.equal(point1.cpos.x, -1, 'point1 moves left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
@@ -244,7 +244,7 @@ test('2d collision, vs infinite mass and inertia preserved', function(t) {
   t.equal(point2.ppos.x, 9, 'point2 has not had inertia applied(x)');
   t.equal(point2.ppos.y, 0, 'point2 has not had inertia applied(y)');
 
-  collide2d(point1, p1radius, p1mass, point2, p2radius, p2mass, true, damping);
+  collideCircleCircle(point1, p1radius, p1mass, point2, p2radius, p2mass, true, damping);
 
   t.equal(point1.cpos.x, -1, 'point1 is corrected left');
   t.equal(point1.cpos.y, 0, 'point1 does not move vertically');
