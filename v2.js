@@ -62,4 +62,10 @@ v2.normalize = function(out, a) {
   return out;
 }
 
+v2.normal = function (out, e1, e2) {
+  out.y = e2.x - e1.x;
+  out.x = e1.y - e2.y;
+  return v2.normalize(out, out);
+}
+
 module.exports = v2;

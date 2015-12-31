@@ -6,6 +6,7 @@ var inertia2d = require('./inertia2d');
 var spring2d = require('./springconstraint2d');
 var collideCircleCircle = require('./collidecirclecircle');
 var overlapcirclecircle = require('./overlapcirclecircle');
+var v2 = require('./v2');
 
 test('2d', function(t) {
 
@@ -276,5 +277,36 @@ test('overlap circles', function (t) {
   );
 
   t.ok(overlapping, 'circles are overlapping');
+  t.end();
+})
+
+test('v2.normal, existing point', function (t) {
+  var out = { x: 0, y: 0 };
+  var normal = v2.normal(out, { x: 2, y: 2 }, { x: 4, y: 4 });
+  t.equal(normal, out, 'same object given is returned');
+  t.end();
+})
+
+test('v2.normal, down', function (t) {
+  var normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 2 }, { x: 0, y: 2 });
+  t.deepEqual(normal, { x: 0, y: -1 });
+  t.end();
+})
+
+test('v2.normal, up', function (t) {
+  var normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 4, y: 0 });
+  t.deepEqual(normal, { x: 0, y: 1 });
+  t.end();
+})
+
+test('v2.normal, left', function (t) {
+  var normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 });
+  t.deepEqual(normal, { x: -1, y: 0 });
+  t.end();
+})
+
+test('v2.normal, right', function (t) {
+  var normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: -2 });
+  t.deepEqual(normal, { x: 1, y: 0 });
   t.end();
 })
