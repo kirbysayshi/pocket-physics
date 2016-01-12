@@ -26,6 +26,10 @@ v2.sub = function(out, a, b) {
   return out;
 }
 
+v2.dot = function (a, b) {
+  return a.x * b.x + a.y * b.y;
+}
+
 v2.scale = function(out, a, factor) {
   out.x = a.x * factor;
   out.y = a.y * factor;

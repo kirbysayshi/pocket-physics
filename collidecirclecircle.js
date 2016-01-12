@@ -1,5 +1,5 @@
 var v2 = require('./v2');
-var debug = require('debug')('pocket-physics:collide2d');
+var debug = require('debug')('pocket-physics:collide-circle-circle');
 
 // Preallocations!
 var vel1 = { x: 0, y: 0 };
