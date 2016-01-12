@@ -337,7 +337,7 @@ test('collide circle edge, equal mass', function (t) {
 
   var mass1 = 0.5;
   var mass2 = 0.5;
-  var mass3 = 1;
+  var mass3 = 0.5;
 
   var checkpoint3 = {
     cpos: { x: 2.5, y: 1 },
@@ -375,11 +375,11 @@ test('collide circle edge, equal mass', function (t) {
   t.equal(point1.cpos.y, checkpoint2.cpos.y,
     'before inertia: endpoint1.cpos.y matches checkpoint2.cpos.y');
   t.equal(point1.ppos.y, checkpoint2.ppos.y,
-    'before intertia: endpoint1.ppos.y matches checkpoint2.ppos.y');
+    'before inertia: endpoint1.ppos.y matches checkpoint2.ppos.y');
   t.equal(point2.cpos.y, checkpoint2.cpos.y,
     'before inertia: endpoint2.cpos.y matches checkpoint2.cpos.y');
   t.equal(point2.ppos.y, checkpoint2.ppos.y,
-    'before intertia: endpoint2.ppos.y matches checkpoint2.ppos.y');
+    'before inertia: endpoint2.ppos.y matches checkpoint2.ppos.y');
 
   inertia2d(point1, 1);
   inertia2d(point2, 1);
@@ -387,6 +387,15 @@ test('collide circle edge, equal mass', function (t) {
 
   inertia2d(checkpoint2, 1);
   inertia2d(checkpoint3, 1);
+
+  t.equal(point1.cpos.y, checkpoint2.cpos.y,
+    'after inertia2d: endpoint1.cpos.y matches checkpoint2.cpos.y');
+  t.equal(point1.ppos.y, checkpoint2.ppos.y,
+    'after inertia2d: endpoint1.ppos.y matches checkpoint2.ppos.y');
+  t.equal(point2.cpos.y, checkpoint2.cpos.y,
+    'after inertia2d: endpoint2.cpos.y matches checkpoint2.cpos.y');
+  t.equal(point2.ppos.y, checkpoint2.ppos.y,
+    'after inertia2d: endpoint2.ppos.y matches checkpoint2.ppos.y');
 
   collideCircleEdge(
     point3, radius3, mass3,
@@ -497,7 +506,7 @@ test('collide circle edge, equal mass, start', function (t) {
   t.notEqual(point2.cpos.y, checkpoint2.cpos.y,
     'before inertia: endpoint2.cpos.y does not match checkpoint2.cpos.y');
   t.equal(point2.ppos.y, checkpoint2.ppos.y,
-    'before intertia: endpoint2.ppos.y matches checkpoint2.ppos.y');
+    'before inertia: endpoint2.ppos.y matches checkpoint2.ppos.y');
 
   inertia2d(point1, 1);
   inertia2d(point2, 1);
