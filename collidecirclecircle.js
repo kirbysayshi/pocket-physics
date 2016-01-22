@@ -68,10 +68,10 @@ module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveIn
   var f2 = (damping * (diff.x * vel2.x + diff.y * vel2.y)) / dist2;
   debug('inertia. f1 %d, f2 %d', f1, f2);
 
-  vel1.x += (f2 * diff.x - f1 * diff.x) / mass1 // * (mass2 / massT);
-  vel2.x += (f1 * diff.x - f2 * diff.x) / mass2 // * (mass1 / massT);
-  vel1.y += (f2 * diff.y - f1 * diff.y) / mass1 // * (mass2 / massT);
-  vel2.y += (f1 * diff.y - f2 * diff.y) / mass2 // * (mass1 / massT);
+  vel1.x += (f2 * diff.x - f1 * diff.x) / (mass1 || 1) // * (mass2 / massT);
+  vel2.x += (f1 * diff.x - f2 * diff.x) / (mass2 || 1) // * (mass1 / massT);
+  vel1.y += (f2 * diff.y - f1 * diff.y) / (mass1 || 1) // * (mass2 / massT);
+  vel2.y += (f1 * diff.y - f2 * diff.y) / (mass2 || 1) // * (mass1 / massT);
 
   debug('velocity. p1 %o, p2 %o', vel1, vel2);
 

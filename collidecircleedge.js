@@ -66,8 +66,8 @@ module.exports = function collide(
   // Distribute mass of colliding point into two fake points
   // and use those to collide against each endpoint independently.
 
-  var standinMass1 = t * mass3;
-  var standinMass2 = u * mass3;
+  var standinMass1 = u * mass3;
+  var standinMass2 = t * mass3;
 
   debug('standinMass 1,2 %d,%d', standinMass1, standinMass2);
 
@@ -145,8 +145,8 @@ module.exports = function collide(
   // Compute standin2 cpos change
   v2.sub(standin2Delta.cpos, standin2.cpos, standin2Before.cpos);
 
-  v2.scale(standin1Delta.cpos, standin1Delta.cpos, t);
-  v2.scale(standin2Delta.cpos, standin2Delta.cpos, u);
+  v2.scale(standin1Delta.cpos, standin1Delta.cpos, u);
+  v2.scale(standin2Delta.cpos, standin2Delta.cpos, t);
 
   debug('standin1Delta cpos %o', standin1Delta.cpos);
   debug('standin2Delta cpos %o', standin2Delta.cpos);
@@ -171,8 +171,8 @@ module.exports = function collide(
   // Compute standin2 ppos change
   v2.sub(standin2Delta.ppos, standin2.ppos, standin2Before.ppos);
 
-  v2.scale(standin1Delta.ppos, standin1Delta.ppos, t);
-  v2.scale(standin2Delta.ppos, standin2Delta.ppos, u);
+  v2.scale(standin1Delta.ppos, standin1Delta.ppos, u);
+  v2.scale(standin2Delta.ppos, standin2Delta.ppos, t);
 
   debug('standin1Delta ppos %o', standin1Delta.ppos);
   debug('standin2Delta ppos %o', standin2Delta.ppos);
