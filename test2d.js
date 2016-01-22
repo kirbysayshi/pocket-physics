@@ -339,27 +339,41 @@ test('collide circle edge, equal mass', function (t) {
   var mass2 = 0.5;
   var mass3 = 0.5;
 
-  var checkpoint3 = {
-    cpos: { x: 2.5, y: 1 },
-    ppos: { x: 2.5, y: 1 },
+  var checkpoint1Top = {
+    cpos: { x: 0, y: 1 },
+    ppos: { x: 0, y: 1 },
     acel: { x: 0, y: 0 }
   }
 
-  var checkpoint2 = {
-    cpos: { x: 2.5, y: 0 },
-    ppos: { x: 2.5, y: 0 },
+  var checkpoint1Bottom = {
+    cpos: { x: 0, y: 0 },
+    ppos: { x: 0, y: 0 },
+    acel: { x: 0, y: 0 }
+  }
+
+  var checkpoint2Top = {
+    cpos: { x: 5, y: 1 },
+    ppos: { x: 5, y: 1 },
+    acel: { x: 0, y: 0 }
+  }
+
+  var checkpoint2Bottom = {
+    cpos: { x: 5, y: 0 },
+    ppos: { x: 5, y: 0 },
     acel: { x: 0, y: 0 }
   }
 
   // Just like the edge...
-  var checkpoint2Radius = 0;
+  var checkpointBottomRadius = 0;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
   accelerate2d(point3, 1);
 
-  accelerate2d(checkpoint2, 1);
-  accelerate2d(checkpoint3, 1);
+  accelerate2d(checkpoint1Top, 1);
+  accelerate2d(checkpoint1Bottom, 1);
+  accelerate2d(checkpoint2Top, 1);
+  accelerate2d(checkpoint2Bottom, 1);
 
   collideCircleEdge(
     point3, radius3, mass3,
@@ -368,34 +382,45 @@ test('collide circle edge, equal mass', function (t) {
     false, damping);
 
   collideCircleCircle(
-    checkpoint3, radius3, mass3,
-    checkpoint2, checkpoint2Radius, mass1 + mass2,
+    checkpoint1Top, radius3, mass3 / 2,
+    checkpoint1Bottom, checkpointBottomRadius, mass1,
     false, damping);
 
-  t.equal(point1.cpos.y, checkpoint2.cpos.y,
-    'before inertia: endpoint1.cpos.y matches checkpoint2.cpos.y');
-  t.equal(point1.ppos.y, checkpoint2.ppos.y,
-    'before inertia: endpoint1.ppos.y matches checkpoint2.ppos.y');
-  t.equal(point2.cpos.y, checkpoint2.cpos.y,
-    'before inertia: endpoint2.cpos.y matches checkpoint2.cpos.y');
-  t.equal(point2.ppos.y, checkpoint2.ppos.y,
-    'before inertia: endpoint2.ppos.y matches checkpoint2.ppos.y');
+  collideCircleCircle(
+    checkpoint2Top, radius3, mass3 / 2,
+    checkpoint2Bottom, checkpointBottomRadius, mass2,
+    false, damping);
+
+  t.equal(point3.cpos.y, checkpoint1Top.cpos.y,
+    'before inertia: point3.cpos.y matches checkpoint1Top.cpos.y');
+  t.equal(point1.cpos.y, checkpoint1Bottom.cpos.y,
+    'before inertia: endpoint1.cpos.y matches checkpoint1Bottom.cpos.y');
+  t.equal(point1.ppos.y, checkpoint1Bottom.ppos.y,
+    'before inertia: endpoint1.ppos.y matches checkpoint1Bottom.ppos.y');
+  t.equal(point2.cpos.y, checkpoint2Bottom.cpos.y,
+    'before inertia: endpoint2.cpos.y matches checkpoint2Bottom.cpos.y');
+  t.equal(point2.ppos.y, checkpoint2Bottom.ppos.y,
+    'before inertia: endpoint2.ppos.y matches checkpoint2Bottom.ppos.y');
 
   inertia2d(point1, 1);
   inertia2d(point2, 1);
   inertia2d(point3, 1);
 
-  inertia2d(checkpoint2, 1);
-  inertia2d(checkpoint3, 1);
+  inertia2d(checkpoint1Top, 1);
+  inertia2d(checkpoint1Bottom, 1);
+  inertia2d(checkpoint2Top, 1);
+  inertia2d(checkpoint2Bottom, 1);
 
-  t.equal(point1.cpos.y, checkpoint2.cpos.y,
-    'after inertia2d: endpoint1.cpos.y matches checkpoint2.cpos.y');
-  t.equal(point1.ppos.y, checkpoint2.ppos.y,
-    'after inertia2d: endpoint1.ppos.y matches checkpoint2.ppos.y');
-  t.equal(point2.cpos.y, checkpoint2.cpos.y,
-    'after inertia2d: endpoint2.cpos.y matches checkpoint2.cpos.y');
-  t.equal(point2.ppos.y, checkpoint2.ppos.y,
-    'after inertia2d: endpoint2.ppos.y matches checkpoint2.ppos.y');
+  t.equal(point3.cpos.y, checkpoint1Top.cpos.y,
+    'after inertia2d: point3.cpos.y matches checkpoint1Top.cpos.y');
+  t.equal(point1.cpos.y, checkpoint1Bottom.cpos.y,
+    'after inertia2d: endpoint1.cpos.y matches checkpoint1Bottom.cpos.y');
+  t.equal(point1.ppos.y, checkpoint1Bottom.ppos.y,
+    'after inertia2d: endpoint1.ppos.y matches checkpoint1Bottom.ppos.y');
+  t.equal(point2.cpos.y, checkpoint2Bottom.cpos.y,
+    'after inertia2d: endpoint2.cpos.y matches checkpoint2Bottom.cpos.y');
+  t.equal(point2.ppos.y, checkpoint2Bottom.ppos.y,
+    'after inertia2d: endpoint2.ppos.y matches checkpoint2Bottom.ppos.y');
 
   collideCircleEdge(
     point3, radius3, mass3,
@@ -404,23 +429,28 @@ test('collide circle edge, equal mass', function (t) {
     true, damping);
 
   collideCircleCircle(
-    checkpoint3, radius3, mass3,
-    checkpoint2, checkpoint2Radius, mass1 + mass2,
+    checkpoint1Top, radius3, mass3 / 2,
+    checkpoint1Bottom, checkpointBottomRadius, mass1,
     true, damping);
 
-  t.equal(point1.cpos.y, checkpoint2.cpos.y,
-    'after inertia: endpoint1.cpos.y matches checkpoint2.cpos.y');
-  t.equal(point1.ppos.y, checkpoint2.ppos.y,
-    'after inertia: endpoint1.ppos.y matches checkpoint2.ppos.y');
-  t.equal(point2.cpos.y, checkpoint2.cpos.y,
-    'after inertia: endpoint2.cpos.y matches checkpoint2.cpos.y');
-  t.equal(point2.ppos.y, checkpoint2.ppos.y,
-    'after inertia: endpoint2.ppos.y matches checkpoint2.ppos.y');
+  collideCircleCircle(
+    checkpoint2Top, radius3, mass3 / 2,
+    checkpoint2Bottom, checkpointBottomRadius, mass2,
+    true, damping);
 
-  t.equal(point3.cpos.y, checkpoint3.cpos.y,
-    'after inertia: point3.cpos.y matches checkpoint3.cpos.y');
-  t.equal(point3.ppos.y, checkpoint3.ppos.y,
-    'after inertia: point3.ppos.y matches checkpoint3.ppos.y');
+  t.equal(point1.cpos.y, checkpoint1Bottom.cpos.y,
+    'after inertia: endpoint1.cpos.y matches checkpoint1Bottom.cpos.y');
+  t.equal(point1.ppos.y, checkpoint1Bottom.ppos.y,
+    'after inertia: endpoint1.ppos.y matches checkpoint1Bottom.ppos.y');
+  t.equal(point2.cpos.y, checkpoint2Bottom.cpos.y,
+    'after inertia: endpoint2.cpos.y matches checkpoint2Bottom.cpos.y');
+  t.equal(point2.ppos.y, checkpoint2Bottom.ppos.y,
+    'after inertia: endpoint2.ppos.y matches checkpoint2Bottom.ppos.y');
+
+  t.equal(point3.cpos.y, checkpoint1Top.cpos.y,
+    'after inertia: point3.cpos.y matches checkpoint1Top.cpos.y');
+  t.equal(point3.ppos.y, checkpoint1Top.ppos.y,
+    'after inertia: point3.ppos.y matches checkpoint1Top.ppos.y');
 
   t.equal(point1.cpos.x, 0, 'edge has not moved horizontally');
   t.equal(point2.cpos.x, 5, 'edge has not moved horizontally');
