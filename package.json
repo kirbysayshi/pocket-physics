@@ -4,7 +4,9 @@
   "description": "Verlet physics extracted from pocket-ces demos",
   "main": "accelerate.js",
   "scripts": {
-    "test": "tape test*.js"
+    "test": "tape test*.js",
+    "demos": "beefy $(for f in examples/*.js; do echo \"$f:examples/$(basename $f .js)-bundle.js \"; done)",
+    "demos:bundle": "for js in examples/*.js; do browserify $js > examples/$(basename $js .js)-bundle.js; done"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,8 @@
   },
   "homepage": "https://github.com/kirbysayshi/pocket-physics",
   "devDependencies": {
+    "beefy": "^2.1.5",
+    "browserify": "^13.0.0",
     "tape": "^3.0.3"
   },
   "dependencies": {
