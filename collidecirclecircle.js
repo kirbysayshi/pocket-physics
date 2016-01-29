@@ -14,7 +14,6 @@ var move = { x: 0, y: 0 };
 // calculation has moved the points away from physically touching.
 
 module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, damping) {
-
   debug('p1 cpos %o, mass %d, radius %d',
     p1.cpos, p1mass, p1radius);
   debug('p2 cpos %o, mass %d, radius %d',
@@ -23,6 +22,8 @@ module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveIn
   var dist2 = v2.distance2(p1.cpos, p2.cpos);
   var target = p1radius + p2radius;
   var min2 = target * target;
+
+  if (dist2 > min2) return;
 
   v2.sub(vel1, p1.cpos, p1.ppos);
   v2.sub(vel2, p2.cpos, p2.ppos);
