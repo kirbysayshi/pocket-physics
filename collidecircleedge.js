@@ -9,6 +9,7 @@ var prevEdge = v2();
 var hypo = v2();
 var epDiff = v2();
 var correction = v2();
+var collisionPoint = v2();
 
 var ep = {
   cpos: v2(),
@@ -54,7 +55,7 @@ module.exports = function collide(
   debug('edgeMag %d', edgeMag);
 
   // Colliding beyond the edge...
-  //if (projection < 0 || projection > maxDot) return;
+  if (projection < 0 || projection > maxDot) return;
 
   // Create interpolation factor of where point closest
   // to particle is on the line.
@@ -62,6 +63,20 @@ module.exports = function collide(
   var u = 1 - t;
 
   debug('t %d, u %d', t, u);
+
+  // Find the point of collision on the edge.
+  v2.scale(collisionPoint, edgeDir, t * edgeMag);
+  v2.add(collisionPoint, collisionPoint, point1.cpos);
+  var distance = v2.distance(collisionPoint, point3.cpos);
+
+  debug('collision distance %d, radius %d', distance, radius3);
+
+  // Bail if point and edge are too far apart.
+  if (distance > radius3) return;
+
+  // TODO: use ppos+cpos to create line segment. collide with edge to
+  // determine if tunneling has occurred. If so, reset point3 ppos,cpos
+  // to edge.
 
   // Distribute mass of colliding point into two fake points
   // and use those to collide against each endpoint independently.
