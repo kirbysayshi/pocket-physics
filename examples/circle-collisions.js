@@ -19,11 +19,11 @@ const GRAVITATIONAL_POINT = {
   ppos: v2.copy(v2(), CENTER),
   acel: v2(),
   radius: 20,
-  mass: 10000
+  mass: 100000
 };
 const RADIUS = 15;
-const DAMPING = 0.5;
-const points = generatePoints(CENTER, RADIUS, 50);
+const DAMPING = 0.1;
+const points = generatePoints(CENTER, RADIUS, 40);
 const colliding = [];
 
 points.unshift(GRAVITATIONAL_POINT);
@@ -33,18 +33,18 @@ scihalt(() => running = false);
 
 (function step () {
   const force = v2();
-  const dt = 16;
+  const dt = 1;
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
-    //v2.sub(force, point.cpos, CENTER);
-    //v2.normalize(force, force);
-    //v2.scale(force, force, 5);
-    //v2.add(point.acel, point.acel, force);
     if (point !== GRAVITATIONAL_POINT) {
       gravitation(
         point, point.mass,
         GRAVITATIONAL_POINT, GRAVITATIONAL_POINT.mass
       );
+      //v2.sub(force, GRAVITATIONAL_POINT.cpos, point.cpos);
+      //v2.normalize(force, force);
+      //v2.scale(force, force, 50);
+      //v2.add(point.acel, point.acel, force);
     }
     accelerate(point, dt);
   }
@@ -121,6 +121,13 @@ function render (points, ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
+    
+    ctx.fillStyle = 'red';
+    ctx.beginPath();
+    ctx.arc(point.ppos.x, point.ppos.y, point.radius, 0, Math.PI*2, false);
+    ctx.fill();
+
+    ctx.fillStyle = 'black';
     ctx.beginPath();
     ctx.arc(point.cpos.x, point.cpos.y, point.radius, 0, Math.PI*2, false);
     ctx.fill();
