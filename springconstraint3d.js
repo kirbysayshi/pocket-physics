@@ -1,4 +1,9 @@
-import v3 from './v3';
+import {
+  add,
+  scale,
+  sub,
+  v3,
+} from './v3';
 const debug = require('debug')('pocket-physics:springconstraint');
 
 export default function solve(follower, followerMass, target, targetMass, stiffness, damping) {
@@ -12,16 +17,16 @@ export default function solve(follower, followerMass, target, targetMass, stiffn
   const imass = imass1 + imass2;
 
   // Current relative vector
-  const delta = v3.sub(v3(), p2.cpos, p1.cpos);
+  const delta = sub(v3(), p2.cpos, p1.cpos);
 
   debug('target', target)
   debug('delta', delta)
 
-  //v3.scale(delta, delta, stiffness * damping * imass2);
-  v3.scale(delta, delta, stiffness * damping * imass1);
+  //scale(delta, delta, stiffness * damping * imass2);
+  scale(delta, delta, stiffness * damping * imass1);
 
   debug('delta * stiffness * damping', delta)
 
-  v3.add(p1.acel, p1.acel, delta);
+  add(p1.acel, p1.acel, delta);
 };
 

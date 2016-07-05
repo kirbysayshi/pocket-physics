@@ -1,4 +1,4 @@
-import v2 from './v2';
+import { set } from './v2';
 
 export default (cmp, dt) => {
   // apply acceleration to current position, convert dt to seconds
@@ -6,5 +6,5 @@ export default (cmp, dt) => {
   cmp.cpos.y += cmp.acel.y * dt * dt * 0.001;
 
   // reset acceleration
-  v2.set(cmp.acel, 0, 0);
+  set(cmp.acel, 0, 0);
 };

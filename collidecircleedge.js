@@ -1,4 +1,10 @@
-import v2 from './v2';
+import {
+  add,
+  distance2,
+  set,
+  sub,
+  v2,
+} from './v2';
 import collideCircleCircle from './collidecirclecircle';
 const debug = require('debug')('pocket-physics:collide-circle-edge');
 

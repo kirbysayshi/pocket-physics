@@ -1,4 +1,9 @@
-import v2 from './v2';
+import {
+  add,
+  distance2,
+  set,
+  sub,
+} from './v2';
 const debug = require('debug')('pocket-physics:distanceconstraint');
 
 export default function distanceConstraint2d(p1, p1mass, p2, p2mass, goal) {

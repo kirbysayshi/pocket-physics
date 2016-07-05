@@ -1,4 +1,9 @@
-import v2 from './v2';
+import {
+  add,
+  distance2,
+  set,
+  sub,
+} from './v2';
 const debug = require('debug')('pocket-physics:collide-circle-circle');
 
 // Preallocations!
@@ -19,16 +24,16 @@ export default (p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, dam
   debug('p2 cpos %o, mass %d, radius %d',
     p2.cpos, p2mass, p2radius);
 
-  const dist2 = v2.distance2(p1.cpos, p2.cpos);
+  const dist2 = distance2(p1.cpos, p2.cpos);
   const target = p1radius + p2radius;
   const min2 = target * target;
 
   //if (dist2 > min2) return;
 
-  v2.sub(vel1, p1.cpos, p1.ppos);
-  v2.sub(vel2, p2.cpos, p2.ppos);
+  sub(vel1, p1.cpos, p1.ppos);
+  sub(vel2, p2.cpos, p2.ppos);
 
-  v2.sub(diff, p1.cpos, p2.cpos);
+  sub(diff, p1.cpos, p2.cpos);
   const dist = Math.sqrt(dist2);
   let factor = (dist - target) / dist;
 
@@ -50,7 +55,7 @@ export default (p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, dam
   move.y = diff.y * factor * (mass2 / massT);
   if (mass1 > 0) {
     debug('moving p1', move);
-    v2.sub(p1.cpos, p1.cpos, move);
+    sub(p1.cpos, p1.cpos, move);
   }
 
   // Move b away
@@ -58,7 +63,7 @@ export default (p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, dam
   move.y = diff.y * factor * (mass1 / massT);
   if (mass2 > 0) {
     debug('moving p2', move);
-    v2.add(p2.cpos, p2.cpos, move);
+    add(p2.cpos, p2.cpos, move);
   }
 
   debug('p1.cpos %o', p1.cpos);
@@ -79,8 +84,8 @@ export default (p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, dam
 
   debug('velocity. p1 %o, p2 %o', vel1, vel2);
 
-  v2.set(p1.ppos, p1.cpos.x - vel1.x, p1.cpos.y - vel1.y);
-  v2.set(p2.ppos, p2.cpos.x - vel2.x, p2.cpos.y - vel2.y);
+  set(p1.ppos, p1.cpos.x - vel1.x, p1.cpos.y - vel1.y);
+  set(p2.ppos, p2.cpos.x - vel2.x, p2.cpos.y - vel2.y);
 
   debug('p1.ppos %o', p1.ppos);
   debug('p2.ppos %o', p2.ppos);

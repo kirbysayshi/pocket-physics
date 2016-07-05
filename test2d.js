@@ -5,7 +5,12 @@ import inertia2d from './inertia2d';
 import spring2d from './springconstraint2d';
 import collideCircleCircle from './collidecirclecircle';
 import overlapcirclecircle from './overlapcirclecircle';
-import v2 from './v2';
+import {
+  add,
+  normal,
+  set,
+  sub,
+} from './v2';
 import collideCircleEdge from './collidecircleedge';
 import rewindToCollisionPoint from './rewindtocollisionpoint';
 
@@ -281,34 +286,34 @@ test('overlap circles', t => {
   t.end();
 })
 
-test('v2.normal, existing point', t => {
+test('normal, existing point', t => {
   const out = { x: 0, y: 0 };
-  const normal = v2.normal(out, { x: 2, y: 2 }, { x: 4, y: 4 });
-  t.equal(normal, out, 'same object given is returned');
+  const n = normal(out, { x: 2, y: 2 }, { x: 4, y: 4 });
+  t.equal(n, out, 'same object given is returned');
   t.end();
 })
 
-test('v2.normal, down', t => {
-  const normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 2 }, { x: 0, y: 2 });
-  t.deepEqual(normal, { x: 0, y: -1 });
+test('normal, down', t => {
+  const n = normal({ x: 0, y: 0 }, { x: 2, y: 2 }, { x: 0, y: 2 });
+  t.deepEqual(n, { x: 0, y: -1 });
   t.end();
 })
 
-test('v2.normal, up', t => {
-  const normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 4, y: 0 });
-  t.deepEqual(normal, { x: 0, y: 1 });
+test('normal, up', t => {
+  const n = normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 4, y: 0 });
+  t.deepEqual(n, { x: 0, y: 1 });
   t.end();
 })
 
-test('v2.normal, left', t => {
-  const normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 });
-  t.deepEqual(normal, { x: -1, y: 0 });
+test('normal, left', t => {
+  const n = normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 });
+  t.deepEqual(n, { x: -1, y: 0 });
   t.end();
 })
 
-test('v2.normal, right', t => {
-  const normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: -2 });
-  t.deepEqual(normal, { x: 1, y: 0 });
+test('normal, right', t => {
+  const n = normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: -2 });
+  t.deepEqual(n, { x: 1, y: 0 });
   t.end();
 })
 

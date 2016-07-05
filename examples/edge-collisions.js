@@ -1,5 +1,12 @@
 import scihalt from 'science-halt';
-import v2 from '../v2';
+import {
+  add,
+  copy,
+  normalize,
+  scale,
+  sub,
+  v2,
+} from '../v2';
 import accelerate from '../accelerate2d';
 import inertia from '../inertia2d';
 import gravitation from '../gravitation2d';
@@ -18,8 +25,8 @@ document.body.appendChild(cvs);
 // generate a circle of circles
 const CENTER = { x: 400, y: 400 };
 const GRAVITATIONAL_POINT = {
-  cpos: v2.copy(v2(), CENTER),
-  ppos: v2.copy(v2(), CENTER),
+  cpos: copy(v2(), CENTER),
+  ppos: copy(v2(), CENTER),
   acel: v2(),
   radius: 20,
   mass: 1000000
@@ -62,10 +69,10 @@ scihalt(() => running = false);
         point, point.mass,
         GRAVITATIONAL_POINT, GRAVITATIONAL_POINT.mass
       );
-      //v2.sub(force, GRAVITATIONAL_POINT.cpos, point.cpos);
-      //v2.normalize(force, force);
-      //v2.scale(force, force, 50);
-      //v2.add(point.acel, point.acel, force);
+      //sub(force, GRAVITATIONAL_POINT.cpos, point.cpos);
+      //normalize(force, force);
+      //scale(force, force, 50);
+      //add(point.acel, point.acel, force);
     }
     accelerate(point, dt);
   }

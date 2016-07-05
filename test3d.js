@@ -1,5 +1,5 @@
 import test from 'tape';
-import v3 from './v3';
+import { distance } from './v3';
 import accelerate3d from './accelerate3d';
 import inertia3d from './inertia3d';
 import maintainDistance3d from './distanceconstraint3d';
@@ -39,7 +39,7 @@ test('3d rigid constraint infinite mass', t => {
     acel: { x: 0, y: 0, z: 0 }
   };
 
-  maintainDistance3d(point1, 0, point2, 0, v3.distance(point1.cpos, point2.cpos) / 2);
+  maintainDistance3d(point1, 0, point2, 0, distance(point1.cpos, point2.cpos) / 2);
 
   t.equal(point1.cpos.x, 0, 'infinite mass prevents solving')
   t.equal(point1.cpos.y, 0, 'infinite mass prevents solving')
@@ -69,7 +69,7 @@ test('3d rigid constraint with equal mass', t => {
   const p1mass = 25;
   const p2mass = 25;
 
-  const goal = v3.distance(point1.cpos, point2.cpos);
+  const goal = distance(point1.cpos, point2.cpos);
   accelerate3d(point1, 1);
   accelerate3d(point2, 1);
   maintainDistance3d(point1, p1mass, point2, p2mass, goal);
@@ -98,7 +98,7 @@ test('3d rigid constraint with unequal mass', t => {
   const p1mass = 1;
   const p2mass = 50;
 
-  const goal = v3.distance(point1.cpos, point2.cpos);
+  const goal = distance(point1.cpos, point2.cpos);
   accelerate3d(point1, 1);
   accelerate3d(point2, 1);
   maintainDistance3d(point1, p1mass, point2, p2mass, goal);

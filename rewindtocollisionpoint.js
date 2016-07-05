@@ -1,5 +1,8 @@
 const debug = require('debug')('pocket-physics:rewind-to-collision-point');
-import v2 from './v2';
+import {
+  sub,
+  v2,
+} from './v2';
 import segmentIntersection from './segmentintersection';
 
 const tunnelPoint = v2();
@@ -20,13 +23,13 @@ export default function rewindToCollisionPoint(point3, point1, point2) {
   debug('hasTunneled %s', hasTunneled);
 
   // Translate point3 to tunnelPoint
-  v2.sub(offset, point3.cpos, tunnelPoint);
+  sub(offset, point3.cpos, tunnelPoint);
   debug('offset %o', offset);
   debug('point3.cpos %o', point3.cpos);
   debug('point3.ppos %o', point3.ppos);
 
-  v2.sub(point3.cpos, point3.cpos, offset);
-  v2.sub(point3.ppos, point3.ppos, offset);
+  sub(point3.cpos, point3.cpos, offset);
+  sub(point3.ppos, point3.ppos, offset);
   debug('corrected point3.cpos %o', point3.cpos);
   debug('corrected point3.ppos %o', point3.ppos);
 };
