@@ -10,6 +10,7 @@ var hypo = v2();
 var epDiff = v2();
 var correction = v2();
 var collisionPoint = v2();
+var tunnelPoint = v2();
 
 var ep = {
   cpos: v2(),
@@ -73,10 +74,6 @@ module.exports = function collide(
 
   // Bail if point and edge are too far apart.
   if (distance > radius3) return;
-
-  // TODO: use ppos+cpos to create line segment. collide with edge to
-  // determine if tunneling has occurred. If so, reset point3 ppos,cpos
-  // to edge.
 
   // Distribute mass of colliding point into two fake points
   // and use those to collide against each endpoint independently.

@@ -1,7 +1,7 @@
 var v2 = require('./v2');
 var debug = require('debug')('pocket-physics:distanceconstraint');
 
-module.exports = function solve(p1, p1mass, p2, p2mass, goal) {
+module.exports = function distanceConstraint2d(p1, p1mass, p2, p2mass, goal) {
   var imass1 = 1/(p1mass || 1);
   var imass2 = 1/(p2mass || 1);
   var imass = imass1 + imass2

@@ -8,6 +8,7 @@ var collideCircleCircle = require('./collidecirclecircle');
 var overlapcirclecircle = require('./overlapcirclecircle');
 var v2 = require('./v2');
 var collideCircleEdge = require('./collidecircleedge');
+var rewindToCollisionPoint = require('./rewindtocollisionpoint');
 
 test('2d', function(t) {
 
@@ -312,7 +313,7 @@ test('v2.normal, right', function (t) {
   t.end();
 })
 
-test('collide circle edge, equal mass', function (t) {
+test.skip('collide circle edge, equal mass', function (t) {
   var damping = 0.99;
 
   var point1 = {
@@ -459,7 +460,7 @@ test('collide circle edge, equal mass', function (t) {
   t.end();
 })
 
-test('collide circle edge, equal mass, start', function (t) {
+test.skip('collide circle edge, equal mass, start', function (t) {
   var damping = 0.99;
 
   //       (point3)
@@ -582,4 +583,32 @@ test('collide circle edge, equal mass, start', function (t) {
   t.equal(point3.cpos.x, 0, 'point has not moved horizontally');
 
   t.end();
-})
+});
+
+test.skip('tunneling', function (t) {
+
+  var point1 = {
+    cpos: { x: 0, y: 0 },
+    ppos: { x: 0, y: 0 },
+    acel: { x: 0, y: 0 }
+  }
+
+  var point2 = {
+    cpos: { x: 5, y: 0 },
+    ppos: { x: 5, y: 0 },
+    acel: { x: 0, y: 0 }
+  }
+
+  var point3 = {
+    cpos: { x: 2.5, y: -2 },
+    ppos: { x: 2.5, y: 2 },
+    acel: { x: 0, y: 0 }
+  }
+
+  rewindToCollisionPoint(point3, point1, point2);
+
+  console.log('point1', point1)
+  console.log('point2', point2)
+  console.log('point3', point3)
+
+});

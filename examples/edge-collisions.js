@@ -7,6 +7,7 @@ import overlapCircleCircle from '../overlapcirclecircle';
 import collideCircleCircle from '../collidecirclecircle';
 import collideCircleEdge from '../collidecircleedge';
 import distanceConstraint from '../distanceconstraint2d';
+import rewindToCollisionPoint from '../rewindtocollisionpoint';
 
 const cvs = document.createElement('canvas');
 const ctx = cvs.getContext('2d');
@@ -21,10 +22,11 @@ const GRAVITATIONAL_POINT = {
   ppos: v2.copy(v2(), CENTER),
   acel: v2(),
   radius: 20,
-  mass: 100000
+  mass: 1000000
 };
 const RADIUS = 13;
 const DAMPING = 0.5;
+const CONSTRAINT_ITERATIONS = 30;
 const boxes = generateBoxes(CENTER, RADIUS, 40);
 const points = boxes.reduce((all, box) => all.push(...box.points) && all, []);
 const colliding = [];
@@ -38,17 +40,19 @@ scihalt(() => running = false);
   const force = v2();
   const dt = 1;
 
-  for (let i = 0; i < boxes.length; i++) {
-    const box = boxes[i];
-    const { points, goals } = box;
+  for (let i = 0; i < CONSTRAINT_ITERATIONS; i++) {
+    for (let i = 0; i < boxes.length; i++) {
+      const box = boxes[i];
+      const { points, goals } = box;
 
-    // p1, p1mass, p2, p2mass, goal
-    distanceConstraint(points[0], points[0].mass, points[1], points[1].mass, goals[0]);
-    distanceConstraint(points[1], points[1].mass, points[2], points[2].mass, goals[1]);
-    distanceConstraint(points[2], points[2].mass, points[3], points[3].mass, goals[2]);
-    distanceConstraint(points[3], points[3].mass, points[0], points[0].mass, goals[3]);
-    distanceConstraint(points[0], points[0].mass, points[2], points[2].mass, goals[4]);
-    distanceConstraint(points[1], points[1].mass, points[3], points[3].mass, goals[5]);
+      // p1, p1mass, p2, p2mass, goal
+      distanceConstraint(points[0], points[0].mass, points[1], points[1].mass, goals[0]);
+      distanceConstraint(points[1], points[1].mass, points[2], points[2].mass, goals[1]);
+      distanceConstraint(points[2], points[2].mass, points[3], points[3].mass, goals[2]);
+      distanceConstraint(points[3], points[3].mass, points[0], points[0].mass, goals[3]);
+      distanceConstraint(points[0], points[0].mass, points[2], points[2].mass, goals[4]);
+      distanceConstraint(points[1], points[1].mass, points[3], points[3].mass, goals[5]);
+    }
   }
 
   for (let i = 0; i < points.length; i++) {
@@ -136,6 +140,11 @@ function collisionEdges (preserveInertia, points, boxes) {
         || point === box.points[3]
       ) { continue; }
 
+      rewindToCollisionPoint(point, box.points[0], box.points[1]);
+      rewindToCollisionPoint(point, box.points[1], box.points[2]);
+      rewindToCollisionPoint(point, box.points[2], box.points[3]);
+      rewindToCollisionPoint(point, box.points[3], box.points[0]);
+
       collideCircleEdge(
         point, point.radius, point.mass,
         box.points[0], box.points[0].mass,
@@ -175,7 +184,7 @@ function generateBoxes (center, baseRadius, num) {
     const y = (Math.sin(i) * center.y) + center.y;
     const group = [];
     const half = Math.max(Math.abs(Math.cos(i) + Math.sin(i)) * baseRadius, minRadius);
-    const radius = 2;
+    const radius = 5;
     const mass = Math.max(Math.abs(Math.cos(i) + Math.sin(i)) * 1, 1);
     group.push({
       cpos: {x: x - half, y: y - half},

@@ -23,7 +23,7 @@ module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveIn
   var target = p1radius + p2radius;
   var min2 = target * target;
 
-  if (dist2 > min2) return;
+  //if (dist2 > min2) return;
 
   v2.sub(vel1, p1.cpos, p1.ppos);
   v2.sub(vel2, p2.cpos, p2.ppos);
@@ -31,6 +31,9 @@ module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveIn
   v2.sub(diff, p1.cpos, p2.cpos);
   var dist = Math.sqrt(dist2);
   var factor = (dist - target) / dist;
+
+  // Avoid division by zero in case points are directly atop each other.
+  if (dist === 0) factor = 1;
 
   debug('point dist %d, edge dist %d, factor %d',
     dist, dist - target, factor);
@@ -65,8 +68,8 @@ module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveIn
 
   damping = damping || 1;
 
-  var f1 = (damping * (diff.x * vel1.x + diff.y * vel1.y)) / dist2;
-  var f2 = (damping * (diff.x * vel2.x + diff.y * vel2.y)) / dist2;
+  var f1 = (damping * (diff.x * vel1.x + diff.y * vel1.y)) / (dist2 || 1);
+  var f2 = (damping * (diff.x * vel2.x + diff.y * vel2.y)) / (dist2 || 1);
   debug('inertia. f1 %d, f2 %d', f1, f2);
 
   vel1.x += (f2 * diff.x - f1 * diff.x) / (mass1 || 1) // * (mass2 / massT);
