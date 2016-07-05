@@ -1,11 +1,11 @@
-var v2 = require('./v2');
-var debug = require('debug')('pocket-physics:collide-circle-circle');
+import v2 from './v2';
+const debug = require('debug')('pocket-physics:collide-circle-circle');
 
 // Preallocations!
-var vel1 = { x: 0, y: 0 };
-var vel2 = { x: 0, y: 0 };
-var diff = { x: 0, y: 0 };
-var move = { x: 0, y: 0 };
+const vel1 = { x: 0, y: 0 };
+const vel2 = { x: 0, y: 0 };
+const diff = { x: 0, y: 0 };
+const move = { x: 0, y: 0 };
 
 // It's very important that this function not do any distance checking.
 // It is assumed that if this function is called, then the points are
@@ -13,15 +13,15 @@ var move = { x: 0, y: 0 };
 // === false, another call with === true should be made, even if the first
 // calculation has moved the points away from physically touching.
 
-module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, damping) {
+export default (p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, damping) => {
   debug('p1 cpos %o, mass %d, radius %d',
     p1.cpos, p1mass, p1radius);
   debug('p2 cpos %o, mass %d, radius %d',
     p2.cpos, p2mass, p2radius);
 
-  var dist2 = v2.distance2(p1.cpos, p2.cpos);
-  var target = p1radius + p2radius;
-  var min2 = target * target;
+  const dist2 = v2.distance2(p1.cpos, p2.cpos);
+  const target = p1radius + p2radius;
+  const min2 = target * target;
 
   //if (dist2 > min2) return;
 
@@ -29,8 +29,8 @@ module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveIn
   v2.sub(vel2, p2.cpos, p2.ppos);
 
   v2.sub(diff, p1.cpos, p2.cpos);
-  var dist = Math.sqrt(dist2);
-  var factor = (dist - target) / dist;
+  const dist = Math.sqrt(dist2);
+  let factor = (dist - target) / dist;
 
   // Avoid division by zero in case points are directly atop each other.
   if (dist === 0) factor = 1;
@@ -39,9 +39,9 @@ module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveIn
     dist, dist - target, factor);
   debug('diff %o', diff);
 
-  var mass1 = p1mass === undefined ? 1 : p1mass;
-  var mass2 = p2mass === undefined ? 1 : p2mass;
-  var massT = mass1 + mass2;
+  const mass1 = p1mass === undefined ? 1 : p1mass;
+  const mass2 = p2mass === undefined ? 1 : p2mass;
+  const massT = mass1 + mass2;
 
   debug('massT %d, mass1 %d, mass2 %d', massT, mass1, mass2);
 
@@ -68,8 +68,8 @@ module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveIn
 
   damping = damping || 1;
 
-  var f1 = (damping * (diff.x * vel1.x + diff.y * vel1.y)) / (dist2 || 1);
-  var f2 = (damping * (diff.x * vel2.x + diff.y * vel2.y)) / (dist2 || 1);
+  const f1 = (damping * (diff.x * vel1.x + diff.y * vel1.y)) / (dist2 || 1);
+  const f2 = (damping * (diff.x * vel2.x + diff.y * vel2.y)) / (dist2 || 1);
   debug('inertia. f1 %d, f2 %d', f1, f2);
 
   vel1.x += (f2 * diff.x - f1 * diff.x) / (mass1 || 1) // * (mass2 / massT);
@@ -84,4 +84,4 @@ module.exports = function(p1, p1radius, p1mass, p2, p2radius, p2mass, preserveIn
 
   debug('p1.ppos %o', p1.ppos);
   debug('p2.ppos %o', p2.ppos);
-}
+};

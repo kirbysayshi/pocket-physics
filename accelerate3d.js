@@ -1,6 +1,6 @@
-var v3 = require('./v3');
+import v3 from './v3';
 
-module.exports = function(cmp, dt) {
+export default (cmp, dt) => {
   // apply acceleration to current position, convert dt to seconds
   cmp.cpos.x += cmp.acel.x * dt * dt * 0.001;
   cmp.cpos.y += cmp.acel.y * dt * dt * 0.001;
@@ -8,4 +8,4 @@ module.exports = function(cmp, dt) {
 
   // reset acceleration
   v3.set(cmp.acel, 0, 0, 0);
-}
+};

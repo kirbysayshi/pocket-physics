@@ -9,7 +9,7 @@
     ]
   },
   "scripts": {
-    "test": "tape test*.js",
+    "test": "tape -r babel-register test*.js",
     "demos": "beefy $(for f in examples/*.js; do echo \"$f:examples/$(basename $f .js)-bundle.js \"; done)",
     "demos:bundle": "rm examples/*-bundle.js; for js in examples/*.js; do browserify $js > examples/$(basename $js .js)-bundle.js; done"
   },
@@ -36,7 +36,7 @@
     "beefy": "^2.1.5",
     "browserify": "^13.0.0",
     "science-halt": "^0.2.0",
-    "tape": "^3.0.3"
+    "tape": "^4.6.0"
   },
   "dependencies": {
     "debug": "^2.1.0"

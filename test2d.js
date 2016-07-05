@@ -1,22 +1,21 @@
-var test = require('tape');
+import test from 'tape';
+import gravitation2d from './gravitation2d';
+import accelerate2d from './accelerate2d';
+import inertia2d from './inertia2d';
+import spring2d from './springconstraint2d';
+import collideCircleCircle from './collidecirclecircle';
+import overlapcirclecircle from './overlapcirclecircle';
+import v2 from './v2';
+import collideCircleEdge from './collidecircleedge';
+import rewindToCollisionPoint from './rewindtocollisionpoint';
 
-var gravitation2d = require('./gravitation2d');
-var accelerate2d = require('./accelerate2d');
-var inertia2d = require('./inertia2d');
-var spring2d = require('./springconstraint2d');
-var collideCircleCircle = require('./collidecirclecircle');
-var overlapcirclecircle = require('./overlapcirclecircle');
-var v2 = require('./v2');
-var collideCircleEdge = require('./collidecircleedge');
-var rewindToCollisionPoint = require('./rewindtocollisionpoint');
+test('2d', t => {
 
-test('2d', function(t) {
-
-  var point = {
+  const point = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 10, y: 0 }
-  }
+  };
 
   // 1 is the delta time between steps
   accelerate2d(point, 1);
@@ -28,23 +27,23 @@ test('2d', function(t) {
   t.end();
 })
 
-test('2d gravitation', function(t) {
+test('2d gravitation', t => {
 
-  var point1 = {
+  const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var p1mass = 1;
+  const p1mass = 1;
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 1, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var p2mass = 1;
+  const p2mass = 1;
 
   gravitation2d(point1, p1mass, point2, p2mass, 1);
   gravitation2d(point2, p2mass, point1, p1mass, 1);
@@ -55,21 +54,21 @@ test('2d gravitation', function(t) {
   t.end();
 })
 
-test('2d spring constraint with equal mass', function(t) {
-  var point1 = {
+test('2d spring constraint with equal mass', t => {
+  const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 10, y: 0 },
     ppos: { x: 10, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var p1mass = 25;
-  var p2mass = 25;
+  const p1mass = 25;
+  const p2mass = 25;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
@@ -81,26 +80,26 @@ test('2d spring constraint with equal mass', function(t) {
   t.end();
 })
 
-test('2d collision with equal mass and inertia preserved', function(t) {
+test('2d collision with equal mass and inertia preserved', t => {
 
-  var damping = 0.99;
+  const damping = 0.99;
 
-  var point1 = {
+  const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 9, y: 0 },
     ppos: { x: 9, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var p1mass = 1;
-  var p2mass = 1;
-  var p1radius = 5;
-  var p2radius = 5;
+  const p1mass = 1;
+  const p2mass = 1;
+  const p1radius = 5;
+  const p2radius = 5;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
@@ -141,26 +140,26 @@ test('2d collision with equal mass and inertia preserved', function(t) {
   t.end();
 })
 
-test('2d collision with inequal mass and inertia preserved', function(t) {
+test('2d collision with inequal mass and inertia preserved', t => {
 
-  var damping = 0.99;
+  const damping = 0.99;
 
-  var point1 = {
+  const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 9, y: 0 },
     ppos: { x: 9, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var p1mass = 1;
-  var p2mass = 3;
-  var p1radius = 5;
-  var p2radius = 5;
+  const p1mass = 1;
+  const p2mass = 3;
+  const p1radius = 5;
+  const p2radius = 5;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
@@ -201,26 +200,26 @@ test('2d collision with inequal mass and inertia preserved', function(t) {
   t.end();
 })
 
-test('2d collision, vs infinite mass and inertia preserved', function(t) {
+test('2d collision, vs infinite mass and inertia preserved', t => {
 
-  var damping = 0.99;
+  const damping = 0.99;
 
-  var point1 = {
+  const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 9, y: 0 },
     ppos: { x: 9, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var p1mass = 1;
-  var p2mass = Number.MAX_VALUE;
-  var p1radius = 5;
-  var p2radius = 5;
+  const p1mass = 1;
+  const p2mass = Number.MAX_VALUE;
+  const p1radius = 5;
+  const p2radius = 5;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
@@ -261,19 +260,19 @@ test('2d collision, vs infinite mass and inertia preserved', function(t) {
   t.end();
 })
 
-test('overlap circles', function (t) {
-  var point1 = {
+test('overlap circles', t => {
+  const point1 = {
     cpos: { x: 0, y: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 9, y: 0 }
-  }
+  };
 
-  var p1radius = 5;
-  var p2radius = 5;
+  const p1radius = 5;
+  const p2radius = 5;
 
-  var overlapping = overlapcirclecircle(
+  const overlapping = overlapcirclecircle(
     point1.cpos.x, point1.cpos.y, p1radius,
     point2.cpos.x, point2.cpos.y, p2radius
   );
@@ -282,90 +281,90 @@ test('overlap circles', function (t) {
   t.end();
 })
 
-test('v2.normal, existing point', function (t) {
-  var out = { x: 0, y: 0 };
-  var normal = v2.normal(out, { x: 2, y: 2 }, { x: 4, y: 4 });
+test('v2.normal, existing point', t => {
+  const out = { x: 0, y: 0 };
+  const normal = v2.normal(out, { x: 2, y: 2 }, { x: 4, y: 4 });
   t.equal(normal, out, 'same object given is returned');
   t.end();
 })
 
-test('v2.normal, down', function (t) {
-  var normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 2 }, { x: 0, y: 2 });
+test('v2.normal, down', t => {
+  const normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 2 }, { x: 0, y: 2 });
   t.deepEqual(normal, { x: 0, y: -1 });
   t.end();
 })
 
-test('v2.normal, up', function (t) {
-  var normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 4, y: 0 });
+test('v2.normal, up', t => {
+  const normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 4, y: 0 });
   t.deepEqual(normal, { x: 0, y: 1 });
   t.end();
 })
 
-test('v2.normal, left', function (t) {
-  var normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 });
+test('v2.normal, left', t => {
+  const normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 });
   t.deepEqual(normal, { x: -1, y: 0 });
   t.end();
 })
 
-test('v2.normal, right', function (t) {
-  var normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: -2 });
+test('v2.normal, right', t => {
+  const normal = v2.normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: -2 });
   t.deepEqual(normal, { x: 1, y: 0 });
   t.end();
 })
 
-test.skip('collide circle edge, equal mass', function (t) {
-  var damping = 0.99;
+test.skip('collide circle edge, equal mass', t => {
+  const damping = 0.99;
 
-  var point1 = {
+  const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 5, y: 0 },
     ppos: { x: 5, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var point3 = {
+  const point3 = {
     cpos: { x: 2.5, y: 1 },
     ppos: { x: 2.5, y: 1 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var radius3 = 2;
+  const radius3 = 2;
 
-  var mass1 = 0.5;
-  var mass2 = 0.5;
-  var mass3 = 0.5;
+  const mass1 = 0.5;
+  const mass2 = 0.5;
+  const mass3 = 0.5;
 
-  var checkpoint1Top = {
+  const checkpoint1Top = {
     cpos: { x: 0, y: 1 },
     ppos: { x: 0, y: 1 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var checkpoint1Bottom = {
+  const checkpoint1Bottom = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var checkpoint2Top = {
+  const checkpoint2Top = {
     cpos: { x: 5, y: 1 },
     ppos: { x: 5, y: 1 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var checkpoint2Bottom = {
+  const checkpoint2Bottom = {
     cpos: { x: 5, y: 0 },
     ppos: { x: 5, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
   // Just like the edge...
-  var checkpointBottomRadius = 0;
+  const checkpointBottomRadius = 0;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
@@ -460,8 +459,8 @@ test.skip('collide circle edge, equal mass', function (t) {
   t.end();
 })
 
-test.skip('collide circle edge, equal mass, start', function (t) {
-  var damping = 0.99;
+test.skip('collide circle edge, equal mass, start', t => {
+  const damping = 0.99;
 
   //       (point3)
   //          v
@@ -471,44 +470,44 @@ test.skip('collide circle edge, equal mass, start', function (t) {
   //         v
   //    (checkpoint2)
 
-  var point1 = {
+  const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 5, y: 0 },
     ppos: { x: 5, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var point3 = {
+  const point3 = {
     cpos: { x: 0, y: 1 },
     ppos: { x: 0, y: 1 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var radius3 = 2;
+  const radius3 = 2;
 
-  var mass1 = 0.5;
-  var mass2 = 0.5;
-  var mass3 = 1;
+  const mass1 = 0.5;
+  const mass2 = 0.5;
+  const mass3 = 1;
 
-  var checkpoint3 = {
+  const checkpoint3 = {
     cpos: { x: 0, y: 1 },
     ppos: { x: 0, y: 1 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var checkpoint2 = {
+  const checkpoint2 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
   // Just like the edge...
-  var checkpoint2Radius = 0;
+  const checkpoint2Radius = 0;
 
   accelerate2d(point1, 1);
   accelerate2d(point2, 1);
@@ -585,25 +584,25 @@ test.skip('collide circle edge, equal mass, start', function (t) {
   t.end();
 });
 
-test.skip('tunneling', function (t) {
+test.skip('tunneling', t => {
 
-  var point1 = {
+  const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 5, y: 0 },
     ppos: { x: 5, y: 0 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
-  var point3 = {
+  const point3 = {
     cpos: { x: 2.5, y: -2 },
     ppos: { x: 2.5, y: 2 },
     acel: { x: 0, y: 0 }
-  }
+  };
 
   rewindToCollisionPoint(point3, point1, point2);
 

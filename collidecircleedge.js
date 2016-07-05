@@ -1,28 +1,28 @@
-var v2 = require('./v2');
-var collideCircleCircle = require('./collidecirclecircle');
-var debug = require('debug')('pocket-physics:collide-circle-edge');
+import v2 from './v2';
+import collideCircleCircle from './collidecirclecircle';
+const debug = require('debug')('pocket-physics:collide-circle-edge');
 
 // Preallocations
-var edgeDir = v2();
-var edge = v2();
-var prevEdge = v2();
-var hypo = v2();
-var epDiff = v2();
-var correction = v2();
-var collisionPoint = v2();
-var tunnelPoint = v2();
+const edgeDir = v2();
+const edge = v2();
+const prevEdge = v2();
+const hypo = v2();
+const epDiff = v2();
+const correction = v2();
+const collisionPoint = v2();
+const tunnelPoint = v2();
 
-var ep = {
+const ep = {
   cpos: v2(),
   ppos: v2()
-}
+};
 
-var epBefore = {
+const epBefore = {
   cpos: v2(),
   ppos: v2()
-}
+};
 
-module.exports = function collide(
+export default function collide(
   point3, radius3, mass3,
   point1, mass1,
   point2, mass2,
@@ -47,9 +47,9 @@ module.exports = function collide(
 
   // Where is the particle on the edge, before, after, or on?
   // Also used for interpolation later.
-  var projection = v2.dot(edge, hypo);
-  var maxDot = v2.dot(edge, edge);
-  var edgeMag = Math.sqrt(maxDot);
+  const projection = v2.dot(edge, hypo);
+  const maxDot = v2.dot(edge, edge);
+  const edgeMag = Math.sqrt(maxDot);
 
   debug('projection %d', projection);
   debug('maxDot %d', maxDot);
@@ -60,15 +60,15 @@ module.exports = function collide(
 
   // Create interpolation factor of where point closest
   // to particle is on the line.
-  var t = projection / maxDot;
-  var u = 1 - t;
+  const t = projection / maxDot;
+  const u = 1 - t;
 
   debug('t %d, u %d', t, u);
 
   // Find the point of collision on the edge.
   v2.scale(collisionPoint, edgeDir, t * edgeMag);
   v2.add(collisionPoint, collisionPoint, point1.cpos);
-  var distance = v2.distance(collisionPoint, point3.cpos);
+  const distance = v2.distance(collisionPoint, point3.cpos);
 
   debug('collision distance %d, radius %d', distance, radius3);
 
@@ -78,17 +78,17 @@ module.exports = function collide(
   // Distribute mass of colliding point into two fake points
   // and use those to collide against each endpoint independently.
 
-  var standinMass1 = u * mass3;
-  var standinMass2 = t * mass3;
+  const standinMass1 = u * mass3;
+  const standinMass2 = t * mass3;
 
   debug('standinMass 1,2 %d,%d', standinMass1, standinMass2);
 
-  var standin1 = {
+  const standin1 = {
     cpos: v2(),
     ppos: v2()
   };
 
-  var standin2 = {
+  const standin2 = {
     cpos: v2(),
     ppos: v2()
   };
@@ -108,15 +108,15 @@ module.exports = function collide(
   debug('standin1 %o', standin1);
   debug('standin2 %o', standin2);
 
-  var standin1Before = {
+  const standin1Before = {
     cpos: v2(),
     ppos: v2()
-  }
+  };
 
-  var standin2Before = {
+  const standin2Before = {
     cpos: v2(),
     ppos: v2()
-  }
+  };
 
   // Stash state of standins
   v2.copy(standin1Before.cpos, standin1.cpos);
@@ -124,7 +124,7 @@ module.exports = function collide(
   v2.copy(standin2Before.cpos, standin2.cpos);
   v2.copy(standin2Before.ppos, standin2.ppos);
 
-  var edgeRadius = 0;
+  const edgeRadius = 0;
 
   debug('collide standin1 with endpoint1');
 
@@ -141,15 +141,15 @@ module.exports = function collide(
     point2, edgeRadius, mass2,
     preserveInertia, damping);
 
-  var standin1Delta = {
+  const standin1Delta = {
     cpos: v2(),
     ppos: v2()
-  }
+  };
 
-  var standin2Delta = {
+  const standin2Delta = {
     cpos: v2(),
     ppos: v2()
-  }
+  };
 
   // Compute standin1 cpos change
   v2.sub(standin1Delta.cpos, standin1.cpos, standin1Before.cpos);
@@ -196,4 +196,4 @@ module.exports = function collide(
   debug('new endpoint1.ppos %o', point1.ppos);
   debug('new endpoint2.ppos %o', point2.ppos);
   debug('new point3.ppos %o', point3.ppos);
-}
+};

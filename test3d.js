@@ -1,21 +1,20 @@
-var test = require('tape');
+import test from 'tape';
+import v3 from './v3';
+import accelerate3d from './accelerate3d';
+import inertia3d from './inertia3d';
+import maintainDistance3d from './distanceconstraint3d';
+import springDistance3d from './springconstraint3d';
+import drag3d from './drag3d';
+import gravitation3d from './gravitation3d';
+import overlapspheresphere from './overlapspheresphere';
 
-var v3 = require('./v3');
-var accelerate3d = require('./accelerate3d');
-var inertia3d = require('./inertia3d');
-var maintainDistance3d = require('./distanceconstraint3d');
-var springDistance3d = require('./springconstraint3d');
-var drag3d = require('./drag3d');
-var gravitation3d = require('./gravitation3d');
-var overlapspheresphere = require('./overlapspheresphere');
+test('3d', t => {
 
-test('3d', function(t) {
-
-  var point = {
+  const point = {
     cpos: { x: 0, y: 0, z: 0 },
     ppos: { x: 0, y: 0, z: 0 },
     acel: { x: 0, y: 0, z: 10 }
-  }
+  };
 
   // 1 is the delta time between steps
   accelerate3d(point, 1);
@@ -27,18 +26,18 @@ test('3d', function(t) {
   t.end();
 })
 
-test('3d rigid constraint infinite mass', function(t) {
-  var point1 = {
+test('3d rigid constraint infinite mass', t => {
+  const point1 = {
     cpos: { x: 0, y: 0, z: 0 },
     ppos: { x: 0, y: 0, z: 0 },
     acel: { x: 0, y: 0, z: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 10, y: 0, z: 0 },
     ppos: { x: 0, y: 0, z: 0 },
     acel: { x: 0, y: 0, z: 0 }
-  }
+  };
 
   maintainDistance3d(point1, 0, point2, 0, v3.distance(point1.cpos, point2.cpos) / 2);
 
@@ -53,24 +52,24 @@ test('3d rigid constraint infinite mass', function(t) {
   t.end();
 })
 
-test('3d rigid constraint with equal mass', function(t) {
+test('3d rigid constraint with equal mass', t => {
 
-  var point1 = {
+  const point1 = {
     cpos: { x: 0, y: 0, z: 0 },
     ppos: { x: 0, y: 0, z: 0 },
     acel: { x: 50, y: 0, z: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 10, y: 0, z: 0 },
     ppos: { x: 10, y: 0, z: 0 },
     acel: { x: 0, y: 0, z: 0 }
-  }
+  };
 
-  var p1mass = 25;
-  var p2mass = 25;
+  const p1mass = 25;
+  const p2mass = 25;
 
-  var goal = v3.distance(point1.cpos, point2.cpos);
+  const goal = v3.distance(point1.cpos, point2.cpos);
   accelerate3d(point1, 1);
   accelerate3d(point2, 1);
   maintainDistance3d(point1, p1mass, point2, p2mass, goal);
@@ -82,24 +81,24 @@ test('3d rigid constraint with equal mass', function(t) {
   t.end();
 })
 
-test('3d rigid constraint with unequal mass', function(t) {
+test('3d rigid constraint with unequal mass', t => {
 
-  var point1 = {
+  const point1 = {
     cpos: { x: 0, y: 0, z: 0 },
     ppos: { x: 0, y: 0, z: 0 },
     acel: { x: 500, y: 0, z: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 10, y: 0, z: 0 },
     ppos: { x: 10, y: 0, z: 0 },
     acel: { x: 0, y: 0, z: 0 }
-  }
+  };
 
-  var p1mass = 1;
-  var p2mass = 50;
+  const p1mass = 1;
+  const p2mass = 50;
 
-  var goal = v3.distance(point1.cpos, point2.cpos);
+  const goal = v3.distance(point1.cpos, point2.cpos);
   accelerate3d(point1, 1);
   accelerate3d(point2, 1);
   maintainDistance3d(point1, p1mass, point2, p2mass, goal);
@@ -111,21 +110,21 @@ test('3d rigid constraint with unequal mass', function(t) {
   t.end();
 })
 
-test('3d spring constraint with equal mass', function(t) {
-  var point1 = {
+test('3d spring constraint with equal mass', t => {
+  const point1 = {
     cpos: { x: 0, y: 0, z: 0 },
     ppos: { x: 0, y: 0, z: 0 },
     acel: { x: 0, y: 0, z: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 10, y: 0, z: 0 },
     ppos: { x: 10, y: 0, z: 0 },
     acel: { x: 0, y: 0, z: 0 }
-  }
+  };
 
-  var p1mass = 25;
-  var p2mass = 25;
+  const p1mass = 25;
+  const p2mass = 25;
 
   accelerate3d(point1, 1);
   accelerate3d(point2, 1);
@@ -137,12 +136,12 @@ test('3d spring constraint with equal mass', function(t) {
   t.end();
 })
 
-test('3d drag', function(t) {
-  var point1 = {
+test('3d drag', t => {
+  const point1 = {
     cpos: { x: 10, y: 0, z: 0 },
     ppos: { x: 9, y: 0, z: 0 },
     acel: { x: 0, y: 0, z: 0 }
-  }
+  };
 
   drag3d(point1, 0.9);
 
@@ -150,22 +149,22 @@ test('3d drag', function(t) {
   t.end();
 })
 
-test('3d gravitation', function(t) {
+test('3d gravitation', t => {
 
-  var point1 = {
+  const point1 = {
     cpos: { x: 0, y: 0, z: 0 },
     ppos: { x: 0, y: 0, z: 0 },
     acel: { x: 0, y: 0, z: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 1, y: 1, z : 1 },
     ppos: { x: 0, y: 0, z : 0 },
     acel: { x: 0, y: 0, z : 0 }
-  }
+  };
 
-  var p1mass = 2;
-  var p2mass = 34;
+  const p1mass = 2;
+  const p2mass = 34;
 
   gravitation3d(point1, p1mass, point2, p2mass, 1);
   gravitation3d(point2, p2mass, point1, p1mass, 1);
@@ -174,19 +173,19 @@ test('3d gravitation', function(t) {
   t.end();
 })
 
-test('overlap spheres', function (t) {
-  var point1 = {
+test('overlap spheres', t => {
+  const point1 = {
     cpos: { x: 0, y: 0, z: 0 }
-  }
+  };
 
-  var point2 = {
+  const point2 = {
     cpos: { x: 9, y: 0, z: 0 }
-  }
+  };
 
-  var p1radius = 5;
-  var p2radius = 5;
+  const p1radius = 5;
+  const p2radius = 5;
 
-  var overlapping = overlapspheresphere(
+  const overlapping = overlapspheresphere(
     point1.cpos.x, point1.cpos.y, point1.cpos.z, p1radius,
     point2.cpos.x, point2.cpos.y, point2.cpos.z, p2radius
   );
