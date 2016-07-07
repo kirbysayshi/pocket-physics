@@ -13,6 +13,7 @@ import {
 } from './v2';
 import collideCircleEdge from './collidecircleedge';
 import rewindToCollisionPoint from './rewindtocollisionpoint';
+import { default as overlapAABBAABB } from './overlapaabbaabb';
 
 test('2d', t => {
 
@@ -616,3 +617,36 @@ test.skip('tunneling', t => {
   console.log('point3', point3)
 
 });
+
+test('aabb overlap', t => {
+  const box1 = {
+    cpos: { x: 0, y: 0 },
+    w: 10,
+    h: 20,
+  }
+
+  const box2 = {
+    cpos: { x: 5, y: 0 },
+    w: 10,
+    h: 20,
+  }
+
+  const result = {
+    x: 0,
+    y: 0
+  }
+
+  overlapAABBAABB(
+    box1.cpos, box1.w, box1.h,
+    box2.cpos, box2.w, box2.h,
+    result
+  );
+
+  t.notEqual(result.x, 0, 'x amount should not be zero');
+  t.notEqual(result.y, 0, 'x amount should not be zero');
+
+  t.equal(result.x, 5, 'x overlap');
+  t.equal(result.y, 20, '20 overlap');
+
+  t.end();
+})
