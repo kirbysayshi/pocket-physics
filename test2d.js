@@ -618,7 +618,7 @@ test.skip('tunneling', t => {
 
 });
 
-test('aabb overlap', t => {
+test.only('aabb overlap', t => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     w: 10,
@@ -626,27 +626,27 @@ test('aabb overlap', t => {
   }
 
   const box2 = {
-    cpos: { x: 5, y: 0 },
+    cpos: { x: 5, y: 5 },
     w: 10,
     h: 20,
   }
 
-  const result = {
-    x: 0,
-    y: 0
-  }
+  const result = {}
 
-  overlapAABBAABB(
-    box1.cpos, box1.w, box1.h,
-    box2.cpos, box2.w, box2.h,
+  const isOverlapping = overlapAABBAABB(
+    box1.cpos.x, box1.cpos.y, box1.w, box1.h,
+    box2.cpos.x, box2.cpos.y, box2.w, box2.h,
     result
   );
 
+  t.equal(isOverlapping, true, 'should be overlapping');
   t.notEqual(result.x, 0, 'x amount should not be zero');
-  t.notEqual(result.y, 0, 'x amount should not be zero');
+  t.notEqual(result.y, 0, 'y amount should not be zero');
+
+  console.log(result);
 
   t.equal(result.x, 5, 'x overlap');
-  t.equal(result.y, 20, '20 overlap');
+  t.equal(result.y, 20, 'y overlap');
 
   t.end();
 })
