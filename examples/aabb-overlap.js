@@ -58,24 +58,30 @@ scihalt(() => running = false);
   if (isOverlapping) {
 
     // move to non-overlapping position
+    // should the overlap also return the half vectors so both can be moved?
     add(box2.cpos, box2.cpos, collision.resolve);
     add(box2.ppos, box2.ppos, collision.resolve);
 
-    render(points, ctx);
+    // for debugging
+    //render(points, ctx);
 
+    // reverse the velocity in the collision normal direction
     const reverseVel1 = sub(v2(), box1.ppos, box1.cpos);
     reverseVel1.x *= collision.normal.x;
     reverseVel1.y *= collision.normal.y;
     sub(box1.ppos, box1.cpos, reverseVel1);
 
-    render(points, ctx);
+    // for debugging
+    //render(points, ctx);
 
+    // reverse the velocity in the collision normal direction
     const reverseVel2 = sub(v2(), box2.ppos, box2.cpos);
     reverseVel2.x *= collision.normal.x;
     reverseVel2.y *= collision.normal.y;
     sub(box2.ppos, box2.cpos, reverseVel2);
 
-    render(points, ctx);
+    // for debugging
+    //render(points, ctx);
   }
 
   for (let i = 0; i < points.length; i++) {
@@ -92,7 +98,7 @@ function render (points, ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
-    
+
     ctx.fillStyle = 'red';
     ctx.fillRect(
       point.ppos.x - point.w / 2,
