@@ -14,6 +14,7 @@ import {
 import collideCircleEdge from './collidecircleedge';
 import rewindToCollisionPoint from './rewindtocollisionpoint';
 import { default as overlapAABBAABB } from './overlapaabbaabb';
+import { default as overlapAABBAABB2 } from './overlapaabbaabb2';
 
 test('2d', t => {
 
@@ -676,3 +677,69 @@ test('aabb overlap, very oblong', t => {
 
   t.end();
 })
+
+test('aabb2 overlap X', t => {
+  const box1 = {
+    cpos: { x: 0, y: 0 },
+    w: 10,
+    h: 20,
+  }
+
+  const box2 = {
+    cpos: { x: 2, y: 5 },
+    w: 10,
+    h: 20,
+  }
+
+  const result = {}
+
+  const isOverlapping = overlapAABBAABB2(
+    box1.cpos.x, box1.cpos.y, box1.w, box1.h,
+    box2.cpos.x, box2.cpos.y, box2.w, box2.h,
+    result
+  );
+
+  t.equal(isOverlapping, result, 'should be overlapping');
+  t.equal(result.resolve.x, 8, 'x resolve');
+  t.equal(result.resolve.y, 0, 'y resolve');
+
+  t.equal(result.hitPos.x, 5, 'x hit position');
+  t.equal(result.hitPos.y, 5, 'y hit position');
+
+  t.equal(result.normal.x, 1, 'normal is ->');
+
+  t.end();
+});
+
+test('aabb2 overlap Y', t => {
+  const box1 = {
+    cpos: { x: 0, y: 0 },
+    w: 20,
+    h: 10,
+  }
+
+  const box2 = {
+    cpos: { x: 2, y: 5 },
+    w: 20,
+    h: 10,
+  }
+
+  const result = {}
+
+  const isOverlapping = overlapAABBAABB2(
+    box1.cpos.x, box1.cpos.y, box1.w, box1.h,
+    box2.cpos.x, box2.cpos.y, box2.w, box2.h,
+    result
+  );
+
+  t.equal(isOverlapping, result, 'should be overlapping');
+  t.equal(result.resolve.x, 0, 'x resolve');
+  t.equal(result.resolve.y, 5, 'y resolve');
+
+  t.equal(result.hitPos.x, 2, 'x hit position');
+  t.equal(result.hitPos.y, 5, 'y hit position');
+
+  t.equal(result.normal.y, 1, 'normal is ^');
+
+  t.end();
+});
