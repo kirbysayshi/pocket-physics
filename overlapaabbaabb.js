@@ -92,8 +92,16 @@ export default (
   dbg('box3min (mdiff) %o', box3min);
   dbg('box3max (mdiff) %o', box3max);
 
-  // TODO: this is not the penetration vector, it's the vector needed to
-  // move one box to not intersect with the other. Very different.
+  // There is a good chance that this closestPoint algo will incorrectly
+  // resolve oblong AABBs, since it doesn't take velocity / movement direction
+  // into account.
+  // [       [  ]       ]
+  // Will resolve to
+  // [          ]
+  //         [       ]
+  // Instead of
+  // [          ][       ]
+  // Because the required movement along the Y axis is less than the X.
 
   if (
     box3min.x <= 0

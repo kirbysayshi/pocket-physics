@@ -618,7 +618,7 @@ test.skip('tunneling', t => {
 
 });
 
-test.only('aabb overlap', t => {
+test('aabb overlap', t => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     w: 10,
@@ -631,22 +631,48 @@ test.only('aabb overlap', t => {
     h: 20,
   }
 
-  const result = {}
+  // The amount to move box2 to not overlap with box1. This could be split and
+  // distributed between the two boxes.
+  const resolutionVector = {}
 
   const isOverlapping = overlapAABBAABB(
     box1.cpos.x, box1.cpos.y, box1.w, box1.h,
     box2.cpos.x, box2.cpos.y, box2.w, box2.h,
-    result
+    resolutionVector
   );
 
   t.equal(isOverlapping, true, 'should be overlapping');
-  t.notEqual(result.x, 0, 'x amount should not be zero');
-  t.notEqual(result.y, 0, 'y amount should not be zero');
+  t.equal(resolutionVector.x, 5, 'x resolution');
+  t.equal(resolutionVector.y, 0, 'y resolution');
 
-  console.log(result);
+  t.end();
+})
 
-  t.equal(result.x, 5, 'x overlap');
-  t.equal(result.y, 20, 'y overlap');
+test('aabb overlap, very oblong', t => {
+  const box1 = {
+    cpos: { x: 0, y: 0 },
+    w: 100,
+    h: 1,
+  }
+
+  const box2 = {
+    cpos: { x: 50, y: 0 },
+    w: 200,
+    h: 1,
+  }
+
+  // The amount to move box2 to not overlap with box1.
+  const resolutionVector = {}
+
+  const isOverlapping = overlapAABBAABB(
+    box1.cpos.x, box1.cpos.y, box1.w, box1.h,
+    box2.cpos.x, box2.cpos.y, box2.w, box2.h,
+    resolutionVector
+  );
+
+  t.equal(isOverlapping, true, 'should be overlapping');
+  t.equal(resolutionVector.x, 0, 'x resolution');
+  t.equal(resolutionVector.y, 1, 'y resolution due to oblong nature');
 
   t.end();
 })
