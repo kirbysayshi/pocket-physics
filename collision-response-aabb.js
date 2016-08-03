@@ -3,13 +3,32 @@ import {
   dot,
   normalize,
   scale,
+  set,
   sub,
   v2,
 } from './v2';
 
 // Registers / Preallocations
 
+const basis = v2();
+const basisNeg = v2();
 
+const vel1 = v2();
+const vel1x = v2();
+const vel1y = v2();
+
+const vel2 = v2();
+const vel2x = v2();
+const vel2y = v2();
+
+const newVel1 = v2();
+const newVel2 = v2();
+
+const t1 = v2();
+const t2 = v2();
+
+const u1 = v2();
+const u2 = v2();
 
 export default (
   cpos1, ppos1, mass1,
@@ -17,37 +36,37 @@ export default (
   ppos1out, ppos2out
 ) => {
 
-  const basis = sub(v2(), cpos1, cpos2);
+  // blank out all preallocated vectors.
+  basis.x = basisNeg.x = vel1.x = vel1x.x = vel1y.x = vel2.x = vel2x.x = vel2y.x = newVel1.x = newVel2.x = t1.x = t2.x = u1.x = u2.x =
+  basis.y = basisNeg.y = vel1.y = vel1x.y = vel1y.y = vel2.y = vel2x.y = vel2y.y = newVel1.y = newVel2.y = t1.y = t2.y = u1.y = u2.y = 0;
+
+  sub(basis, cpos1, cpos2);
   normalize(basis, basis);
-  const basisNeg = scale(v2(), basis, -1);
+  scale(basisNeg, basis, -1);
 
   // calculate x-direction velocity vector and perpendicular y-vector for box 1
-  const vel1 = sub(v2(), cpos1, ppos1);
+  sub(vel1, cpos1, ppos1);
   const x1 = dot(basis, vel1);
-  const vel1x = scale(v2(), basis, x1);
-  const vel1y = sub(v2(), vel1, vel1x);
+  scale(vel1x, basis, x1);
+  sub(vel1y, vel1, vel1x);
 
   // calculate x-direction velocity vector and perpendicular y-vector for box 2
-  const vel2 = sub(v2(), cpos2, ppos2);
+  sub(vel2, cpos2, ppos2);
   const x2 = dot(basisNeg, vel2);
-  const vel2x = scale(v2(), basisNeg, x2);
-  const vel2y = sub(v2(), vel2, vel2x);
+  scale(vel2x, basisNeg, x2);
+  sub(vel2y, vel2, vel2x);
 
   const massTotal = mass1 + mass2;
 
-  const newVel1 = v2();
-
   // equations of motion for box1
-  const t1 = scale(v2(), vel1x, (mass1 - mass2) / massTotal);
-  const t2 = scale(v2(), vel2x, (2 * mass2) / massTotal);
+  scale(t1, vel1x, (mass1 - mass2) / massTotal);
+  scale(t2, vel2x, (2 * mass2) / massTotal);
   add(newVel1, t1, t2);
   add(newVel1, newVel1, vel1y);
 
-  const newVel2 = v2();
-
   // equations of motion for box2
-  const u1 = scale(v2(), vel1x, (2 * mass1) / massTotal);
-  const u2 = scale(newVel2, vel2x, (mass2 - mass1) / massTotal);
+  scale(u1, vel1x, (2 * mass1) / massTotal);
+  scale(u2, vel2x, (mass2 - mass1) / massTotal);
   add(newVel2, u1, u2);
   add(newVel2, newVel2, vel2y);
 
