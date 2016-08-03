@@ -2,6 +2,8 @@ import scihalt from 'science-halt';
 import {
   add,
   copy,
+  dot,
+  magnitude,
   normalize,
   scale,
   sub,
@@ -27,8 +29,8 @@ const box1 = {
 }
 
 const box2 = {
-  cpos: v2(350, 900),
-  ppos: v2(351, 910),
+  cpos: v2(350, 600),
+  ppos: v2(350, 600),
   acel: v2(),
   w: 100,
   h: 150,
@@ -61,27 +63,54 @@ scihalt(() => running = false);
     render(points, ctx);
 
     // move to non-overlapping position
-    // should the overlap also return the half vectors so both can be moved?
-    add(box2.cpos, box2.cpos, collision.resolve);
-    add(box2.ppos, box2.ppos, collision.resolve);
+    const overlapHalf = scale(v2(), collision.resolve, 0.5);
+    add(box2.cpos, box2.cpos, overlapHalf);
+    add(box2.ppos, box2.ppos, overlapHalf);
+    sub(box1.cpos, box1.cpos, overlapHalf);
+    sub(box1.ppos, box1.ppos, overlapHalf);
 
     // for debugging
     render(points, ctx);
 
-    // reverse the velocity in the collision normal direction
-    const reverseVel1 = sub(v2(), box1.ppos, box1.cpos);
-    reverseVel1.x *= collision.normal.x !== 0 ? collision.normal.x : -1;
-    reverseVel1.y *= collision.normal.y !== 0 ? collision.normal.y : -1;
-    sub(box1.ppos, box1.cpos, reverseVel1);
+    const basis = sub(v2(), box1.cpos, box2.cpos);
+    normalize(basis, basis);
+    const basisNeg = scale(v2(), basis, -1);
 
-    // for debugging
-    render(points, ctx);
+    // calculate x-direction velocity vector and perpendicular y-vector for box 1
+    const vel1 = sub(v2(), box1.cpos, box1.ppos);
+    const x1 = dot(basis, vel1);
+    const vel1x = scale(v2(), basis, x1);
+    const vel1y = sub(v2(), vel1, vel1x);
+    const mass1 = 1;
 
-    // reverse the velocity in the collision normal direction
-    const reverseVel2 = sub(v2(), box2.ppos, box2.cpos);
-    reverseVel2.x *= collision.normal.x !== 0 ? collision.normal.x : -1;
-    reverseVel2.y *= collision.normal.y !== 0 ? collision.normal.y : -1;
-    sub(box2.ppos, box2.cpos, reverseVel2);
+    // calculate x-direction velocity vector and perpendicular y-vector for box 2
+    const vel2 = sub(v2(), box2.cpos, box2.ppos);
+    const x2 = dot(basisNeg, vel2);
+    const vel2x = scale(v2(), basisNeg, x2);
+    const vel2y = sub(v2(), vel2, vel2x);
+    const mass2 = 1;
+
+    const massTotal = mass1 + mass2;
+
+    const newVel1 = v2();
+
+    // equations of motion for box1
+    const t1 = scale(v2(), vel1x, (mass1 - mass2) / massTotal);
+    const t2 = scale(v2(), vel2x, (2 * mass2) / massTotal);
+    add(newVel1, t1, t2);
+    add(newVel1, newVel1, vel1y);
+
+    const newVel2 = v2();
+
+    // equations of motion for box2
+    const u1 = scale(v2(), vel1x, (2 * mass1) / massTotal);
+    const u2 = scale(newVel2, vel2x, (mass2 - mass1) / massTotal);
+    add(newVel2, u1, u2);
+    add(newVel2, newVel2, vel2y);
+
+    // set new velocity of box1 and box2
+    sub(box1.ppos, box1.cpos, newVel1);
+    sub(box2.ppos, box2.cpos, newVel2);
 
     // for debugging
     render(points, ctx);
