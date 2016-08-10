@@ -13,7 +13,6 @@ import {
 } from './v2';
 import collideCircleEdge from './collidecircleedge';
 import rewindToCollisionPoint from './rewindtocollisionpoint';
-import { default as overlapAABBAABB } from './overlapaabbaabb';
 import { default as overlapAABBAABB2 } from './overlapaabbaabb2';
 
 test('2d', t => {
@@ -619,37 +618,7 @@ test.skip('tunneling', t => {
 
 });
 
-test('aabb overlap', t => {
-  const box1 = {
-    cpos: { x: 0, y: 0 },
-    w: 10,
-    h: 20,
-  }
-
-  const box2 = {
-    cpos: { x: 5, y: 5 },
-    w: 10,
-    h: 20,
-  }
-
-  // The amount to move box2 to not overlap with box1. This could be split and
-  // distributed between the two boxes.
-  const resolutionVector = {}
-
-  const isOverlapping = overlapAABBAABB(
-    box1.cpos.x, box1.cpos.y, box1.w, box1.h,
-    box2.cpos.x, box2.cpos.y, box2.w, box2.h,
-    resolutionVector
-  );
-
-  t.equal(isOverlapping, true, 'should be overlapping');
-  t.equal(resolutionVector.x, 5, 'x resolution');
-  t.equal(resolutionVector.y, 0, 'y resolution');
-
-  t.end();
-})
-
-test('aabb overlap, very oblong', t => {
+test('aabb2 overlap, very oblong', t => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     w: 100,
@@ -665,15 +634,15 @@ test('aabb overlap, very oblong', t => {
   // The amount to move box2 to not overlap with box1.
   const resolutionVector = {}
 
-  const isOverlapping = overlapAABBAABB(
+  const isOverlapping = overlapAABBAABB2(
     box1.cpos.x, box1.cpos.y, box1.w, box1.h,
     box2.cpos.x, box2.cpos.y, box2.w, box2.h,
     resolutionVector
   );
 
-  t.equal(isOverlapping, true, 'should be overlapping');
-  t.equal(resolutionVector.x, 0, 'x resolution');
-  t.equal(resolutionVector.y, 1, 'y resolution due to oblong nature');
+  t.equal(isOverlapping, resolutionVector, 'should be overlapping');
+  t.equal(resolutionVector.resolve.x, 0, 'x resolution');
+  t.equal(resolutionVector.resolve.y, 1, 'y resolution due to oblong nature');
 
   t.end();
 })
