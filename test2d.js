@@ -745,3 +745,37 @@ test('aabb collision-response', t => {
 
   t.end();
 });
+
+test('aabb collision-response: very inequal masses', t => {
+  const box1 = {
+    cpos: { x: 0, y: 0 },
+    ppos: { x: -5, y: -5 },
+    w: 5,
+    h: 5,
+    mass: 10000000000,
+  }
+
+  const box2 = {
+    cpos: { x: 5, y: 0 },
+    ppos: { x: 10, y: -5 },
+    w: 5,
+    h: 5,
+    mass: 1,
+  }
+
+  collisionResponseAABB(
+    box1.cpos, box1.ppos, box1.mass,
+    box2.cpos, box2.ppos, box2.mass,
+    box1.ppos, box2.ppos
+  );
+
+  t.deepEqual(box1.cpos, { x: 0, y: 0 }, 'box1 has not moved');
+  t.deepEqual(box2.cpos, { x: 5, y: 0 }, 'box1 has not moved');
+
+  t.deepEqual(box1.ppos, { x: -4.999999998, y: -5 },
+    'box1 will mostly continue to the right');
+  t.deepEqual(box2.ppos, { x: -9.999999998, y: -5 },
+    'box2 will mostly move in the direction of box1 (pushing)');
+
+  t.end();
+});
