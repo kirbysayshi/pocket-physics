@@ -14,6 +14,7 @@ import {
 import collideCircleEdge from './collidecircleedge';
 import rewindToCollisionPoint from './rewindtocollisionpoint';
 import { default as overlapAABBAABB2 } from './overlapaabbaabb2';
+import collisionResponseAABB from './collision-response-aabb';
 
 test('2d', t => {
 
@@ -709,6 +710,38 @@ test('aabb2 overlap Y', t => {
   t.equal(result.hitPos.y, 5, 'y hit position');
 
   t.equal(result.normal.y, 1, 'normal is ^');
+
+  t.end();
+});
+
+test('aabb collision-response', t => {
+  const box1 = {
+    cpos: { x: 0, y: 0 },
+    ppos: { x: -5, y: -5 },
+    w: 5,
+    h: 5,
+    mass: 1,
+  }
+
+  const box2 = {
+    cpos: { x: 5, y: 0 },
+    ppos: { x: 10, y: -5 },
+    w: 5,
+    h: 5,
+    mass: 1,
+  }
+
+  collisionResponseAABB(
+    box1.cpos, box1.ppos, box1.mass,
+    box2.cpos, box2.ppos, box2.mass,
+    box1.ppos, box2.ppos
+  );
+
+  t.deepEqual(box1.cpos, { x: 0, y: 0 }, 'box1 has not moved');
+  t.deepEqual(box2.cpos, { x: 5, y: 0 }, 'box1 has not moved');
+
+  t.deepEqual(box1.ppos, { x: 5, y: -5 }, 'box1 will bounce to the left');
+  t.deepEqual(box2.ppos, { x: 0, y: -5 }, 'box2 will bounce to the right');
 
   t.end();
 });
