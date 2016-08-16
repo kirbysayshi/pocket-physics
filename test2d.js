@@ -10,6 +10,7 @@ import {
   normal,
   set,
   sub,
+  v2,
 } from './v2';
 import collideCircleEdge from './collidecircleedge';
 import rewindToCollisionPoint from './rewindtocollisionpoint';
@@ -731,11 +732,18 @@ test('aabb collision-response', t => {
     mass: 1,
   }
 
+  const box1v = v2();
+  const box2v = v2();
+
   collisionResponseAABB(
     box1.cpos, box1.ppos, box1.mass,
     box2.cpos, box2.ppos, box2.mass,
-    box1.ppos, box2.ppos
+    box1v, box2v
   );
+
+  // Apply the new velocity
+  sub(box1.ppos, box1.cpos, box1v);
+  sub(box2.ppos, box2.cpos, box2v);
 
   t.deepEqual(box1.cpos, { x: 0, y: 0 }, 'box1 has not moved');
   t.deepEqual(box2.cpos, { x: 5, y: 0 }, 'box1 has not moved');
@@ -763,11 +771,18 @@ test('aabb collision-response: very inequal masses', t => {
     mass: 1,
   }
 
+  const box1v = v2();
+  const box2v = v2();
+
   collisionResponseAABB(
     box1.cpos, box1.ppos, box1.mass,
     box2.cpos, box2.ppos, box2.mass,
-    box1.ppos, box2.ppos
+    box1v, box2v
   );
+
+  // Apply the new velocity
+  sub(box1.ppos, box1.cpos, box1v);
+  sub(box2.ppos, box2.cpos, box2v);
 
   t.deepEqual(box1.cpos, { x: 0, y: 0 }, 'box1 has not moved');
   t.deepEqual(box2.cpos, { x: 5, y: 0 }, 'box1 has not moved');

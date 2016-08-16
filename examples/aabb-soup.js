@@ -23,7 +23,7 @@ document.body.appendChild(cvs);
 
 const points = [];
 
-for (let count = 20, i = 0; i < count; i++) {
+for (let count = 30, i = 0; i < count; i++) {
   const centerX = cvs.width / 2;
   const centerY = cvs.height / 2;
   const distance = Math.min(centerX, centerY) * 0.5;
@@ -89,11 +89,18 @@ scihalt(() => running = false);
         // for debugging
         render(points, ctx);
 
+        const box1v = v2();
+        const box2v = v2();
+
         collisionResponseAABB(
           box1.cpos, box1.ppos, box1.mass,
           box2.cpos, box2.ppos, box2.mass,
-          box1.ppos, box2.ppos
+          box1v, box2v
         );
+
+        // Apply the new velocity
+        sub(box1.ppos, box1.cpos, box1v);
+        sub(box2.ppos, box2.cpos, box2v);
 
         // for debugging
         render(points, ctx);

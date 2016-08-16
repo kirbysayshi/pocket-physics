@@ -3,7 +3,7 @@ import {
   dot,
   normalize,
   scale,
-  set,
+  copy,
   sub,
   v2,
 } from './v2';
@@ -33,7 +33,7 @@ const u2 = v2();
 export default (
   cpos1, ppos1, mass1,
   cpos2, ppos2, mass2,
-  ppos1out, ppos2out
+  vel1out, vel2out
 ) => {
 
   // blank out all preallocated vectors.
@@ -71,6 +71,6 @@ export default (
   add(newVel2, newVel2, vel2y);
 
   // output new velocity of box1 and box2
-  sub(ppos1out, cpos1, newVel1);
-  sub(ppos2out, cpos2, newVel2);
+  copy(vel1out, newVel1);
+  copy(vel2out, newVel2);
 }

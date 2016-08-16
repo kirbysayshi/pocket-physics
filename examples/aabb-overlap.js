@@ -75,11 +75,18 @@ scihalt(() => running = false);
     // for debugging
     render(points, ctx);
 
+    const box1v = v2();
+    const box2v = v2();
+
     collisionResponseAABB(
       box1.cpos, box1.ppos, box1.mass,
       box2.cpos, box2.ppos, box2.mass,
-      box1.ppos, box2.ppos
+      box1v, box2v
     );
+
+    // Apply the new velocity
+    sub(box1.ppos, box1.cpos, box1v);
+    sub(box2.ppos, box2.cpos, box2v);
 
     // for debugging
     render(points, ctx);
