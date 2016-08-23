@@ -8,6 +8,7 @@ import overlapcirclecircle from './overlapcirclecircle';
 import {
   add,
   normal,
+  scale,
   set,
   sub,
   v2,
@@ -16,6 +17,7 @@ import collideCircleEdge from './collidecircleedge';
 import rewindToCollisionPoint from './rewindtocollisionpoint';
 import { default as overlapAABBAABB2 } from './overlapaabbaabb2';
 import collisionResponseAABB from './collision-response-aabb';
+import frictionAABB from './aabb-friction';
 
 test('2d', t => {
 
@@ -715,13 +717,16 @@ test('aabb2 overlap Y', t => {
   t.end();
 });
 
-test('aabb collision-response', t => {
+test.only('aabb collision-response', t => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: -5, y: -5 },
     w: 5,
     h: 5,
     mass: 1,
+    restitution: 1,
+    staticFriction: 0,
+    dynamicFriction: 0,
   }
 
   const box2 = {
@@ -730,14 +735,17 @@ test('aabb collision-response', t => {
     w: 5,
     h: 5,
     mass: 1,
+    restitution: 1,
+    staticFriction: 0,
+    dynamicFriction: 0,
   }
 
   const box1v = v2();
   const box2v = v2();
 
   collisionResponseAABB(
-    box1.cpos, box1.ppos, box1.mass,
-    box2.cpos, box2.ppos, box2.mass,
+    box1.cpos, box1.ppos, box1.mass, box1.restitution, box1.staticFriction, box1.dynamicFriction,
+    box2.cpos, box2.ppos, box2.mass, box2.restitution, box2.staticFriction, box2.dynamicFriction,
     box1v, box2v
   );
 
@@ -785,12 +793,83 @@ test('aabb collision-response: very inequal masses', t => {
   sub(box2.ppos, box2.cpos, box2v);
 
   t.deepEqual(box1.cpos, { x: 0, y: 0 }, 'box1 has not moved');
-  t.deepEqual(box2.cpos, { x: 5, y: 0 }, 'box1 has not moved');
+  t.deepEqual(box2.cpos, { x: 5, y: 0 }, 'box2 has not moved');
 
   t.deepEqual(box1.ppos, { x: -4.999999998, y: -5 },
     'box1 will mostly continue to the right');
   t.deepEqual(box2.ppos, { x: -9.999999998, y: -5 },
     'box2 will mostly move in the direction of box1 (pushing)');
 
+  t.end();
+});
+
+test('aabb friction', t => {
+
+  const box1 = {
+    cpos: { x: 0, y: 0 },
+    ppos: { x: -5, y: -5 },
+    w: 5,
+    h: 5,
+    mass: 1,
+    restitution: 1,
+    staticFriction: 0.5,
+    dynamicFriction: 0.5,
+  }
+
+  const box2 = {
+    cpos: { x: 4, y: 0 },
+    ppos: { x: 9, y: -5 },
+    w: 5,
+    h: 5,
+    mass: 1,
+    restitution: 1,
+    staticFriction: 0.5,
+    dynamicFriction: 0.5,
+  }
+
+  const collision = {}
+
+  // TODO: no need for isOverlapping, just use a known collision normal
+  // + already computed collision response ppos(s).
+
+  const isOverlapping = overlapAABBAABB2(
+    box1.cpos.x, box1.cpos.y, box1.w, box1.h,
+    box2.cpos.x, box2.cpos.y, box2.w, box2.h,
+    collision
+  );
+
+  console.log(collision);
+
+  // move to non-overlapping position
+  const overlapHalf = scale(v2(), collision.resolve, 0.5);
+  add(box2.cpos, box2.cpos, overlapHalf);
+  add(box2.ppos, box2.ppos, overlapHalf);
+  sub(box1.cpos, box1.cpos, overlapHalf);
+  sub(box1.ppos, box1.ppos, overlapHalf);
+
+  const box1v = v2();
+  const box2v = v2();
+
+  collisionResponseAABB(
+    box1.cpos, box1.ppos, box1.mass, box1.restitution, box1.staticFriction, box1.dynamicFriction,
+    box2.cpos, box2.ppos, box2.mass, box2.restitution, box2.staticFriction, box2.dynamicFriction,
+    box1v, box2v
+  );
+
+  // Apply the new velocity
+  sub(box1.ppos, box1.cpos, box1v);
+  sub(box2.ppos, box2.cpos, box2v);
+
+  console.log(box1v)
+  console.log(box2v)
+
+  console.log(box1.ppos)
+  console.log(box2.ppos)
+
+  t.deepEqual(box1.cpos, { x: -0.5, y: 0 }, 'box1 moved to non-overlapping');
+  t.deepEqual(box2.cpos, { x: 4.5, y: 0 }, 'box2 has moved to non-overlapping');
+
+  t.deepEqual(box1.ppos, { x: 4.5, y: -5 }, 'box1 will bounce to the left');
+  t.deepEqual(box2.ppos, { x: -0.5, y: -5 }, 'box2 will bounce to the right');
   t.end();
 });

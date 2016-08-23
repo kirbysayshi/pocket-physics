@@ -69,3 +69,9 @@ export const normal = (out, e1, e2) => {
   out.x = e1.y - e2.y;
   return normalize(out, out);
 }
+
+// the perpendicular dot product, also known as "cross" elsewhere
+// http://stackoverflow.com/a/243977/169491
+export const perpDot = (v1, v2) => {
+  return v1.x * v2.y - v1.y * v2.x;
+}

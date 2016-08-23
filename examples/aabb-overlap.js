@@ -78,9 +78,13 @@ scihalt(() => running = false);
     const box1v = v2();
     const box2v = v2();
 
+    const restitution = 0;
+    const staticFriction = 0;
+    const dynamicFriction = 0;
+
     collisionResponseAABB(
-      box1.cpos, box1.ppos, box1.mass,
-      box2.cpos, box2.ppos, box2.mass,
+      box1.cpos, box1.ppos, box1.mass, restitution, staticFriction, dynamicFriction,
+      box2.cpos, box2.ppos, box2.mass, restitution, staticFriction, dynamicFriction,
       box1v, box2v
     );
 
