@@ -17,7 +17,7 @@ import collideCircleEdge from './collidecircleedge';
 import rewindToCollisionPoint from './rewindtocollisionpoint';
 import { default as overlapAABBAABB2 } from './overlapaabbaabb2';
 import collisionResponseAABB from './collision-response-aabb';
-import frictionAABB from './aabb-friction';
+//import frictionAABB from './aabb-friction';
 
 test('2d', t => {
 
@@ -717,7 +717,7 @@ test('aabb2 overlap Y', t => {
   t.end();
 });
 
-test.only('aabb collision-response', t => {
+test('aabb collision-response', t => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: -5, y: -5 },
@@ -769,6 +769,9 @@ test('aabb collision-response: very inequal masses', t => {
     w: 5,
     h: 5,
     mass: 10000000000,
+    restitution: 1,
+    staticFriction: 0,
+    dynamicFriction: 0,
   }
 
   const box2 = {
@@ -777,14 +780,17 @@ test('aabb collision-response: very inequal masses', t => {
     w: 5,
     h: 5,
     mass: 1,
+    restitution: 1,
+    staticFriction: 0,
+    dynamicFriction: 0,
   }
 
   const box1v = v2();
   const box2v = v2();
 
   collisionResponseAABB(
-    box1.cpos, box1.ppos, box1.mass,
-    box2.cpos, box2.ppos, box2.mass,
+    box1.cpos, box1.ppos, box1.mass, box1.restitution, box1.staticFriction, box1.dynamicFriction,
+    box2.cpos, box2.ppos, box2.mass, box2.restitution, box2.staticFriction, box2.dynamicFriction,
     box1v, box2v
   );
 
