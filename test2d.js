@@ -875,7 +875,7 @@ test('aabb friction', t => {
   t.deepEqual(box1.cpos, { x: -0.5, y: 0 }, 'box1 moved to non-overlapping');
   t.deepEqual(box2.cpos, { x: 4.5, y: 0 }, 'box2 has moved to non-overlapping');
 
-  t.deepEqual(box1.ppos, { x: 4.5, y: -5 }, 'box1 will bounce to the left');
-  t.deepEqual(box2.ppos, { x: -0.5, y: -5 }, 'box2 will bounce to the right');
+  t.deepEqual(box1.ppos, { x: 4.5, y: -2.5 }, 'box1 will bounce to the left');
+  t.deepEqual(box2.ppos, { x: -0.5, y: -2.5 }, 'box2 will bounce to the right');
   t.end();
 });
