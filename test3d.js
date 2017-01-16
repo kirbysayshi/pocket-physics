@@ -1,12 +1,12 @@
 import test from 'tape';
-import { distance } from './v3';
-import accelerate3d from './accelerate3d';
-import inertia3d from './inertia3d';
-import maintainDistance3d from './distanceconstraint3d';
-import springDistance3d from './springconstraint3d';
-import drag3d from './drag3d';
-import gravitation3d from './gravitation3d';
-import overlapspheresphere from './overlapspheresphere';
+import { distance } from './src/v3';
+import accelerate3d from './src/accelerate3d';
+import inertia3d from './src/inertia3d';
+import maintainDistance3d from './src/distanceconstraint3d';
+import springDistance3d from './src/springconstraint3d';
+import drag3d from './src/drag3d';
+import gravitation3d from './src/gravitation3d';
+import overlapspheresphere from './src/overlapspheresphere';
 
 test('3d', t => {
 

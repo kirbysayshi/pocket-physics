@@ -1,10 +1,10 @@
 import test from 'tape';
-import gravitation2d from './gravitation2d';
-import accelerate2d from './accelerate2d';
-import inertia2d from './inertia2d';
-import spring2d from './springconstraint2d';
-import collideCircleCircle from './collidecirclecircle';
-import overlapcirclecircle from './overlapcirclecircle';
+import gravitation2d from './src/gravitation2d';
+import accelerate2d from './src/accelerate2d';
+import inertia2d from './src/inertia2d';
+import spring2d from './src/springconstraint2d';
+import collideCircleCircle from './src/collidecirclecircle';
+import overlapcirclecircle from './src/overlapcirclecircle';
 import {
   add,
   normal,
@@ -12,11 +12,11 @@ import {
   set,
   sub,
   v2,
-} from './v2';
-import collideCircleEdge from './collidecircleedge';
-import rewindToCollisionPoint from './rewindtocollisionpoint';
-import { default as overlapAABBAABB2 } from './overlapaabbaabb2';
-import collisionResponseAABB from './collision-response-aabb';
+} from './src/v2';
+import collideCircleEdge from './src/collidecircleedge';
+import rewindToCollisionPoint from './src/rewindtocollisionpoint';
+import { default as overlapAABBAABB2 } from './src/overlapaabbaabb2';
+import collisionResponseAABB from './src/collision-response-aabb';
 //import frictionAABB from './aabb-friction';
 
 test('2d', t => {

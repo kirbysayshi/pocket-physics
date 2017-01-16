@@ -6,8 +6,8 @@ npm install pocket-physics
 ```
 
 ```js
-var accelerate = require('pocket-physics/accelerate2d');
-var inertia = require('pocket-physics/inertia2d');
+var accelerate = require('pocket-physics/dist/accelerate2d');
+var inertia = require('pocket-physics/dist/inertia2d');
 
 var point = {
   cpos: { x: 0, y: 0 },
@@ -26,10 +26,10 @@ console.log(point.cpos)
 Also works in 3D! Check out a live demo: [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=bafff38038be6bb60a3e)
 
 ```js
-var v3 = require('pocket-physics/v3');
-var accelerate = require('pocket-physics/accelerate3d');
-var inertia = require('pocket-physics/inertia3d');
-var constrain = require('pocket-physics/distanceconstraint3d');
+var v3 = require('pocket-physics/dist/v3');
+var accelerate = require('pocket-physics/dist/accelerate3d');
+var inertia = require('pocket-physics/dist/inertia3d');
+var constrain = require('pocket-physics/dist/distanceconstraint3d');
 
 var point1 = {
   cpos: { x: 0, y: 0, z: 0 },

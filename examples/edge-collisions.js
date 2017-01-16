@@ -6,15 +6,15 @@ import {
   scale,
   sub,
   v2,
-} from '../v2';
-import accelerate from '../accelerate2d';
-import inertia from '../inertia2d';
-import gravitation from '../gravitation2d';
-import overlapCircleCircle from '../overlapcirclecircle';
-import collideCircleCircle from '../collidecirclecircle';
-import collideCircleEdge from '../collidecircleedge';
-import distanceConstraint from '../distanceconstraint2d';
-import rewindToCollisionPoint from '../rewindtocollisionpoint';
+} from '../src/v2';
+import accelerate from '../src/accelerate2d';
+import inertia from '../src/inertia2d';
+import gravitation from '../src/gravitation2d';
+import overlapCircleCircle from '../src/overlapcirclecircle';
+import collideCircleCircle from '../src/collidecirclecircle';
+import collideCircleEdge from '../src/collidecircleedge';
+import distanceConstraint from '../src/distanceconstraint2d';
+import rewindToCollisionPoint from '../src/rewindtocollisionpoint';
 
 const cvs = document.createElement('canvas');
 const ctx = cvs.getContext('2d');

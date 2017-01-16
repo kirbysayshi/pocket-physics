@@ -2,13 +2,14 @@
   "name": "pocket-physics",
   "version": "6.0.0",
   "description": "Verlet physics extracted from pocket-ces demos",
-  "main": "accelerate.js",
+  "main": "dist/index.js",
   "browserify": {
     "transform": [
       "babelify"
     ]
   },
   "scripts": {
+    "prepublish": "babel --out-dir dist/ src",
     "test": "tape -r babel-register test*.js",
     "demos": "beefy $(for f in examples/*.js; do echo \"$f:examples/$(basename $f .js)-bundle.js \"; done)",
     "demos:bundle": "rm examples/*-bundle.js; for js in examples/*.js; do browserify $js > examples/$(basename $js .js)-bundle.js; done"
@@ -30,6 +31,7 @@
   },
   "homepage": "https://github.com/kirbysayshi/pocket-physics",
   "devDependencies": {
+    "babel-cli": "^6.18.0",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-stage-1": "^6.3.13",
     "babelify": "^7.2.0",

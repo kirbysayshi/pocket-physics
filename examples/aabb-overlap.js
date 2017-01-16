@@ -8,12 +8,12 @@ import {
   scale,
   sub,
   v2,
-} from '../v2';
-import accelerate from '../accelerate2d';
-import inertia from '../inertia2d';
-import gravitation from '../gravitation2d';
-import overlapAABB2 from '../overlapaabbaabb2';
-import collisionResponseAABB from '../collision-response-aabb';
+} from '../src/v2';
+import accelerate from '../src/accelerate2d';
+import inertia from '../src/inertia2d';
+import gravitation from '../src/gravitation2d';
+import overlapAABB2 from '../src/overlapaabbaabb2';
+import collisionResponseAABB from '../src/collision-response-aabb';
 
 const cvs = document.createElement('canvas');
 const ctx = cvs.getContext('2d');
