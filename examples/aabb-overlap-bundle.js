@@ -19,13 +19,13 @@ var _gravitation2d = require('../src/gravitation2d');
 
 var _gravitation2d2 = _interopRequireDefault(_gravitation2d);
 
-var _overlapcirclecircle = require('../src/overlapcirclecircle');
+var _overlapaabbaabb = require('../src/overlapaabbaabb2');
 
-var _overlapcirclecircle2 = _interopRequireDefault(_overlapcirclecircle);
+var _overlapaabbaabb2 = _interopRequireDefault(_overlapaabbaabb);
 
-var _collidecirclecircle = require('../src/collidecirclecircle');
+var _collisionResponseAabb = require('../src/collision-response-aabb');
 
-var _collidecirclecircle2 = _interopRequireDefault(_collidecirclecircle);
+var _collisionResponseAabb2 = _interopRequireDefault(_collisionResponseAabb);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -35,21 +35,28 @@ cvs.width = cvs.height = 800;
 cvs.style.border = '1px solid gray';
 document.body.appendChild(cvs);
 
-// generate a circle of circles
-var CENTER = { x: 400, y: 400 };
-var GRAVITATIONAL_POINT = {
-  cpos: (0, _v.copy)((0, _v.v2)(), CENTER),
-  ppos: (0, _v.copy)((0, _v.v2)(), CENTER),
+var box1 = {
+  cpos: (0, _v.v2)(350, 90),
+  ppos: (0, _v.v2)(349, 80),
   acel: (0, _v.v2)(),
-  radius: 20,
-  mass: 100000
+  w: 100,
+  h: 150,
+  mass: 10
 };
-var RADIUS = 15;
-var DAMPING = 0.1;
-var points = generatePoints(CENTER, RADIUS, 40);
-var colliding = [];
 
-points.unshift(GRAVITATIONAL_POINT);
+var box2 = {
+  cpos: (0, _v.v2)(350, 600),
+  ppos: (0, _v.v2)(350, 600),
+  acel: (0, _v.v2)(),
+  w: 100,
+  h: 150,
+  mass: 10
+};
+
+var points = [];
+var collision = {};
+
+points.push(box1, box2);
 
 var running = true;
 (0, _scienceHalt2.default)(function () {
@@ -57,26 +64,44 @@ var running = true;
 });
 
 (function step() {
-  var force = (0, _v.v2)();
   var dt = 1;
   for (var i = 0; i < points.length; i++) {
     var point = points[i];
-    if (point !== GRAVITATIONAL_POINT) {
-      (0, _gravitation2d2.default)(point, point.mass, GRAVITATIONAL_POINT, GRAVITATIONAL_POINT.mass);
-      //sub(force, GRAVITATIONAL_POINT.cpos, point.cpos);
-      //normalize(force, force);
-      //scale(force, force, 50);
-      //add(point.acel, point.acel, force);
-    }
     (0, _accelerate2d2.default)(point, dt);
   }
 
-  collisionPairs(colliding, points);
+  var isOverlapping = (0, _overlapaabbaabb2.default)(box1.cpos.x, box1.cpos.y, box1.w, box1.h, box2.cpos.x, box2.cpos.y, box2.w, box2.h, collision);
 
-  for (var i = 0; i < colliding.length; i += 2) {
-    var pointA = colliding[i];
-    var pointB = colliding[i + 1];
-    (0, _collidecirclecircle2.default)(pointA, pointA.radius, pointA.mass, pointB, pointB.radius, pointB.mass, false, DAMPING);
+  if (isOverlapping) {
+
+    // for debugging
+    render(points, ctx);
+
+    // move to non-overlapping position
+    var overlapHalf = (0, _v.scale)((0, _v.v2)(), collision.resolve, 0.5);
+    (0, _v.add)(box2.cpos, box2.cpos, overlapHalf);
+    (0, _v.add)(box2.ppos, box2.ppos, overlapHalf);
+    (0, _v.sub)(box1.cpos, box1.cpos, overlapHalf);
+    (0, _v.sub)(box1.ppos, box1.ppos, overlapHalf);
+
+    // for debugging
+    render(points, ctx);
+
+    var box1v = (0, _v.v2)();
+    var box2v = (0, _v.v2)();
+
+    var restitution = 0;
+    var staticFriction = 0;
+    var dynamicFriction = 0;
+
+    (0, _collisionResponseAabb2.default)(box1.cpos, box1.ppos, box1.mass, restitution, staticFriction, dynamicFriction, box2.cpos, box2.ppos, box2.mass, restitution, staticFriction, dynamicFriction, box1v, box2v);
+
+    // Apply the new velocity
+    (0, _v.sub)(box1.ppos, box1.cpos, box1v);
+    (0, _v.sub)(box2.ppos, box2.cpos, box2v);
+
+    // for debugging
+    render(points, ctx);
   }
 
   for (var i = 0; i < points.length; i++) {
@@ -84,49 +109,10 @@ var running = true;
     (0, _inertia2d2.default)(point, dt);
   }
 
-  for (var i = 0; i < colliding.length; i += 2) {
-    var pointA = colliding[i];
-    var pointB = colliding[i + 1];
-    (0, _collidecirclecircle2.default)(pointA, pointA.radius, pointA.mass, pointB, pointB.radius, pointB.mass, true, DAMPING);
-  }
-
   render(points, ctx);
   if (!running) return;
   window.requestAnimationFrame(step);
 })();
-
-function collisionPairs(pairs, points) {
-  pairs.length = 0;
-
-  for (var i = 0; i < points.length; i++) {
-    var pointA = points[i];
-    for (var j = i + 1; j < points.length; j++) {
-      var pointB = points[j];
-      if ((0, _overlapcirclecircle2.default)(pointA.cpos.x, pointA.cpos.y, pointA.radius, pointB.cpos.x, pointB.cpos.y, pointB.radius)) {
-        pairs.push(pointA, pointB);
-      }
-    }
-  }
-
-  return pairs;
-}
-
-function generatePoints(center, baseRadius, num) {
-  var all = [];
-  var minRadius = 10;
-  for (var i = 0; i < num; i++) {
-    var x = Math.cos(i) * center.x + center.x;
-    var y = Math.sin(i) * center.y + center.y;
-    all.push({
-      cpos: { x: x, y: y },
-      ppos: { x: x, y: y },
-      acel: { x: 0, y: 0 },
-      radius: Math.max(Math.abs(Math.cos(i) + Math.sin(i)) * baseRadius, minRadius),
-      mass: Math.max(Math.abs(Math.cos(i) + Math.sin(i)) * 1, 1)
-    });
-  }
-  return all;
-}
 
 function render(points, ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -134,18 +120,14 @@ function render(points, ctx) {
     var point = points[i];
 
     ctx.fillStyle = 'red';
-    ctx.beginPath();
-    ctx.arc(point.ppos.x, point.ppos.y, point.radius, 0, Math.PI * 2, false);
-    ctx.fill();
+    ctx.fillRect(point.ppos.x - point.w / 2, point.ppos.y - point.h / 2, point.w, point.h);
 
     ctx.fillStyle = 'black';
-    ctx.beginPath();
-    ctx.arc(point.cpos.x, point.cpos.y, point.radius, 0, Math.PI * 2, false);
-    ctx.fill();
+    ctx.fillRect(point.cpos.x - point.w / 2, point.cpos.y - point.h / 2, point.w, point.h);
   }
 }
 
-},{"../src/accelerate2d":6,"../src/collidecirclecircle":7,"../src/gravitation2d":8,"../src/inertia2d":9,"../src/overlapcirclecircle":10,"../src/v2":11,"science-halt":5}],2:[function(require,module,exports){
+},{"../src/accelerate2d":6,"../src/collision-response-aabb":7,"../src/gravitation2d":8,"../src/inertia2d":9,"../src/overlapaabbaabb2":10,"../src/v2":11,"science-halt":5}],2:[function(require,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -643,91 +625,147 @@ Object.defineProperty(exports, "__esModule", {
 
 var _v = require('./v2');
 
-var debug = require('debug')('pocket-physics:collide-circle-circle');
+// Registers / Preallocations
 
-// Preallocations!
-var vel1 = { x: 0, y: 0 };
-var vel2 = { x: 0, y: 0 };
-var diff = { x: 0, y: 0 };
-var move = { x: 0, y: 0 };
+var basis = (0, _v.v2)();
+var basisNeg = (0, _v.v2)();
 
-// It's very important that this function not do any distance checking.
-// It is assumed that if this function is called, then the points are
-// definitely colliding, and that after being called with preserveInertia
-// === false, another call with === true should be made, even if the first
-// calculation has moved the points away from physically touching.
+var vel1 = (0, _v.v2)();
+var vel1x = (0, _v.v2)();
+var vel1y = (0, _v.v2)();
 
-exports.default = function (p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, damping) {
-  debug('p1 cpos %o, mass %d, radius %d', p1.cpos, p1mass, p1radius);
-  debug('p2 cpos %o, mass %d, radius %d', p2.cpos, p2mass, p2radius);
+var vel2 = (0, _v.v2)();
+var vel2x = (0, _v.v2)();
+var vel2y = (0, _v.v2)();
 
-  var dist2 = (0, _v.distance2)(p1.cpos, p2.cpos);
-  var target = p1radius + p2radius;
-  var min2 = target * target;
+var newVel1 = (0, _v.v2)();
+var newVel2 = (0, _v.v2)();
 
-  //if (dist2 > min2) return;
+var t1 = (0, _v.v2)();
+var t2 = (0, _v.v2)();
 
-  (0, _v.sub)(vel1, p1.cpos, p1.ppos);
-  (0, _v.sub)(vel2, p2.cpos, p2.ppos);
+var u1 = (0, _v.v2)();
+var u2 = (0, _v.v2)();
 
-  (0, _v.sub)(diff, p1.cpos, p2.cpos);
-  var dist = Math.sqrt(dist2);
-  var factor = (dist - target) / dist;
+// TODO: Put this somewhere...
+var EPSILON = 0.0001;
 
-  // Avoid division by zero in case points are directly atop each other.
-  if (dist === 0) factor = 1;
+// TODO: change this API to accept numbers (x, y) instead of vectors
 
-  debug('point dist %d, edge dist %d, factor %d', dist, dist - target, factor);
-  debug('diff %o', diff);
+// friction calc: sqrt(friction1*friction2)
+// restitution: box2d: https://github.com/erincatto/Box2D/blob/6a69ddbbd59b21c0d6699c43143b4114f7f92e21/Box2D/Box2D/Dynamics/Contacts/b2Contact.h#L42-L47
+// Math.max(restitution1, restitution2);
 
-  var mass1 = p1mass === undefined ? 1 : p1mass;
-  var mass2 = p2mass === undefined ? 1 : p2mass;
-  var massT = mass1 + mass2;
+exports.default = function (cpos1, ppos1, mass1, restitution1, staticFriction1, dynamicFriction1, cpos2, ppos2, mass2, restitution2, staticFriction2, dynamicFriction2,
+//collisionNormal, // TODO: use this instead of assuming based on cpos1&2
+vel1out, vel2out) {
 
-  debug('massT %d, mass1 %d, mass2 %d', massT, mass1, mass2);
+  // blank out all preallocated vectors.
+  basis.x = basisNeg.x = vel1.x = vel1x.x = vel1y.x = vel2.x = vel2x.x = vel2y.x = newVel1.x = newVel2.x = t1.x = t2.x = u1.x = u2.x = basis.y = basisNeg.y = vel1.y = vel1x.y = vel1y.y = vel2.y = vel2x.y = vel2y.y = newVel1.y = newVel2.y = t1.y = t2.y = u1.y = u2.y = 0;
 
-  // Move a away
-  move.x = diff.x * factor * (mass2 / massT);
-  move.y = diff.y * factor * (mass2 / massT);
-  if (mass1 > 0) {
-    debug('moving p1', move);
-    (0, _v.sub)(p1.cpos, p1.cpos, move);
+  //debugger;
+
+  // use midpoint between current positions as axis of collision
+  // basis == normal
+  (0, _v.sub)(basis, cpos1, cpos2);
+  (0, _v.normalize)(basis, basis);
+  (0, _v.scale)(basisNeg, basis, -1);
+
+  //const friction;
+  // Take max of restitutions, like box2d does.
+  // https://github.com/erincatto/Box2D/blob/6a69ddbbd59b21c0d6699c43143b4114f7f92e21/Box2D/Box2D/Dynamics/Contacts/b2Contact.h#L42-L47
+  // "for example, a superball bounces on everything"
+  var restitution = restitution1 > restitution2 ? restitution1 : restitution2;
+  var massTotal = mass1 + mass2;
+  var e = 1 + restitution;
+
+  // I = (1+e)*N*(Vr • N) / (1/Ma + 1/Mb)
+  // Va -= I * 1/Ma
+  // Vb += I * 1/Mb
+  //sub(vel1, cpos1, ppos1);
+  //sub(vel2, cpos2, ppos2);
+  //const relativeVelocity = sub(vel1, vel2);
+  //const I = v2();
+  //scale(I, normal, (1 + restitution) * dot(relativeVelocity, normal));
+  //scale(I, I, 1 / (1/mass1 + 1/mass2));
+
+  // "x" and "y" in the following sections are shorthand for:
+  // x: component of the box velocity parallel to the collision normal
+  // y: the rest of the collision velocity
+
+  // calculate x-direction velocity vector and perpendicular y-vector for box 1
+  (0, _v.sub)(vel1, cpos1, ppos1);
+  var x1 = (0, _v.dot)(basis, vel1);
+  (0, _v.scale)(vel1x, basis, x1);
+  (0, _v.sub)(vel1y, vel1, vel1x);
+
+  // calculate x-direction velocity vector and perpendicular y-vector for box 2
+  (0, _v.sub)(vel2, cpos2, ppos2);
+  var x2 = (0, _v.dot)(basisNeg, vel2);
+  (0, _v.scale)(vel2x, basisNeg, x2);
+  (0, _v.sub)(vel2y, vel2, vel2x);
+
+  // equations of motion for box1
+  (0, _v.scale)(t1, vel1x, (mass1 - mass2) / massTotal);
+  (0, _v.scale)(t2, vel2x, e * mass2 / massTotal);
+  (0, _v.add)(newVel1, t1, t2);
+  (0, _v.add)(newVel1, newVel1, vel1y);
+
+  // equations of motion for box2
+  (0, _v.scale)(u1, vel1x, e * mass1 / massTotal);
+  (0, _v.scale)(u2, vel2x, (mass2 - mass1) / massTotal);
+  (0, _v.add)(newVel2, u1, u2);
+  (0, _v.add)(newVel2, newVel2, vel2y);
+
+  // new relative velocity
+  var rv = (0, _v.add)((0, _v.v2)(), newVel1, newVel2);
+
+  // tangent to relative velocity vector
+  var reg1 = (0, _v.v2)();
+  (0, _v.scale)(reg1, basis, (0, _v.dot)(rv, basis));
+  var tangent = (0, _v.sub)((0, _v.v2)(), rv, reg1);
+  (0, _v.normalize)(tangent, tangent);
+
+  // magnitude of relative velocity in tangent direction
+  var jt = -(0, _v.dot)(rv, tangent);
+  jt /= 1 / (mass1 + mass2); // not sure about this...
+  // https://github.com/RandyGaul/ImpulseEngine/blob/d12af9c95555244a37dce1c7a73e60d5177df652/Manifold.cpp#L103
+
+  var jtMag = Math.abs(jt);
+
+  // only apply significant friction
+  if (jtMag > EPSILON) {
+
+    // magnitudes of velocity along the collision tangent, hopefully.
+    var vel1ymag = (0, _v.magnitude)(vel1y);
+    var vel2ymag = (0, _v.magnitude)(vel2y);
+
+    // compute Coulumb's law (choosing dynamic vs static friction)
+    var frictionImpulse1 = (0, _v.v2)();
+    var frictionImpulse2 = (0, _v.v2)();
+
+    if (jtMag < vel1ymag * staticFriction1) {
+      (0, _v.scale)(frictionImpulse1, tangent, staticFriction1);
+    } else {
+      (0, _v.scale)(frictionImpulse1, tangent, -vel1ymag * dynamicFriction1);
+    }
+
+    if (jtMag < vel2ymag * staticFriction2) {
+      (0, _v.scale)(frictionImpulse2, tangent, staticFriction2);
+    } else {
+      (0, _v.scale)(frictionImpulse2, tangent, -vel2ymag * dynamicFriction2);
+    }
+
+    (0, _v.add)(newVel1, newVel1, frictionImpulse1);
+    (0, _v.add)(newVel2, newVel2, frictionImpulse2);
   }
 
-  // Move b away
-  move.x = diff.x * factor * (mass1 / massT);
-  move.y = diff.y * factor * (mass1 / massT);
-  if (mass2 > 0) {
-    debug('moving p2', move);
-    (0, _v.add)(p2.cpos, p2.cpos, move);
-  }
-
-  debug('p1.cpos %o', p1.cpos);
-  debug('p2.cpos %o', p2.cpos);
-
-  if (!preserveInertia) return;
-
-  damping = damping || 1;
-
-  var f1 = damping * (diff.x * vel1.x + diff.y * vel1.y) / (dist2 || 1);
-  var f2 = damping * (diff.x * vel2.x + diff.y * vel2.y) / (dist2 || 1);
-  debug('inertia. f1 %d, f2 %d', f1, f2);
-
-  vel1.x += (f2 * diff.x - f1 * diff.x) / (mass1 || 1); // * (mass2 / massT);
-  vel2.x += (f1 * diff.x - f2 * diff.x) / (mass2 || 1); // * (mass1 / massT);
-  vel1.y += (f2 * diff.y - f1 * diff.y) / (mass1 || 1); // * (mass2 / massT);
-  vel2.y += (f1 * diff.y - f2 * diff.y) / (mass2 || 1); // * (mass1 / massT);
-
-  debug('velocity. p1 %o, p2 %o', vel1, vel2);
-
-  (0, _v.set)(p1.ppos, p1.cpos.x - vel1.x, p1.cpos.y - vel1.y);
-  (0, _v.set)(p2.ppos, p2.cpos.x - vel2.x, p2.cpos.y - vel2.y);
-
-  debug('p1.ppos %o', p1.ppos);
-  debug('p2.ppos %o', p2.ppos);
+  // output new velocity of box1 and box2
+  (0, _v.copy)(vel1out, newVel1);
+  (0, _v.copy)(vel2out, newVel2);
 };
 
-},{"./v2":11,"debug":2}],8:[function(require,module,exports){
+},{"./v2":11}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -783,20 +821,58 @@ exports.default = function (cmp) {
 };
 
 },{"./v2":11}],10:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-exports.default = function (ax, ay, arad, bx, by, brad) {
-  var x = bx - ax;
-  var y = by - ay;
-  var rad = arad + brad;
-  return x * x + y * y < rad * rad;
+var _v = require('./v2');
+
+var _debug = require('debug');
+
+var _debug2 = _interopRequireDefault(_debug);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var dbg = (0, _debug2.default)('pocket-physics:overlapaabaabb2');
+
+// https://github.com/noonat/intersect/blob/master/intersect.js
+
+exports.default = function (center1X, center1Y, width1, height1, center2X, center2Y, width2, height2, result) {
+
+  var dx = center2X - center1X;
+  var px = width2 / 2 + width1 / 2 - Math.abs(dx);
+  var dy = center2Y - center1Y;
+  var py = height2 / 2 + height1 / 2 - Math.abs(dy);
+
+  if (px <= 0) return null;
+  if (py <= 0) return null;
+
+  if (!result.resolve) result.resolve = (0, _v.v2)();
+  if (!result.hitPos) result.hitPos = (0, _v.v2)();
+  if (!result.normal) result.normal = (0, _v.v2)();
+
+  if (px < py) {
+    var sx = dx < 0 ? -1 : 1;
+    result.resolve.x = px * sx;
+    result.normal.x = sx;
+    // Really not sure about these values.
+    result.hitPos.x = center1X + width1 / 2 * sx;
+    result.hitPos.y = center2Y;
+  } else {
+    var sy = dy < 0 ? -1 : 1;
+    result.resolve.y = py * sy;
+    result.normal.y = sy;
+    // Really not sure about these values.
+    result.hitPos.x = center2X;
+    result.hitPos.y = center1Y + height1 / 2 * sy;
+  }
+
+  return result;
 };
 
-},{}],11:[function(require,module,exports){
+},{"./v2":11,"debug":2}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

@@ -1,376 +1,41 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-var v2 = require('./v2');
-
-module.exports = function (cmp, dt) {
-  // apply acceleration to current position, convert dt to seconds
-  cmp.cpos.x += cmp.acel.x * dt * dt * 0.001;
-  cmp.cpos.y += cmp.acel.y * dt * dt * 0.001;
-
-  // reset acceleration
-  v2.set(cmp.acel, 0, 0);
-};
-
-},{"./v2":15}],2:[function(require,module,exports){
-'use strict';
-
-var v2 = require('./v2');
-var debug = require('debug')('pocket-physics:collide-circle-circle');
-
-// Preallocations!
-var vel1 = { x: 0, y: 0 };
-var vel2 = { x: 0, y: 0 };
-var diff = { x: 0, y: 0 };
-var move = { x: 0, y: 0 };
-
-// It's very important that this function not do any distance checking.
-// It is assumed that if this function is called, then the points are
-// definitely colliding, and that after being called with preserveInertia
-// === false, another call with === true should be made, even if the first
-// calculation has moved the points away from physically touching.
-
-module.exports = function (p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, damping) {
-  debug('p1 cpos %o, mass %d, radius %d', p1.cpos, p1mass, p1radius);
-  debug('p2 cpos %o, mass %d, radius %d', p2.cpos, p2mass, p2radius);
-
-  var dist2 = v2.distance2(p1.cpos, p2.cpos);
-  var target = p1radius + p2radius;
-  var min2 = target * target;
-
-  //if (dist2 > min2) return;
-
-  v2.sub(vel1, p1.cpos, p1.ppos);
-  v2.sub(vel2, p2.cpos, p2.ppos);
-
-  v2.sub(diff, p1.cpos, p2.cpos);
-  var dist = Math.sqrt(dist2);
-  var factor = (dist - target) / dist;
-
-  // Avoid division by zero in case points are directly atop each other.
-  if (dist === 0) factor = 1;
-
-  debug('point dist %d, edge dist %d, factor %d', dist, dist - target, factor);
-  debug('diff %o', diff);
-
-  var mass1 = p1mass === undefined ? 1 : p1mass;
-  var mass2 = p2mass === undefined ? 1 : p2mass;
-  var massT = mass1 + mass2;
-
-  debug('massT %d, mass1 %d, mass2 %d', massT, mass1, mass2);
-
-  // Move a away
-  move.x = diff.x * factor * (mass2 / massT);
-  move.y = diff.y * factor * (mass2 / massT);
-  if (mass1 > 0) {
-    debug('moving p1', move);
-    v2.sub(p1.cpos, p1.cpos, move);
-  }
-
-  // Move b away
-  move.x = diff.x * factor * (mass1 / massT);
-  move.y = diff.y * factor * (mass1 / massT);
-  if (mass2 > 0) {
-    debug('moving p2', move);
-    v2.add(p2.cpos, p2.cpos, move);
-  }
-
-  debug('p1.cpos %o', p1.cpos);
-  debug('p2.cpos %o', p2.cpos);
-
-  if (!preserveInertia) return;
-
-  damping = damping || 1;
-
-  var f1 = damping * (diff.x * vel1.x + diff.y * vel1.y) / (dist2 || 1);
-  var f2 = damping * (diff.x * vel2.x + diff.y * vel2.y) / (dist2 || 1);
-  debug('inertia. f1 %d, f2 %d', f1, f2);
-
-  vel1.x += (f2 * diff.x - f1 * diff.x) / (mass1 || 1); // * (mass2 / massT);
-  vel2.x += (f1 * diff.x - f2 * diff.x) / (mass2 || 1); // * (mass1 / massT);
-  vel1.y += (f2 * diff.y - f1 * diff.y) / (mass1 || 1); // * (mass2 / massT);
-  vel2.y += (f1 * diff.y - f2 * diff.y) / (mass2 || 1); // * (mass1 / massT);
-
-  debug('velocity. p1 %o, p2 %o', vel1, vel2);
-
-  v2.set(p1.ppos, p1.cpos.x - vel1.x, p1.cpos.y - vel1.y);
-  v2.set(p2.ppos, p2.cpos.x - vel2.x, p2.cpos.y - vel2.y);
-
-  debug('p1.ppos %o', p1.ppos);
-  debug('p2.ppos %o', p2.ppos);
-};
-
-},{"./v2":15,"debug":8}],3:[function(require,module,exports){
-'use strict';
-
-var v2 = require('./v2');
-var collideCircleCircle = require('./collidecirclecircle');
-var debug = require('debug')('pocket-physics:collide-circle-edge');
-
-// Preallocations
-var edgeDir = v2();
-var edge = v2();
-var prevEdge = v2();
-var hypo = v2();
-var epDiff = v2();
-var correction = v2();
-var collisionPoint = v2();
-var tunnelPoint = v2();
-
-var ep = {
-  cpos: v2(),
-  ppos: v2()
-};
-
-var epBefore = {
-  cpos: v2(),
-  ppos: v2()
-};
-
-module.exports = function collide(point3, radius3, mass3, point1, mass1, point2, mass2, preserveInertia, damping) {
-  debug('point3 %o', point3);
-  debug('endpoint1 %o', point1);
-  debug('endpoint2 %o', point2);
-
-  // Edge direction (edge in local space)
-  v2.sub(edge, point2.cpos, point1.cpos);
-
-  // Normalize collision edge (assume collision axis is edge)
-  v2.normalize(edgeDir, edge);
-
-  // Vector from endpoint1 to particle
-  v2.sub(hypo, point3.cpos, point1.cpos);
-
-  debug('edge %o', edge);
-  debug('hypo %o', hypo);
-  debug('edgeDir %o', edgeDir);
-
-  // Where is the particle on the edge, before, after, or on?
-  // Also used for interpolation later.
-  var projection = v2.dot(edge, hypo);
-  var maxDot = v2.dot(edge, edge);
-  var edgeMag = Math.sqrt(maxDot);
-
-  debug('projection %d', projection);
-  debug('maxDot %d', maxDot);
-  debug('edgeMag %d', edgeMag);
-
-  // Colliding beyond the edge...
-  if (projection < 0 || projection > maxDot) return;
-
-  // Create interpolation factor of where point closest
-  // to particle is on the line.
-  var t = projection / maxDot;
-  var u = 1 - t;
-
-  debug('t %d, u %d', t, u);
-
-  // Find the point of collision on the edge.
-  v2.scale(collisionPoint, edgeDir, t * edgeMag);
-  v2.add(collisionPoint, collisionPoint, point1.cpos);
-  var distance = v2.distance(collisionPoint, point3.cpos);
-
-  debug('collision distance %d, radius %d', distance, radius3);
-
-  // Bail if point and edge are too far apart.
-  if (distance > radius3) return;
-
-  // Distribute mass of colliding point into two fake points
-  // and use those to collide against each endpoint independently.
-
-  var standinMass1 = u * mass3;
-  var standinMass2 = t * mass3;
-
-  debug('standinMass 1,2 %d,%d', standinMass1, standinMass2);
-
-  var standin1 = {
-    cpos: v2(),
-    ppos: v2()
-  };
-
-  var standin2 = {
-    cpos: v2(),
-    ppos: v2()
-  };
-
-  // Slide standin1 along edge to be in front of endpoint1
-  v2.scale(standin1.cpos, edgeDir, t * edgeMag);
-  v2.sub(standin1.cpos, point3.cpos, standin1.cpos);
-  v2.scale(standin1.ppos, edgeDir, t * edgeMag);
-  v2.sub(standin1.ppos, point3.ppos, standin1.ppos);
-
-  // Slide standin2 along edge to be in front of endpoint2
-  v2.scale(standin2.cpos, edgeDir, u * edgeMag);
-  v2.add(standin2.cpos, point3.cpos, standin2.cpos);
-  v2.scale(standin2.ppos, edgeDir, u * edgeMag);
-  v2.add(standin2.ppos, point3.ppos, standin2.ppos);
-
-  debug('standin1 %o', standin1);
-  debug('standin2 %o', standin2);
-
-  var standin1Before = {
-    cpos: v2(),
-    ppos: v2()
-  };
-
-  var standin2Before = {
-    cpos: v2(),
-    ppos: v2()
-  };
-
-  // Stash state of standins
-  v2.copy(standin1Before.cpos, standin1.cpos);
-  v2.copy(standin1Before.ppos, standin1.ppos);
-  v2.copy(standin2Before.cpos, standin2.cpos);
-  v2.copy(standin2Before.ppos, standin2.ppos);
-
-  var edgeRadius = 0;
-
-  debug('collide standin1 with endpoint1');
-
-  // Collide standins with endpoints
-  collideCircleCircle(standin1, radius3, standinMass1, point1, edgeRadius, mass1, preserveInertia, damping);
-
-  debug('collide standin2 with endpoint2');
-
-  collideCircleCircle(standin2, radius3, standinMass2, point2, edgeRadius, mass2, preserveInertia, damping);
-
-  var standin1Delta = {
-    cpos: v2(),
-    ppos: v2()
-  };
-
-  var standin2Delta = {
-    cpos: v2(),
-    ppos: v2()
-  };
-
-  // Compute standin1 cpos change
-  v2.sub(standin1Delta.cpos, standin1.cpos, standin1Before.cpos);
-
-  // Compute standin2 cpos change
-  v2.sub(standin2Delta.cpos, standin2.cpos, standin2Before.cpos);
-
-  v2.scale(standin1Delta.cpos, standin1Delta.cpos, u);
-  v2.scale(standin2Delta.cpos, standin2Delta.cpos, t);
-
-  debug('standin1Delta cpos %o', standin1Delta.cpos);
-  debug('standin2Delta cpos %o', standin2Delta.cpos);
-
-  // Apply cpos changes to point3
-  v2.add(point3.cpos, point3.cpos, standin1Delta.cpos);
-  v2.add(point3.cpos, point3.cpos, standin2Delta.cpos);
-
-  debug('new endpoint1.cpos %o', point1.cpos);
-  debug('new endpoint2.cpos %o', point2.cpos);
-  debug('new point3.cpos %o', point3.cpos);
-
-  if (!preserveInertia) return;
-
-  // TODO: instead of adding diff, get magnitude of diff and scale
-  // in reverse direction of standin velocity from point3.cpos because
-  // that is what circlecircle does.
-
-  // Compute standin1 ppos change
-  v2.sub(standin1Delta.ppos, standin1.ppos, standin1Before.ppos);
-
-  // Compute standin2 ppos change
-  v2.sub(standin2Delta.ppos, standin2.ppos, standin2Before.ppos);
-
-  v2.scale(standin1Delta.ppos, standin1Delta.ppos, u);
-  v2.scale(standin2Delta.ppos, standin2Delta.ppos, t);
-
-  debug('standin1Delta ppos %o', standin1Delta.ppos);
-  debug('standin2Delta ppos %o', standin2Delta.ppos);
-
-  // Apply ppos changes to point3
-  v2.add(point3.ppos, point3.ppos, standin1Delta.ppos);
-  v2.add(point3.ppos, point3.ppos, standin2Delta.ppos);
-
-  debug('new endpoint1.ppos %o', point1.ppos);
-  debug('new endpoint2.ppos %o', point2.ppos);
-  debug('new point3.ppos %o', point3.ppos);
-};
-
-},{"./collidecirclecircle":2,"./v2":15,"debug":8}],4:[function(require,module,exports){
-'use strict';
-
-var v2 = require('./v2');
-var debug = require('debug')('pocket-physics:distanceconstraint');
-
-module.exports = function distanceConstraint2d(p1, p1mass, p2, p2mass, goal) {
-  var imass1 = 1 / (p1mass || 1);
-  var imass2 = 1 / (p2mass || 1);
-  var imass = imass1 + imass2;
-
-  // Current relative vector
-  var delta = v2.sub(v2(), p2.cpos, p1.cpos);
-  var deltaMag = v2.magnitude(delta);
-
-  debug('goal', goal);
-  debug('delta', delta);
-
-  // Difference between current distance and goal distance
-  var diff = (deltaMag - goal) / deltaMag;
-
-  debug('delta mag', deltaMag);
-  debug('diff', diff);
-
-  // approximate mass
-  v2.scale(delta, delta, diff / imass);
-
-  debug('delta diff/imass', delta);
-
-  var p1correction = v2.scale(v2(), delta, imass1);
-  var p2correction = v2.scale(v2(), delta, imass2);
-
-  debug('p1correction', p1correction);
-  debug('p2correction', p2correction);
-
-  if (p1mass) v2.add(p1.cpos, p1.cpos, p1correction);
-  if (p2mass) v2.sub(p2.cpos, p2.cpos, p2correction);
-};
-
-},{"./v2":15,"debug":8}],5:[function(require,module,exports){
-'use strict';
-
 var _scienceHalt = require('science-halt');
 
 var _scienceHalt2 = _interopRequireDefault(_scienceHalt);
 
-var _v = require('../v2');
+var _v = require('../src/v2');
 
-var _v2 = _interopRequireDefault(_v);
-
-var _accelerate2d = require('../accelerate2d');
+var _accelerate2d = require('../src/accelerate2d');
 
 var _accelerate2d2 = _interopRequireDefault(_accelerate2d);
 
-var _inertia2d = require('../inertia2d');
+var _inertia2d = require('../src/inertia2d');
 
 var _inertia2d2 = _interopRequireDefault(_inertia2d);
 
-var _gravitation2d = require('../gravitation2d');
+var _gravitation2d = require('../src/gravitation2d');
 
 var _gravitation2d2 = _interopRequireDefault(_gravitation2d);
 
-var _overlapcirclecircle = require('../overlapcirclecircle');
+var _overlapcirclecircle = require('../src/overlapcirclecircle');
 
 var _overlapcirclecircle2 = _interopRequireDefault(_overlapcirclecircle);
 
-var _collidecirclecircle = require('../collidecirclecircle');
+var _collidecirclecircle = require('../src/collidecirclecircle');
 
 var _collidecirclecircle2 = _interopRequireDefault(_collidecirclecircle);
 
-var _collidecircleedge = require('../collidecircleedge');
+var _collidecircleedge = require('../src/collidecircleedge');
 
 var _collidecircleedge2 = _interopRequireDefault(_collidecircleedge);
 
-var _distanceconstraint2d = require('../distanceconstraint2d');
+var _distanceconstraint2d = require('../src/distanceconstraint2d');
 
 var _distanceconstraint2d2 = _interopRequireDefault(_distanceconstraint2d);
 
-var _rewindtocollisionpoint = require('../rewindtocollisionpoint');
+var _rewindtocollisionpoint = require('../src/rewindtocollisionpoint');
 
 var _rewindtocollisionpoint2 = _interopRequireDefault(_rewindtocollisionpoint);
 
@@ -387,9 +52,9 @@ document.body.appendChild(cvs);
 // generate a circle of circles
 var CENTER = { x: 400, y: 400 };
 var GRAVITATIONAL_POINT = {
-  cpos: _v2.default.copy((0, _v2.default)(), CENTER),
-  ppos: _v2.default.copy((0, _v2.default)(), CENTER),
-  acel: (0, _v2.default)(),
+  cpos: (0, _v.copy)((0, _v.v2)(), CENTER),
+  ppos: (0, _v.copy)((0, _v.v2)(), CENTER),
+  acel: (0, _v.v2)(),
   radius: 20,
   mass: 1000000
 };
@@ -410,7 +75,7 @@ var running = true;
 });
 
 (function step() {
-  var force = (0, _v2.default)();
+  var force = (0, _v.v2)();
   var dt = 1;
 
   for (var i = 0; i < CONSTRAINT_ITERATIONS; i++) {
@@ -434,10 +99,10 @@ var running = true;
     var point = points[i];
     if (point !== GRAVITATIONAL_POINT) {
       (0, _gravitation2d2.default)(point, point.mass, GRAVITATIONAL_POINT, GRAVITATIONAL_POINT.mass);
-      //v2.sub(force, GRAVITATIONAL_POINT.cpos, point.cpos);
-      //v2.normalize(force, force);
-      //v2.scale(force, force, 50);
-      //v2.add(point.acel, point.acel, force);
+      //sub(force, GRAVITATIONAL_POINT.cpos, point.cpos);
+      //normalize(force, force);
+      //scale(force, force, 50);
+      //add(point.acel, point.acel, force);
     }
     (0, _accelerate2d2.default)(point, dt);
   }
@@ -527,22 +192,22 @@ function generateBoxes(center, baseRadius, num) {
     group.push({
       cpos: { x: x - half, y: y - half },
       ppos: { x: x - half, y: y - half },
-      acel: (0, _v2.default)(), radius: radius, mass: mass
+      acel: (0, _v.v2)(), radius: radius, mass: mass
     });
     group.push({
       cpos: { x: x + half, y: y - half },
       ppos: { x: x + half, y: y - half },
-      acel: (0, _v2.default)(), radius: radius, mass: mass
+      acel: (0, _v.v2)(), radius: radius, mass: mass
     });
     group.push({
       cpos: { x: x + half, y: y + half },
       ppos: { x: x + half, y: y + half },
-      acel: (0, _v2.default)(), radius: radius, mass: mass
+      acel: (0, _v.v2)(), radius: radius, mass: mass
     });
     group.push({
       cpos: { x: x - half, y: y + half },
       ppos: { x: x - half, y: y + half },
-      acel: (0, _v2.default)(), radius: radius, mass: mass
+      acel: (0, _v.v2)(), radius: radius, mass: mass
     });
     all.push({
       points: group,
@@ -582,52 +247,7 @@ function render(boxes, points, ctx) {
   }
 }
 
-},{"../accelerate2d":1,"../collidecirclecircle":2,"../collidecircleedge":3,"../distanceconstraint2d":4,"../gravitation2d":6,"../inertia2d":7,"../overlapcirclecircle":12,"../rewindtocollisionpoint":13,"../v2":15,"science-halt":11}],6:[function(require,module,exports){
-'use strict';
-
-var v2 = require('./v2');
-var accel1 = v2();
-
-module.exports = function solve(p1, p1mass, p2, p2mass, gravityConstant) {
-  gravityConstant = gravityConstant || 0.99;
-
-  // handle either obj not having mass
-  if (!p1mass || !p2mass) return;
-
-  var mag;
-  var factor;
-
-  var diffx = p2.cpos.x - p1.cpos.x;
-  var diffy = p2.cpos.y - p1.cpos.y;
-
-  v2.set(accel1, diffx, diffy);
-  mag = v2.magnitude(accel1);
-
-  // Newton's Law of Universal Gravitation -- Vector Form!
-  factor = gravityConstant * (p1mass * p2mass / (mag * mag));
-
-  // scale by gravity acceleration
-  v2.normalize(accel1, accel1);
-  v2.scale(accel1, accel1, factor);
-
-  // add the acceleration from gravity to p1 accel
-  v2.add(p1.acel, p1.acel, accel1);
-};
-
-},{"./v2":15}],7:[function(require,module,exports){
-'use strict';
-
-var v2 = require('./v2');
-
-module.exports = function (cmp) {
-  var x = cmp.cpos.x * 2 - cmp.ppos.x,
-      y = cmp.cpos.y * 2 - cmp.ppos.y;
-
-  v2.set(cmp.ppos, cmp.cpos.x, cmp.cpos.y);
-  v2.set(cmp.cpos, x, y);
-};
-
-},{"./v2":15}],8:[function(require,module,exports){
+},{"../src/accelerate2d":6,"../src/collidecirclecircle":7,"../src/collidecircleedge":8,"../src/distanceconstraint2d":9,"../src/gravitation2d":10,"../src/inertia2d":11,"../src/overlapcirclecircle":12,"../src/rewindtocollisionpoint":13,"../src/v2":15,"science-halt":5}],2:[function(require,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -776,7 +396,7 @@ function load() {
 
 exports.enable(load());
 
-},{"./debug":9}],9:[function(require,module,exports){
+},{"./debug":3}],3:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -975,7 +595,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":10}],10:[function(require,module,exports){
+},{"ms":4}],4:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -1088,7 +708,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],11:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 
 module.exports = function(onhalt, opt_msg, opt_keycode) {
   document.addEventListener('keydown', function(e) {
@@ -1098,10 +718,428 @@ module.exports = function(onhalt, opt_msg, opt_keycode) {
     }
   })
 }
-},{}],12:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _v = require('./v2');
+
+exports.default = function (cmp, dt) {
+  // apply acceleration to current position, convert dt to seconds
+  cmp.cpos.x += cmp.acel.x * dt * dt * 0.001;
+  cmp.cpos.y += cmp.acel.y * dt * dt * 0.001;
+
+  // reset acceleration
+  (0, _v.set)(cmp.acel, 0, 0);
+};
+
+},{"./v2":15}],7:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _v = require('./v2');
+
+var debug = require('debug')('pocket-physics:collide-circle-circle');
+
+// Preallocations!
+var vel1 = { x: 0, y: 0 };
+var vel2 = { x: 0, y: 0 };
+var diff = { x: 0, y: 0 };
+var move = { x: 0, y: 0 };
+
+// It's very important that this function not do any distance checking.
+// It is assumed that if this function is called, then the points are
+// definitely colliding, and that after being called with preserveInertia
+// === false, another call with === true should be made, even if the first
+// calculation has moved the points away from physically touching.
+
+exports.default = function (p1, p1radius, p1mass, p2, p2radius, p2mass, preserveInertia, damping) {
+  debug('p1 cpos %o, mass %d, radius %d', p1.cpos, p1mass, p1radius);
+  debug('p2 cpos %o, mass %d, radius %d', p2.cpos, p2mass, p2radius);
+
+  var dist2 = (0, _v.distance2)(p1.cpos, p2.cpos);
+  var target = p1radius + p2radius;
+  var min2 = target * target;
+
+  //if (dist2 > min2) return;
+
+  (0, _v.sub)(vel1, p1.cpos, p1.ppos);
+  (0, _v.sub)(vel2, p2.cpos, p2.ppos);
+
+  (0, _v.sub)(diff, p1.cpos, p2.cpos);
+  var dist = Math.sqrt(dist2);
+  var factor = (dist - target) / dist;
+
+  // Avoid division by zero in case points are directly atop each other.
+  if (dist === 0) factor = 1;
+
+  debug('point dist %d, edge dist %d, factor %d', dist, dist - target, factor);
+  debug('diff %o', diff);
+
+  var mass1 = p1mass === undefined ? 1 : p1mass;
+  var mass2 = p2mass === undefined ? 1 : p2mass;
+  var massT = mass1 + mass2;
+
+  debug('massT %d, mass1 %d, mass2 %d', massT, mass1, mass2);
+
+  // Move a away
+  move.x = diff.x * factor * (mass2 / massT);
+  move.y = diff.y * factor * (mass2 / massT);
+  if (mass1 > 0) {
+    debug('moving p1', move);
+    (0, _v.sub)(p1.cpos, p1.cpos, move);
+  }
+
+  // Move b away
+  move.x = diff.x * factor * (mass1 / massT);
+  move.y = diff.y * factor * (mass1 / massT);
+  if (mass2 > 0) {
+    debug('moving p2', move);
+    (0, _v.add)(p2.cpos, p2.cpos, move);
+  }
+
+  debug('p1.cpos %o', p1.cpos);
+  debug('p2.cpos %o', p2.cpos);
+
+  if (!preserveInertia) return;
+
+  damping = damping || 1;
+
+  var f1 = damping * (diff.x * vel1.x + diff.y * vel1.y) / (dist2 || 1);
+  var f2 = damping * (diff.x * vel2.x + diff.y * vel2.y) / (dist2 || 1);
+  debug('inertia. f1 %d, f2 %d', f1, f2);
+
+  vel1.x += (f2 * diff.x - f1 * diff.x) / (mass1 || 1); // * (mass2 / massT);
+  vel2.x += (f1 * diff.x - f2 * diff.x) / (mass2 || 1); // * (mass1 / massT);
+  vel1.y += (f2 * diff.y - f1 * diff.y) / (mass1 || 1); // * (mass2 / massT);
+  vel2.y += (f1 * diff.y - f2 * diff.y) / (mass2 || 1); // * (mass1 / massT);
+
+  debug('velocity. p1 %o, p2 %o', vel1, vel2);
+
+  (0, _v.set)(p1.ppos, p1.cpos.x - vel1.x, p1.cpos.y - vel1.y);
+  (0, _v.set)(p2.ppos, p2.cpos.x - vel2.x, p2.cpos.y - vel2.y);
+
+  debug('p1.ppos %o', p1.ppos);
+  debug('p2.ppos %o', p2.ppos);
+};
+
+},{"./v2":15,"debug":2}],8:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = collide;
+
+var _v = require('./v2');
+
+var _collidecirclecircle = require('./collidecirclecircle');
+
+var _collidecirclecircle2 = _interopRequireDefault(_collidecirclecircle);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var debug = require('debug')('pocket-physics:collide-circle-edge');
+
+// Preallocations
+var edgeDir = (0, _v.v2)();
+var edge = (0, _v.v2)();
+var prevEdge = (0, _v.v2)();
+var hypo = (0, _v.v2)();
+var epDiff = (0, _v.v2)();
+var correction = (0, _v.v2)();
+var collisionPoint = (0, _v.v2)();
+var tunnelPoint = (0, _v.v2)();
+
+var ep = {
+  cpos: (0, _v.v2)(),
+  ppos: (0, _v.v2)()
+};
+
+var epBefore = {
+  cpos: (0, _v.v2)(),
+  ppos: (0, _v.v2)()
+};
+
+function collide(point3, radius3, mass3, point1, mass1, point2, mass2, preserveInertia, damping) {
+  debug('point3 %o', point3);
+  debug('endpoint1 %o', point1);
+  debug('endpoint2 %o', point2);
+
+  // Edge direction (edge in local space)
+  _v.v2.sub(edge, point2.cpos, point1.cpos);
+
+  // Normalize collision edge (assume collision axis is edge)
+  _v.v2.normalize(edgeDir, edge);
+
+  // Vector from endpoint1 to particle
+  _v.v2.sub(hypo, point3.cpos, point1.cpos);
+
+  debug('edge %o', edge);
+  debug('hypo %o', hypo);
+  debug('edgeDir %o', edgeDir);
+
+  // Where is the particle on the edge, before, after, or on?
+  // Also used for interpolation later.
+  var projection = _v.v2.dot(edge, hypo);
+  var maxDot = _v.v2.dot(edge, edge);
+  var edgeMag = Math.sqrt(maxDot);
+
+  debug('projection %d', projection);
+  debug('maxDot %d', maxDot);
+  debug('edgeMag %d', edgeMag);
+
+  // Colliding beyond the edge...
+  if (projection < 0 || projection > maxDot) return;
+
+  // Create interpolation factor of where point closest
+  // to particle is on the line.
+  var t = projection / maxDot;
+  var u = 1 - t;
+
+  debug('t %d, u %d', t, u);
+
+  // Find the point of collision on the edge.
+  _v.v2.scale(collisionPoint, edgeDir, t * edgeMag);
+  _v.v2.add(collisionPoint, collisionPoint, point1.cpos);
+  var distance = _v.v2.distance(collisionPoint, point3.cpos);
+
+  debug('collision distance %d, radius %d', distance, radius3);
+
+  // Bail if point and edge are too far apart.
+  if (distance > radius3) return;
+
+  // Distribute mass of colliding point into two fake points
+  // and use those to collide against each endpoint independently.
+
+  var standinMass1 = u * mass3;
+  var standinMass2 = t * mass3;
+
+  debug('standinMass 1,2 %d,%d', standinMass1, standinMass2);
+
+  var standin1 = {
+    cpos: (0, _v.v2)(),
+    ppos: (0, _v.v2)()
+  };
+
+  var standin2 = {
+    cpos: (0, _v.v2)(),
+    ppos: (0, _v.v2)()
+  };
+
+  // Slide standin1 along edge to be in front of endpoint1
+  _v.v2.scale(standin1.cpos, edgeDir, t * edgeMag);
+  _v.v2.sub(standin1.cpos, point3.cpos, standin1.cpos);
+  _v.v2.scale(standin1.ppos, edgeDir, t * edgeMag);
+  _v.v2.sub(standin1.ppos, point3.ppos, standin1.ppos);
+
+  // Slide standin2 along edge to be in front of endpoint2
+  _v.v2.scale(standin2.cpos, edgeDir, u * edgeMag);
+  _v.v2.add(standin2.cpos, point3.cpos, standin2.cpos);
+  _v.v2.scale(standin2.ppos, edgeDir, u * edgeMag);
+  _v.v2.add(standin2.ppos, point3.ppos, standin2.ppos);
+
+  debug('standin1 %o', standin1);
+  debug('standin2 %o', standin2);
+
+  var standin1Before = {
+    cpos: (0, _v.v2)(),
+    ppos: (0, _v.v2)()
+  };
+
+  var standin2Before = {
+    cpos: (0, _v.v2)(),
+    ppos: (0, _v.v2)()
+  };
+
+  // Stash state of standins
+  _v.v2.copy(standin1Before.cpos, standin1.cpos);
+  _v.v2.copy(standin1Before.ppos, standin1.ppos);
+  _v.v2.copy(standin2Before.cpos, standin2.cpos);
+  _v.v2.copy(standin2Before.ppos, standin2.ppos);
+
+  var edgeRadius = 0;
+
+  debug('collide standin1 with endpoint1');
+
+  // Collide standins with endpoints
+  (0, _collidecirclecircle2.default)(standin1, radius3, standinMass1, point1, edgeRadius, mass1, preserveInertia, damping);
+
+  debug('collide standin2 with endpoint2');
+
+  (0, _collidecirclecircle2.default)(standin2, radius3, standinMass2, point2, edgeRadius, mass2, preserveInertia, damping);
+
+  var standin1Delta = {
+    cpos: (0, _v.v2)(),
+    ppos: (0, _v.v2)()
+  };
+
+  var standin2Delta = {
+    cpos: (0, _v.v2)(),
+    ppos: (0, _v.v2)()
+  };
+
+  // Compute standin1 cpos change
+  _v.v2.sub(standin1Delta.cpos, standin1.cpos, standin1Before.cpos);
+
+  // Compute standin2 cpos change
+  _v.v2.sub(standin2Delta.cpos, standin2.cpos, standin2Before.cpos);
+
+  _v.v2.scale(standin1Delta.cpos, standin1Delta.cpos, u);
+  _v.v2.scale(standin2Delta.cpos, standin2Delta.cpos, t);
+
+  debug('standin1Delta cpos %o', standin1Delta.cpos);
+  debug('standin2Delta cpos %o', standin2Delta.cpos);
+
+  // Apply cpos changes to point3
+  _v.v2.add(point3.cpos, point3.cpos, standin1Delta.cpos);
+  _v.v2.add(point3.cpos, point3.cpos, standin2Delta.cpos);
+
+  debug('new endpoint1.cpos %o', point1.cpos);
+  debug('new endpoint2.cpos %o', point2.cpos);
+  debug('new point3.cpos %o', point3.cpos);
+
+  if (!preserveInertia) return;
+
+  // TODO: instead of adding diff, get magnitude of diff and scale
+  // in reverse direction of standin velocity from point3.cpos because
+  // that is what circlecircle does.
+
+  // Compute standin1 ppos change
+  _v.v2.sub(standin1Delta.ppos, standin1.ppos, standin1Before.ppos);
+
+  // Compute standin2 ppos change
+  _v.v2.sub(standin2Delta.ppos, standin2.ppos, standin2Before.ppos);
+
+  _v.v2.scale(standin1Delta.ppos, standin1Delta.ppos, u);
+  _v.v2.scale(standin2Delta.ppos, standin2Delta.ppos, t);
+
+  debug('standin1Delta ppos %o', standin1Delta.ppos);
+  debug('standin2Delta ppos %o', standin2Delta.ppos);
+
+  // Apply ppos changes to point3
+  _v.v2.add(point3.ppos, point3.ppos, standin1Delta.ppos);
+  _v.v2.add(point3.ppos, point3.ppos, standin2Delta.ppos);
+
+  debug('new endpoint1.ppos %o', point1.ppos);
+  debug('new endpoint2.ppos %o', point2.ppos);
+  debug('new point3.ppos %o', point3.ppos);
+};
+
+},{"./collidecirclecircle":7,"./v2":15,"debug":2}],9:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = distanceConstraint2d;
+
+var _v = require('./v2');
+
+var debug = require('debug')('pocket-physics:distanceconstraint');
+
+function distanceConstraint2d(p1, p1mass, p2, p2mass, goal) {
+  var imass1 = 1 / (p1mass || 1);
+  var imass2 = 1 / (p2mass || 1);
+  var imass = imass1 + imass2;
+
+  // Current relative vector
+  var delta = v2.sub(v2(), p2.cpos, p1.cpos);
+  var deltaMag = v2.magnitude(delta);
+
+  debug('goal', goal);
+  debug('delta', delta);
+
+  // Difference between current distance and goal distance
+  var diff = (deltaMag - goal) / deltaMag;
+
+  debug('delta mag', deltaMag);
+  debug('diff', diff);
+
+  // approximate mass
+  v2.scale(delta, delta, diff / imass);
+
+  debug('delta diff/imass', delta);
+
+  var p1correction = v2.scale(v2(), delta, imass1);
+  var p2correction = v2.scale(v2(), delta, imass2);
+
+  debug('p1correction', p1correction);
+  debug('p2correction', p2correction);
+
+  if (p1mass) v2.add(p1.cpos, p1.cpos, p1correction);
+  if (p2mass) v2.sub(p2.cpos, p2.cpos, p2correction);
+};
+
+},{"./v2":15,"debug":2}],10:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = solve;
+
+var _v = require('./v2');
+
+var accel1 = (0, _v.v2)();
+
+function solve(p1, p1mass, p2, p2mass) {
+  var gravityConstant = arguments.length <= 4 || arguments[4] === undefined ? 0.99 : arguments[4];
+
+  // handle either obj not having mass
+  if (!p1mass || !p2mass) return;
+
+  var mag = undefined;
+  var factor = undefined;
+
+  var diffx = p2.cpos.x - p1.cpos.x;
+  var diffy = p2.cpos.y - p1.cpos.y;
+
+  (0, _v.set)(accel1, diffx, diffy);
+  mag = (0, _v.magnitude)(accel1);
+
+  // Newton's Law of Universal Gravitation -- Vector Form!
+  factor = gravityConstant * (p1mass * p2mass / (mag * mag));
+
+  // scale by gravity acceleration
+  (0, _v.normalize)(accel1, accel1);
+  (0, _v.scale)(accel1, accel1, factor);
+
+  // add the acceleration from gravity to p1 accel
+  (0, _v.add)(p1.acel, p1.acel, accel1);
+};
+
+},{"./v2":15}],11:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _v = require('./v2');
+
+exports.default = function (cmp) {
+  var x = cmp.cpos.x * 2 - cmp.ppos.x,
+      y = cmp.cpos.y * 2 - cmp.ppos.y;
+
+  (0, _v.set)(cmp.ppos, cmp.cpos.x, cmp.cpos.y);
+  (0, _v.set)(cmp.cpos, x, y);
+};
+
+},{"./v2":15}],12:[function(require,module,exports){
 "use strict";
 
-module.exports = function (ax, ay, arad, bx, by, brad) {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports.default = function (ax, ay, arad, bx, by, brad) {
   var x = bx - ax;
   var y = by - ay;
   var rad = arad + brad;
@@ -1111,32 +1149,43 @@ module.exports = function (ax, ay, arad, bx, by, brad) {
 },{}],13:[function(require,module,exports){
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = rewindToCollisionPoint;
+
+var _v = require('./v2');
+
+var _segmentintersection = require('./segmentintersection');
+
+var _segmentintersection2 = _interopRequireDefault(_segmentintersection);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var debug = require('debug')('pocket-physics:rewind-to-collision-point');
-var v2 = require('./v2');
-var segmentIntersection = require('./segmentintersection');
 
-var tunnelPoint = v2();
-var offset = v2();
+var tunnelPoint = (0, _v.v2)();
+var offset = (0, _v.v2)();
 
-module.exports = function rewindToCollisionPoint(point3, point1, point2) {
+function rewindToCollisionPoint(point3, point1, point2) {
 
   // detect if a collision has occurred but would have been missed due to
   // point3 moving beyond the edge in one time step.
 
-  var hasTunneled = segmentIntersection(point3.cpos, point3.ppos, point1.cpos, point2.cpos, tunnelPoint);
+  var hasTunneled = (0, _segmentintersection2.default)(point3.cpos, point3.ppos, point1.cpos, point2.cpos, tunnelPoint);
 
   if (!hasTunneled) return;
 
   debug('hasTunneled %s', hasTunneled);
 
   // Translate point3 to tunnelPoint
-  v2.sub(offset, point3.cpos, tunnelPoint);
+  (0, _v.sub)(offset, point3.cpos, tunnelPoint);
   debug('offset %o', offset);
   debug('point3.cpos %o', point3.cpos);
   debug('point3.ppos %o', point3.ppos);
 
-  v2.sub(point3.cpos, point3.cpos, offset);
-  v2.sub(point3.ppos, point3.ppos, offset);
+  (0, _v.sub)(point3.cpos, point3.cpos, offset);
+  (0, _v.sub)(point3.ppos, point3.ppos, offset);
   debug('corrected point3.cpos %o', point3.cpos);
   debug('corrected point3.ppos %o', point3.ppos);
 };
@@ -1147,19 +1196,22 @@ function debuggerIfNaN(point) {
   }
 }
 
-},{"./segmentintersection":14,"./v2":15,"debug":8}],14:[function(require,module,exports){
+},{"./segmentintersection":14,"./v2":15,"debug":2}],14:[function(require,module,exports){
 'use strict';
 
-var v2 = require('./v2');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = segmentIntersection;
 
-var s1 = v2();
-var s2 = v2();
+var _v = require('./v2');
 
-// adapted from http://stackoverflow.com/a/1968345
+var s1 = (0, _v.v2)();
+var s2 = (0, _v.v2)();
 
-module.exports = function segmentIntersection(p0, p1, p2, p3, intersectionPoint) {
-  v2.sub(s1, p1, p0);
-  v2.sub(s2, p3, p2);
+function segmentIntersection(p0, p1, p2, p3, intersectionPoint) {
+  (0, _v.sub)(s1, p1, p0);
+  (0, _v.sub)(s2, p3, p2);
 
   var s = (-s1.y * (p0.x - p2.x) + s1.x * (p0.y - p2.y)) / (-s2.x * s1.y + s1.x * s2.y);
   var t = (s2.x * (p0.y - p2.y) - s2.y * (p0.x - p2.x)) / (-s2.x * s1.y + s1.x * s2.y);
@@ -1177,63 +1229,67 @@ module.exports = function segmentIntersection(p0, p1, p2, p3, intersectionPoint)
 },{"./v2":15}],15:[function(require,module,exports){
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.v2 = v2;
 function v2(x, y) {
   return { x: x || 0, y: y || 0 };
 }
 
-v2.copy = function (out, a) {
+var copy = exports.copy = function copy(out, a) {
   out.x = a.x;
   out.y = a.y;
   return out;
 };
 
-v2.set = function (out, x, y) {
+var set = exports.set = function set(out, x, y) {
   out.x = x;
   out.y = y;
   return out;
 };
 
-v2.add = function (out, a, b) {
+var add = exports.add = function add(out, a, b) {
   out.x = a.x + b.x;
   out.y = a.y + b.y;
   return out;
 };
 
-v2.sub = function (out, a, b) {
+var sub = exports.sub = function sub(out, a, b) {
   out.x = a.x - b.x;
   out.y = a.y - b.y;
   return out;
 };
 
-v2.dot = function (a, b) {
+var dot = exports.dot = function dot(a, b) {
   return a.x * b.x + a.y * b.y;
 };
 
-v2.scale = function (out, a, factor) {
+var scale = exports.scale = function scale(out, a, factor) {
   out.x = a.x * factor;
   out.y = a.y * factor;
   return out;
 };
 
-v2.distance = function (v1, v2) {
+var distance = exports.distance = function distance(v1, v2) {
   var x = v1.x - v2.x;
   var y = v1.y - v2.y;
   return Math.sqrt(x * x + y * y);
 };
 
-v2.distance2 = function (v1, v2) {
+var distance2 = exports.distance2 = function distance2(v1, v2) {
   var x = v1.x - v2.x;
   var y = v1.y - v2.y;
   return x * x + y * y;
 };
 
-v2.magnitude = function (v1) {
+var magnitude = exports.magnitude = function magnitude(v1) {
   var x = v1.x;
   var y = v1.y;
   return Math.sqrt(x * x + y * y);
 };
 
-v2.normalize = function (out, a) {
+var normalize = exports.normalize = function normalize(out, a) {
   var x = a.x;
   var y = a.y;
   var len = x * x + y * y;
@@ -1245,12 +1301,16 @@ v2.normalize = function (out, a) {
   return out;
 };
 
-v2.normal = function (out, e1, e2) {
+var normal = exports.normal = function normal(out, e1, e2) {
   out.y = e2.x - e1.x;
   out.x = e1.y - e2.y;
-  return v2.normalize(out, out);
+  return normalize(out, out);
 };
 
-module.exports = v2;
+// the perpendicular dot product, also known as "cross" elsewhere
+// http://stackoverflow.com/a/243977/169491
+var perpDot = exports.perpDot = function perpDot(v1, v2) {
+  return v1.x * v2.y - v1.y * v2.x;
+};
 
-},{}]},{},[5]);
+},{}]},{},[1]);
