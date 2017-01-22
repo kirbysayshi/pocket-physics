@@ -137,6 +137,11 @@ export default (
     const frictionImpulse1 = v2();
     const frictionImpulse2 = v2();
 
+    // TODO: may need to use Math.max(Math.abs(vel1ymag, vel2ymag)) when
+    // choosing to incorporate velocity magnitude into the friction calc.
+    // A stationary box getting hit currently receives perfect energy
+    // transfer, since it's vel2ymag is 0.
+
     if (jtMag < vel1ymag * staticFriction1) {
       scale(frictionImpulse1, tangent, staticFriction1);
     } else {
