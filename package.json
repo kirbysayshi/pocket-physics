@@ -9,8 +9,8 @@
     ]
   },
   "files": [
-    "dist",
-    "src"
+    "dist/",
+    "src/"
   ],
   "scripts": {
     "prepublish": "babel --out-dir dist/ src",
