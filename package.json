@@ -8,6 +8,10 @@
       "babelify"
     ]
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "prepublish": "babel --out-dir dist/ src",
     "test": "tape -r babel-register test*.js",
