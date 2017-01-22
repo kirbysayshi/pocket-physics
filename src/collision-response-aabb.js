@@ -4,6 +4,7 @@ import {
   magnitude,
   normalize,
   scale,
+  set,
   copy,
   sub,
   v2,
@@ -43,7 +44,7 @@ const EPSILON = 0.0001;
 export default (
   cpos1, ppos1, mass1, restitution1, staticFriction1, dynamicFriction1,
   cpos2, ppos2, mass2, restitution2, staticFriction2, dynamicFriction2,
-  //collisionNormal, // TODO: use this instead of assuming based on cpos1&2
+  collisionNormal,
   vel1out, vel2out
 ) => {
 
@@ -51,12 +52,16 @@ export default (
   basis.x = basisNeg.x = vel1.x = vel1x.x = vel1y.x = vel2.x = vel2x.x = vel2y.x = newVel1.x = newVel2.x = t1.x = t2.x = u1.x = u2.x =
   basis.y = basisNeg.y = vel1.y = vel1x.y = vel1y.y = vel2.y = vel2x.y = vel2y.y = newVel1.y = newVel2.y = t1.y = t2.y = u1.y = u2.y = 0;
 
-  //debugger;
+  // If collisionNormal is provided, use it. Otherwise, use midpoint between
+  // current positions as axis of collision. Midpoint will model a circular
+  // collision if used.
+  if (collisionNormal) {
+    set(basis, collisionNormal.x, collisionNormal.y);
+  } else {
+    sub(basis, cpos1, cpos2);
+    normalize(basis, basis);
+  }
 
-  // use midpoint between current positions as axis of collision
-  // basis == normal
-  sub(basis, cpos1, cpos2);
-  normalize(basis, basis);
   scale(basisNeg, basis, -1);
 
   //const friction;

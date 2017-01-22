@@ -99,6 +99,7 @@ scihalt(() => running = false);
         collisionResponseAABB(
           box1.cpos, box1.ppos, box1.mass, restitution, staticFriction, dynamicFriction,
           box2.cpos, box2.ppos, box2.mass, restitution, staticFriction, dynamicFriction,
+          collision.normal,
           box1v, box2v
         );
 

@@ -740,12 +740,20 @@ test('aabb collision-response', t => {
     dynamicFriction: 0,
   }
 
+  const collision = {};
+  const isOverlapping = overlapAABBAABB2(
+    box1.cpos.x, box1.cpos.y, box1.w, box1.h,
+    box2.cpos.x, box2.cpos.y, box2.w, box2.h,
+    collision
+  );
+
   const box1v = v2();
   const box2v = v2();
 
   collisionResponseAABB(
     box1.cpos, box1.ppos, box1.mass, box1.restitution, box1.staticFriction, box1.dynamicFriction,
     box2.cpos, box2.ppos, box2.mass, box2.restitution, box2.staticFriction, box2.dynamicFriction,
+    collision.normal,
     box1v, box2v
   );
 
@@ -785,12 +793,20 @@ test('aabb collision-response: very inequal masses', t => {
     dynamicFriction: 0,
   }
 
+  const collision = {};
+  const isOverlapping = overlapAABBAABB2(
+    box1.cpos.x, box1.cpos.y, box1.w, box1.h,
+    box2.cpos.x, box2.cpos.y, box2.w, box2.h,
+    collision
+  );
+
   const box1v = v2();
   const box2v = v2();
 
   collisionResponseAABB(
     box1.cpos, box1.ppos, box1.mass, box1.restitution, box1.staticFriction, box1.dynamicFriction,
     box2.cpos, box2.ppos, box2.mass, box2.restitution, box2.staticFriction, box2.dynamicFriction,
+    collision.normal,
     box1v, box2v
   );
 
@@ -859,6 +875,7 @@ test('aabb friction', t => {
   collisionResponseAABB(
     box1.cpos, box1.ppos, box1.mass, box1.restitution, box1.staticFriction, box1.dynamicFriction,
     box2.cpos, box2.ppos, box2.mass, box2.restitution, box2.staticFriction, box2.dynamicFriction,
+    collision.normal,
     box1v, box2v
   );
 
