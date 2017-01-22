@@ -1,6 +1,6 @@
 {
   "name": "pocket-physics",
-  "version": "7.1.1",
+  "version": "7.1.2",
   "description": "Verlet physics extracted from pocket-ces demos",
   "main": "dist/index.js",
   "browserify": {
