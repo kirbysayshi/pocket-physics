@@ -27,8 +27,10 @@ for (let count = 30, i = 0; i < count; i++) {
   const centerX = cvs.width / 2;
   const centerY = cvs.height / 2;
   const distance = Math.min(centerX, centerY) * 0.5;
-  const x = centerX + (Math.cos(i) * distance)
-  const y = centerY + (Math.sin(i) * distance)
+  const cos = Math.cos(i);
+  const sin = Math.sin(i);
+  const x = centerX + (cos * distance)
+  const y = centerY + (sin * distance)
   points.push(makeBox(x, y));
 }
 

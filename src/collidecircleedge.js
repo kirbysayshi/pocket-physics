@@ -4,6 +4,11 @@ import {
   set,
   sub,
   v2,
+  dot,
+  scale,
+  distance,
+  copy,
+  normalize
 } from './v2';
 import collideCircleCircle from './collidecirclecircle';
 const debug = require('debug')('pocket-physics:collide-circle-edge');
@@ -39,13 +44,13 @@ export default function collide(
   debug('endpoint2 %o', point2);
 
   // Edge direction (edge in local space)
-  v2.sub(edge, point2.cpos, point1.cpos);
+  sub(edge, point2.cpos, point1.cpos);
 
   // Normalize collision edge (assume collision axis is edge)
-  v2.normalize(edgeDir, edge);
+  normalize(edgeDir, edge);
 
   // Vector from endpoint1 to particle
-  v2.sub(hypo, point3.cpos, point1.cpos);
+  sub(hypo, point3.cpos, point1.cpos);
 
   debug('edge %o', edge);
   debug('hypo %o', hypo);
@@ -53,8 +58,8 @@ export default function collide(
 
   // Where is the particle on the edge, before, after, or on?
   // Also used for interpolation later.
-  const projection = v2.dot(edge, hypo);
-  const maxDot = v2.dot(edge, edge);
+  const projection = dot(edge, hypo);
+  const maxDot = dot(edge, edge);
   const edgeMag = Math.sqrt(maxDot);
 
   debug('projection %d', projection);
@@ -72,14 +77,14 @@ export default function collide(
   debug('t %d, u %d', t, u);
 
   // Find the point of collision on the edge.
-  v2.scale(collisionPoint, edgeDir, t * edgeMag);
-  v2.add(collisionPoint, collisionPoint, point1.cpos);
-  const distance = v2.distance(collisionPoint, point3.cpos);
+  scale(collisionPoint, edgeDir, t * edgeMag);
+  add(collisionPoint, collisionPoint, point1.cpos);
+  const dist = distance(collisionPoint, point3.cpos);
 
-  debug('collision distance %d, radius %d', distance, radius3);
+  debug('collision distance %d, radius %d', dist, radius3);
 
   // Bail if point and edge are too far apart.
-  if (distance > radius3) return;
+  if (dist > radius3) return;
 
   // Distribute mass of colliding point into two fake points
   // and use those to collide against each endpoint independently.
@@ -100,16 +105,16 @@ export default function collide(
   };
 
   // Slide standin1 along edge to be in front of endpoint1
-  v2.scale(standin1.cpos, edgeDir, t * edgeMag);
-  v2.sub(standin1.cpos, point3.cpos, standin1.cpos);
-  v2.scale(standin1.ppos, edgeDir, t * edgeMag);
-  v2.sub(standin1.ppos, point3.ppos, standin1.ppos);
+  scale(standin1.cpos, edgeDir, t * edgeMag);
+  sub(standin1.cpos, point3.cpos, standin1.cpos);
+  scale(standin1.ppos, edgeDir, t * edgeMag);
+  sub(standin1.ppos, point3.ppos, standin1.ppos);
 
   // Slide standin2 along edge to be in front of endpoint2
-  v2.scale(standin2.cpos, edgeDir, u * edgeMag);
-  v2.add(standin2.cpos, point3.cpos, standin2.cpos);
-  v2.scale(standin2.ppos, edgeDir, u * edgeMag);
-  v2.add(standin2.ppos, point3.ppos, standin2.ppos);
+  scale(standin2.cpos, edgeDir, u * edgeMag);
+  add(standin2.cpos, point3.cpos, standin2.cpos);
+  scale(standin2.ppos, edgeDir, u * edgeMag);
+  add(standin2.ppos, point3.ppos, standin2.ppos);
 
   debug('standin1 %o', standin1);
   debug('standin2 %o', standin2);
@@ -125,10 +130,10 @@ export default function collide(
   };
 
   // Stash state of standins
-  v2.copy(standin1Before.cpos, standin1.cpos);
-  v2.copy(standin1Before.ppos, standin1.ppos);
-  v2.copy(standin2Before.cpos, standin2.cpos);
-  v2.copy(standin2Before.ppos, standin2.ppos);
+  copy(standin1Before.cpos, standin1.cpos);
+  copy(standin1Before.ppos, standin1.ppos);
+  copy(standin2Before.cpos, standin2.cpos);
+  copy(standin2Before.ppos, standin2.ppos);
 
   const edgeRadius = 0;
 
@@ -158,20 +163,20 @@ export default function collide(
   };
 
   // Compute standin1 cpos change
-  v2.sub(standin1Delta.cpos, standin1.cpos, standin1Before.cpos);
+  sub(standin1Delta.cpos, standin1.cpos, standin1Before.cpos);
 
   // Compute standin2 cpos change
-  v2.sub(standin2Delta.cpos, standin2.cpos, standin2Before.cpos);
+  sub(standin2Delta.cpos, standin2.cpos, standin2Before.cpos);
 
-  v2.scale(standin1Delta.cpos, standin1Delta.cpos, u);
-  v2.scale(standin2Delta.cpos, standin2Delta.cpos, t);
+  scale(standin1Delta.cpos, standin1Delta.cpos, u);
+  scale(standin2Delta.cpos, standin2Delta.cpos, t);
 
   debug('standin1Delta cpos %o', standin1Delta.cpos);
   debug('standin2Delta cpos %o', standin2Delta.cpos);
 
   // Apply cpos changes to point3
-  v2.add(point3.cpos, point3.cpos, standin1Delta.cpos);
-  v2.add(point3.cpos, point3.cpos, standin2Delta.cpos);
+  add(point3.cpos, point3.cpos, standin1Delta.cpos);
+  add(point3.cpos, point3.cpos, standin2Delta.cpos);
 
   debug('new endpoint1.cpos %o', point1.cpos);
   debug('new endpoint2.cpos %o', point2.cpos);
@@ -184,20 +189,20 @@ export default function collide(
   // that is what circlecircle does.
 
   // Compute standin1 ppos change
-  v2.sub(standin1Delta.ppos, standin1.ppos, standin1Before.ppos);
+  sub(standin1Delta.ppos, standin1.ppos, standin1Before.ppos);
 
   // Compute standin2 ppos change
-  v2.sub(standin2Delta.ppos, standin2.ppos, standin2Before.ppos);
+  sub(standin2Delta.ppos, standin2.ppos, standin2Before.ppos);
 
-  v2.scale(standin1Delta.ppos, standin1Delta.ppos, u);
-  v2.scale(standin2Delta.ppos, standin2Delta.ppos, t);
+  scale(standin1Delta.ppos, standin1Delta.ppos, u);
+  scale(standin2Delta.ppos, standin2Delta.ppos, t);
 
   debug('standin1Delta ppos %o', standin1Delta.ppos);
   debug('standin2Delta ppos %o', standin2Delta.ppos);
 
   // Apply ppos changes to point3
-  v2.add(point3.ppos, point3.ppos, standin1Delta.ppos);
-  v2.add(point3.ppos, point3.ppos, standin2Delta.ppos);
+  add(point3.ppos, point3.ppos, standin1Delta.ppos);
+  add(point3.ppos, point3.ppos, standin2Delta.ppos);
 
   debug('new endpoint1.ppos %o', point1.ppos);
   debug('new endpoint2.ppos %o', point2.ppos);

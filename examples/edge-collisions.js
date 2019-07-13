@@ -34,7 +34,7 @@ const GRAVITATIONAL_POINT = {
 const RADIUS = 13;
 const DAMPING = 0.5;
 const CONSTRAINT_ITERATIONS = 30;
-const boxes = generateBoxes(CENTER, RADIUS, 40);
+const boxes = generateBoxes(CENTER, RADIUS, 4);
 const points = boxes.reduce((all, box) => all.push(...box.points) && all, []);
 const colliding = [];
 

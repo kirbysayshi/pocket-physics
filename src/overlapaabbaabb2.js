@@ -1,5 +1,6 @@
 import {
   v2,
+  set,
 } from './v2';
 
 import debug from 'debug';
@@ -25,6 +26,10 @@ export default (
   if (!result.resolve) result.resolve = v2();
   if (!result.hitPos) result.hitPos = v2();
   if (!result.normal) result.normal = v2();
+
+  set(result.resolve, 0, 0);
+  set(result.hitPos, 0, 0);
+  set(result.normal, 0, 0);
 
   if (px < py) {
     const sx = dx < 0 ? -1 : 1;
