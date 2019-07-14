@@ -1,18 +1,19 @@
 import {
   v2,
   set,
+  Vector2,
 } from './v2';
-
-import debug from 'debug';
-
-const dbg = debug('pocket-physics:overlapaabaabb2');
 
 // https://github.com/noonat/intersect/blob/master/intersect.js
 
-export default (
-  center1X, center1Y, width1, height1,
-  center2X, center2Y, width2, height2,
-  result
+export type AABBOverlapResult = {
+  resolve: Vector2; hitPos: Vector2; normal: Vector2;
+}
+
+export const overlapAABBAABB = (
+  center1X: number, center1Y: number, width1: number, height1: number,
+  center2X: number, center2Y: number, width2: number, height2: number,
+  result: AABBOverlapResult
 ) => {
 
   const dx = center2X - center1X;
@@ -22,10 +23,6 @@ export default (
 
   if (px <= 0) return null;
   if (py <= 0) return null;
-
-  if (!result.resolve) result.resolve = v2();
-  if (!result.hitPos) result.hitPos = v2();
-  if (!result.normal) result.normal = v2();
 
   set(result.resolve, 0, 0);
   set(result.hitPos, 0, 0);

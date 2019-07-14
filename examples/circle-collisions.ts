@@ -6,18 +6,21 @@ import {
   scale,
   sub,
   v2,
-} from '../src/v2';
-import accelerate from '../src/accelerate2d';
-import inertia from '../src/inertia2d';
-import gravitation from '../src/gravitation2d';
-import overlapCircleCircle from '../src/overlapcirclecircle';
-import collideCircleCircle from '../src/collidecirclecircle';
+  accelerate,
+  inertia,
+  solveGravitation,
+  overlapCircleCircle,
+  collideCircleCircle,
+  Vector2,
+} from '../src/index';
 
 const cvs = document.createElement('canvas');
-const ctx = cvs.getContext('2d');
+const ctx = cvs.getContext('2d')!;
 cvs.width = cvs.height = 800;
 cvs.style.border = '1px solid gray';
 document.body.appendChild(cvs);
+
+type Point = (ReturnType<typeof generatePoints>)[0];
 
 // generate a circle of circles
 const CENTER = { x: 400, y: 400 };
@@ -31,7 +34,7 @@ const GRAVITATIONAL_POINT = {
 const RADIUS = 15;
 const DAMPING = 0.1;
 const points = generatePoints(CENTER, RADIUS, 40);
-const colliding = [];
+const colliding: Point[] = [];
 
 points.unshift(GRAVITATIONAL_POINT);
 
@@ -44,7 +47,7 @@ scihalt(() => running = false);
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
     if (point !== GRAVITATIONAL_POINT) {
-      gravitation(
+      solveGravitation(
         point, point.mass,
         GRAVITATIONAL_POINT, GRAVITATIONAL_POINT.mass
       );
@@ -69,7 +72,7 @@ scihalt(() => running = false);
 
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
-    inertia(point, dt);
+    inertia(point);
   }
 
   for (let i = 0; i < colliding.length; i += 2) {
@@ -86,7 +89,7 @@ scihalt(() => running = false);
   window.requestAnimationFrame(step);
 }());
 
-function collisionPairs (pairs, points) {
+function collisionPairs (pairs: Point[], points: Point[]) {
   pairs.length = 0;
 
   for (let i = 0; i < points.length; i++) {
@@ -107,7 +110,7 @@ function collisionPairs (pairs, points) {
   return pairs;
 }
 
-function generatePoints (center, baseRadius, num) {
+function generatePoints (center: Vector2, baseRadius: number, num: number) {
   const all = [];
   const minRadius = 10;
   for (let i = 0; i < num; i++) {
@@ -124,7 +127,7 @@ function generatePoints (center, baseRadius, num) {
   return all;
 }
 
-function render (points, ctx) {
+function render (points: Point[], ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   for (let i = 0; i < points.length; i++) {
     const point = points[i];

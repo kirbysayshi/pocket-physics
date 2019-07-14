@@ -1,58 +1,60 @@
-export function v2 (x, y) {
+export type Vector2 = { x: number; y: number; };
+
+export function v2 (x?: number, y?: number) {
   return { x: x || 0, y: y || 0 }
 }
 
-export const copy = (out, a) => {
+export const copy = (out: Vector2, a: Vector2) => {
   out.x = a.x;
   out.y = a.y;
   return out;
 }
 
-export const set = (out, x, y) => {
+export const set = (out: Vector2, x: number, y: number) => {
   out.x = x;
   out.y = y;
   return out;
 }
 
-export const add = (out, a, b) => {
+export const add = (out: Vector2, a: Vector2, b: Vector2) => {
   out.x = a.x + b.x;
   out.y = a.y + b.y;
   return out;
 }
 
-export const sub = (out, a, b) => {
+export const sub = (out: Vector2, a: Vector2, b: Vector2) => {
   out.x = a.x - b.x;
   out.y = a.y - b.y;
   return out;
 }
 
-export const dot = (a, b) => a.x * b.x + a.y * b.y
+export const dot = (a: Vector2, b: Vector2) => a.x * b.x + a.y * b.y
 
-export const scale = (out, a, factor) => {
+export const scale = (out: Vector2, a: Vector2, factor: number) => {
   out.x = a.x * factor;
   out.y = a.y * factor;
   return out;
 }
 
-export const distance = (v1, v2) => {
+export const distance = (v1: Vector2, v2: Vector2) => {
   const x = v1.x - v2.x;
   const y = v1.y - v2.y;
   return Math.sqrt(x*x + y*y);
 }
 
-export const distance2 = (v1, v2) => {
+export const distance2 = (v1: Vector2, v2: Vector2) => {
   const x = v1.x - v2.x;
   const y = v1.y - v2.y;
   return x*x + y*y;
 }
 
-export const magnitude = v1 => {
+export const magnitude = (v1: Vector2) => {
   const x = v1.x;
   const y = v1.y;
   return Math.sqrt(x*x + y*y);
 }
 
-export const normalize = (out, a) => {
+export const normalize = (out: Vector2, a: Vector2) => {
   const x = a.x;
   const y = a.y;
   let len = x*x + y*y;
@@ -64,14 +66,14 @@ export const normalize = (out, a) => {
   return out;
 }
 
-export const normal = (out, e1, e2) => {
-  out.y = e2.x - e1.x;
-  out.x = e1.y - e2.y;
+export const normal = (out: Vector2, v1: Vector2, v2: Vector2) => {
+  out.y = v2.x - v1.x;
+  out.x = v1.y - v2.y;
   return normalize(out, out);
 }
 
 // the perpendicular dot product, also known as "cross" elsewhere
 // http://stackoverflow.com/a/243977/169491
-export const perpDot = (v1, v2) => {
+export const perpDot = (v1: Vector2, v2: Vector2) => {
   return v1.x * v2.y - v1.y * v2.x;
 }

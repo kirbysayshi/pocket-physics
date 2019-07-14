@@ -23,47 +23,11 @@ console.log(point.cpos)
 // { x: 5.12, y: 0 }
 ```
 
-Also works in 3D! Check out a live demo: [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=bafff38038be6bb60a3e)
-
-```js
-var v3 = require('pocket-physics/dist/v3');
-var accelerate = require('pocket-physics/dist/accelerate3d');
-var inertia = require('pocket-physics/dist/inertia3d');
-var constrain = require('pocket-physics/dist/distanceconstraint3d');
-
-var point1 = {
-  cpos: { x: 0, y: 0, z: 0 },
-  ppos: { x: 0, y: 0, z: 0 },
-  acel: { x: 6, y: 0, z: 0 }
-}
-
-var point2 = {
-  cpos: { x: 10, y: 0, z: 0 },
-  ppos: { x: 10, y: 0, z: 0 },
-  acel: { x: 0, y: 6, z: 0 }
-}
-
-var p1mass = 5.5;
-var p2mass = 2.5;
-
-// Keep the points this far apart always.
-var goal = v3.distance(point1.cpos, point2.cpos);
-// 16 is the delta time between steps in milliseconds
-var dt = 16;
-
-accelerate(point1, dt);
-accelerate(point2, dt);
-constrain(point1, p1mass, point2, p2mass, goal);
-inertia(point1, dt);
-inertia(point2, dt);
-```
-
 TODO
 ====
 
 - [x] mass and radius as separate arguments when needed instead of whole object
 - [ ] Use either `Infinity` or `Number.MAX_VALUE` to denote infinite mass (immoveable objects)
-- [ ] 3d collisions
 
 LICENSE
 =======

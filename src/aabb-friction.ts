@@ -1,21 +1,20 @@
-import {
-  dot,
-  normalize,
-  scale,
-  sub,
-  v2,
-} from './v2';
+import { dot, normalize, scale, sub, v2, Vector2 } from "./v2";
 
-
-export default (
-  cpos1, ppos1, mass1, staticFriction1, dynamicFriction1,
-  cpos2, ppos2, mass2, staticFriction2, dynamicFriction2,
-  collisionNormal,
-  vel1out, vel2out
+export const aabbFriction = (
+  cpos1: Vector2,
+  ppos1: Vector2,
+  mass1: number,
+  staticFriction1: number,
+  dynamicFriction1: number,
+  cpos2: Vector2,
+  ppos2: Vector2,
+  mass2: number,
+  staticFriction2: number,
+  dynamicFriction2: number,
+  collisionNormal: Vector2,
+  vel1out: Vector2,
+  vel2out: Vector2
 ) => {
-
-  debugger;
-
   const vel1 = v2();
   const vel2 = v2();
 
@@ -32,16 +31,20 @@ export default (
   const tangent = v2();
   const reg1 = v2();
   const impulseScalar = dot(relativeVelocity, collisionNormal);
-  scale(reg1, collisionNormal, impulseScalar)
+  scale(reg1, collisionNormal, impulseScalar);
   sub(tangent, relativeVelocity, reg1);
   normalize(tangent, tangent);
 
   // Magnitude of friction to apply along friction vector
-  const jt = dot(relativeVelocity, tangent) / ((1 / mass1) + (1 / mass2));
+  const jt = dot(relativeVelocity, tangent) / (1 / mass1 + 1 / mass2);
 
   // Use pythagorean theorum as approximation for friction
-  const muStatic = Math.sqrt(staticFriction1*staticFriction1 + staticFriction2*staticFriction2);
-  const muDynamic = Math.sqrt(dynamicFriction1*dynamicFriction1 + dynamicFriction2*dynamicFriction2);
+  const muStatic = Math.sqrt(
+    staticFriction1 * staticFriction1 + staticFriction2 * staticFriction2
+  );
+  const muDynamic = Math.sqrt(
+    dynamicFriction1 * dynamicFriction1 + dynamicFriction2 * dynamicFriction2
+  );
 
   const frictionImpulse = v2();
 
@@ -55,6 +58,6 @@ export default (
     scale(frictionImpulse, tangent, -frictionImpulse * muDynamic);
   }
 
-  scale(vel1out, frictionImpulse, 1/mass1 * -1);
-  scale(vel2out, frictionImpulse, 1/mass2);
-}
+  scale(vel1out, frictionImpulse, (1 / mass1) * -1);
+  scale(vel2out, frictionImpulse, 1 / mass2);
+};

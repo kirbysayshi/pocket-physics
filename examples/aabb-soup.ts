@@ -1,27 +1,28 @@
 import scihalt from 'science-halt';
 import {
   add,
-  copy,
-  dot,
   distance,
-  normalize,
   scale,
   sub,
   v2,
-} from '../src/v2';
-import accelerate from '../src/accelerate2d';
-import inertia from '../src/inertia2d';
-import gravitation from '../src/gravitation2d';
-import overlapAABB2 from '../src/overlapaabbaabb2';
-import collisionResponseAABB from '../src/collision-response-aabb';
+  accelerate,
+  inertia,
+  solveGravitation,
+  overlapAABBAABB,
+  collisionResponseAABB,
+  AABBOverlapResult,
+  copy,
+} from '../src/index';
 
 const cvs = document.createElement('canvas');
-const ctx = cvs.getContext('2d');
+const ctx = cvs.getContext('2d')!;
 cvs.width = cvs.height = 800;
 cvs.style.border = '1px solid gray';
 document.body.appendChild(cvs);
 
-const points = [];
+type Box = ReturnType<typeof makeBox>;
+
+const points: Box[] = [];
 
 for (let count = 30, i = 0; i < count; i++) {
   const centerX = cvs.width / 2;
@@ -49,7 +50,7 @@ scihalt(() => running = false);
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
     const dist = distance(point.cpos, GRAVITATIONAL_POINT.cpos);
-    dist > 100 && gravitation(
+    dist > 100 && solveGravitation(
       point, point.mass,
       GRAVITATIONAL_POINT, GRAVITATIONAL_POINT.mass
     );
@@ -63,13 +64,17 @@ scihalt(() => running = false);
 
   const collisions = [];
   const handled = [];
-  const collision = {};
+  const collision: AABBOverlapResult = {
+    resolve: v2(),
+    hitPos: v2(),
+    normal: v2()
+  };
 
   for (let i = 0; i < points.length; i++) {
     for (let j = i + 1; j < points.length; j++) {
       const box1 = points[i];
       const box2 = points[j];
-      const isOverlapping = overlapAABB2(
+      const isOverlapping = overlapAABBAABB(
         box1.cpos.x, box1.cpos.y, box1.w, box1.h,
         box2.cpos.x, box2.cpos.y, box2.w, box2.h,
         collision
@@ -120,7 +125,7 @@ scihalt(() => running = false);
 
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
-    inertia(point, dt);
+    inertia(point);
   }
 
   render(points, ctx);
@@ -128,7 +133,7 @@ scihalt(() => running = false);
   window.requestAnimationFrame(step);
 }());
 
-function makeBox (x, y) {
+function makeBox (x: number, y: number) {
   return {
     id: 'id-' + Math.floor((Math.random() * 10000000)),
     cpos: v2(x, y),
@@ -140,17 +145,17 @@ function makeBox (x, y) {
   }
 }
 
-function copyCollisionData (output, input) {
-  output.resolve = v2();
-  output.hitPos = v2();
-  output.normal = v2();
-  v2.copy(output.resolve, input.resolve);
-  v2.copy(output.hitPos, input.hitPos);
-  v2.copy(output.normal, input.normal);
-  return output;
-}
+// function copyCollisionData (output, input) {
+//   output.resolve = v2();
+//   output.hitPos = v2();
+//   output.normal = v2();
+//   copy(output.resolve, input.resolve);
+//   copy(output.hitPos, input.hitPos);
+//   copy(output.normal, input.normal);
+//   return output;
+// }
 
-function render (points, ctx) {
+function render (points: Box[], ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   for (let i = 0; i < points.length; i++) {
     const point = points[i];

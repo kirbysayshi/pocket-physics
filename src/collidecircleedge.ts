@@ -8,10 +8,13 @@ import {
   scale,
   distance,
   copy,
-  normalize
+  normalize,
+  Vector2
 } from './v2';
-import collideCircleCircle from './collidecirclecircle';
-const debug = require('debug')('pocket-physics:collide-circle-edge');
+import {collideCircleCircle} from './collidecirclecircle';
+import Debug from 'debug';
+import { VelocityDerivable } from './common-types';
+const debug = Debug('pocket-physics:collide-circle-edge');
 
 // Preallocations
 const edgeDir = v2();
@@ -33,11 +36,11 @@ const epBefore = {
   ppos: v2()
 };
 
-export default function collide(
-  point3, radius3, mass3,
-  point1, mass1,
-  point2, mass2,
-  preserveInertia, damping
+export function collideCircleEdge(
+  point3: VelocityDerivable, radius3: number, mass3: number,
+  point1: VelocityDerivable, mass1: number | undefined,
+  point2: VelocityDerivable, mass2: number | undefined,
+  preserveInertia: any, damping: number
 ) {
   debug('point3 %o', point3);
   debug('endpoint1 %o', point1);

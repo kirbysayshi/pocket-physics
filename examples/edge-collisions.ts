@@ -6,21 +6,25 @@ import {
   scale,
   sub,
   v2,
-} from '../src/v2';
-import accelerate from '../src/accelerate2d';
-import inertia from '../src/inertia2d';
-import gravitation from '../src/gravitation2d';
-import overlapCircleCircle from '../src/overlapcirclecircle';
-import collideCircleCircle from '../src/collidecirclecircle';
-import collideCircleEdge from '../src/collidecircleedge';
-import distanceConstraint from '../src/distanceconstraint2d';
-import rewindToCollisionPoint from '../src/rewindtocollisionpoint';
+  accelerate,
+  inertia,
+  solveGravitation,
+  overlapCircleCircle,
+  collideCircleCircle,
+  collideCircleEdge,
+  solveDistanceConstraint,
+  rewindToCollisionPoint,
+  Vector2,
+} from '../src/index';
 
 const cvs = document.createElement('canvas');
-const ctx = cvs.getContext('2d');
+const ctx = cvs.getContext('2d')!;
 cvs.width = cvs.height = 800;
 cvs.style.border = '1px solid gray';
 document.body.appendChild(cvs);
+
+type Box = (ReturnType<typeof generateBoxes>)[0];
+type Point = Box['points'][0];
 
 // generate a circle of circles
 const CENTER = { x: 400, y: 400 };
@@ -35,8 +39,8 @@ const RADIUS = 13;
 const DAMPING = 0.5;
 const CONSTRAINT_ITERATIONS = 30;
 const boxes = generateBoxes(CENTER, RADIUS, 4);
-const points = boxes.reduce((all, box) => all.push(...box.points) && all, []);
-const colliding = [];
+const points = boxes.reduce<Point[]>((all, box) => { all.push(...box.points); return all }, []);
+const colliding: Point[] = [];
 
 points.unshift(GRAVITATIONAL_POINT);
 
@@ -53,19 +57,19 @@ scihalt(() => running = false);
       const { points, goals } = box;
 
       // p1, p1mass, p2, p2mass, goal
-      distanceConstraint(points[0], points[0].mass, points[1], points[1].mass, goals[0]);
-      distanceConstraint(points[1], points[1].mass, points[2], points[2].mass, goals[1]);
-      distanceConstraint(points[2], points[2].mass, points[3], points[3].mass, goals[2]);
-      distanceConstraint(points[3], points[3].mass, points[0], points[0].mass, goals[3]);
-      distanceConstraint(points[0], points[0].mass, points[2], points[2].mass, goals[4]);
-      distanceConstraint(points[1], points[1].mass, points[3], points[3].mass, goals[5]);
+      solveDistanceConstraint(points[0], points[0].mass, points[1], points[1].mass, goals[0]);
+      solveDistanceConstraint(points[1], points[1].mass, points[2], points[2].mass, goals[1]);
+      solveDistanceConstraint(points[2], points[2].mass, points[3], points[3].mass, goals[2]);
+      solveDistanceConstraint(points[3], points[3].mass, points[0], points[0].mass, goals[3]);
+      solveDistanceConstraint(points[0], points[0].mass, points[2], points[2].mass, goals[4]);
+      solveDistanceConstraint(points[1], points[1].mass, points[3], points[3].mass, goals[5]);
     }
   }
 
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
     if (point !== GRAVITATIONAL_POINT) {
-      gravitation(
+      solveGravitation(
         point, point.mass,
         GRAVITATIONAL_POINT, GRAVITATIONAL_POINT.mass
       );
@@ -92,7 +96,7 @@ scihalt(() => running = false);
 
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
-    inertia(point, dt);
+    inertia(point);
   }
 
   for (let i = 0; i < colliding.length; i += 2) {
@@ -111,7 +115,7 @@ scihalt(() => running = false);
   window.requestAnimationFrame(step);
 }());
 
-function collisionPairs (pairs, points) {
+function collisionPairs (pairs: Point[], points: Point[]) {
   pairs.length = 0;
 
   for (let i = 0; i < points.length; i++) {
@@ -132,7 +136,7 @@ function collisionPairs (pairs, points) {
   return pairs;
 }
 
-function collisionEdges (preserveInertia, points, boxes) {
+function collisionEdges (preserveInertia: boolean, points: Point[], boxes: Box[]) {
   //collidingEdges.length = 0;
 
   // for each edge, test against each point
@@ -183,7 +187,7 @@ function collisionEdges (preserveInertia, points, boxes) {
   }
 }
 
-function generateBoxes (center, baseRadius, num) {
+function generateBoxes (center: Vector2, baseRadius: number, num: number) {
   const all = [];
   const minRadius = 10;
   for (let i = 0; i < num; i++) {
@@ -224,7 +228,7 @@ function generateBoxes (center, baseRadius, num) {
   return all;
 }
 
-function render (boxes, points, ctx) {
+function render (boxes: Box[], points: Point[], ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   for (let i = 0; i < points.length; i++) {
     const point = points[i];

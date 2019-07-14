@@ -1,25 +1,23 @@
-import scihalt from 'science-halt';
+import scihalt from "science-halt";
 import {
   add,
-  copy,
-  dot,
-  magnitude,
-  normalize,
   scale,
   sub,
   v2,
-} from '../src/v2';
-import accelerate from '../src/accelerate2d';
-import inertia from '../src/inertia2d';
-import gravitation from '../src/gravitation2d';
-import overlapAABB2 from '../src/overlapaabbaabb2';
-import collisionResponseAABB from '../src/collision-response-aabb';
+  AABBOverlapResult,
+  accelerate,
+  inertia,
+  overlapAABBAABB,
+  collisionResponseAABB
+} from "../src/index";
 
-const cvs = document.createElement('canvas');
-const ctx = cvs.getContext('2d');
+const cvs = document.createElement("canvas");
+const ctx = cvs.getContext("2d")!;
 cvs.width = cvs.height = 800;
-cvs.style.border = '1px solid gray';
+cvs.style.border = "1px solid gray";
 document.body.appendChild(cvs);
+
+
 
 const box1 = {
   cpos: v2(350, 90),
@@ -27,8 +25,8 @@ const box1 = {
   acel: v2(),
   w: 100,
   h: 150,
-  mass: 10,
-}
+  mass: 10
+};
 
 const box2 = {
   cpos: v2(350, 600),
@@ -36,32 +34,43 @@ const box2 = {
   acel: v2(),
   w: 100,
   h: 150,
-  mass: 10,
-}
+  mass: 10
+};
 
-const points = []
-const collision = {};
+type Box = typeof box1;
+
+const points: Box[] = [];
+const collision: AABBOverlapResult = {
+  resolve: v2(),
+  hitPos: v2(),
+  normal: v2()
+};
 
 points.push(box1, box2);
 
 let running = true;
-scihalt(() => running = false);
+scihalt(() => (running = false));
 
-(function step () {
+(function step() {
   const dt = 1;
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
     accelerate(point, dt);
   }
 
-  const isOverlapping = overlapAABB2(
-    box1.cpos.x, box1.cpos.y, box1.w, box1.h,
-    box2.cpos.x, box2.cpos.y, box2.w, box2.h,
+  const isOverlapping = overlapAABBAABB(
+    box1.cpos.x,
+    box1.cpos.y,
+    box1.w,
+    box1.h,
+    box2.cpos.x,
+    box2.cpos.y,
+    box2.w,
+    box2.h,
     collision
   );
 
   if (isOverlapping) {
-
     // for debugging
     render(points, ctx);
 
@@ -83,10 +92,21 @@ scihalt(() => running = false);
     const dynamicFriction = 0.01;
 
     collisionResponseAABB(
-      box1.cpos, box1.ppos, box1.mass, restitution, staticFriction, dynamicFriction,
-      box2.cpos, box2.ppos, box2.mass, restitution, staticFriction, dynamicFriction,
+      box1.cpos,
+      box1.ppos,
+      box1.mass,
+      restitution,
+      staticFriction,
+      dynamicFriction,
+      box2.cpos,
+      box2.ppos,
+      box2.mass,
+      restitution,
+      staticFriction,
+      dynamicFriction,
       collision.normal,
-      box1v, box2v
+      box1v,
+      box2v
     );
 
     // Apply the new velocity
@@ -99,20 +119,20 @@ scihalt(() => running = false);
 
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
-    inertia(point, dt);
+    inertia(point);
   }
 
   render(points, ctx);
   if (!running) return;
   window.requestAnimationFrame(step);
-}());
+})();
 
-function render (points, ctx) {
+function render(points: Box[], ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   for (let i = 0; i < points.length; i++) {
     const point = points[i];
 
-    ctx.fillStyle = 'red';
+    ctx.fillStyle = "red";
     ctx.fillRect(
       point.ppos.x - point.w / 2,
       point.ppos.y - point.h / 2,
@@ -120,7 +140,7 @@ function render (points, ctx) {
       point.h
     );
 
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = "black";
     ctx.fillRect(
       point.cpos.x - point.w / 2,
       point.cpos.y - point.h / 2,

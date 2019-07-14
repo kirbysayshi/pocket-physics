@@ -1,15 +1,14 @@
-import {
-  add,
-  magnitude,
-  normalize,
-  scale,
-  set,
-  sub,
-  v2,
-} from './v2';
+import { add, magnitude, normalize, scale, set, sub, v2 } from "./v2";
+import { Integratable, VelocityDerivable } from "./common-types";
 const accel1 = v2();
 
-export default function solve(p1, p1mass, p2, p2mass, gravityConstant=0.99) {
+export function solveGravitation(
+  p1: Integratable,
+  p1mass: number,
+  p2: VelocityDerivable,
+  p2mass: number,
+  gravityConstant = 0.99
+) {
   // handle either obj not having mass
   if (!p1mass || !p2mass) return;
 
@@ -31,4 +30,4 @@ export default function solve(p1, p1mass, p2, p2mass, gravityConstant=0.99) {
 
   // add the acceleration from gravity to p1 accel
   add(p1.acel, p1.acel, accel1);
-};
+}

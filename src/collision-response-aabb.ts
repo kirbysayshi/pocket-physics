@@ -8,7 +8,8 @@ import {
   copy,
   sub,
   v2,
-} from './v2';
+  Vector2
+} from "./v2";
 
 // Registers / Preallocations
 
@@ -41,21 +42,43 @@ const EPSILON = 0.0001;
 // restitution: box2d: https://github.com/erincatto/Box2D/blob/6a69ddbbd59b21c0d6699c43143b4114f7f92e21/Box2D/Box2D/Dynamics/Contacts/b2Contact.h#L42-L47
 // Math.max(restitution1, restitution2);
 
-export default (
-  cpos1, ppos1, mass1, restitution1, staticFriction1, dynamicFriction1,
-  cpos2, ppos2, mass2, restitution2, staticFriction2, dynamicFriction2,
-  collisionNormal,
-  vel1out, vel2out
+export const collisionResponseAABB = (
+  cpos1: Vector2,
+  ppos1: Vector2,
+  mass1: number,
+  restitution1: number,
+  staticFriction1: number,
+  dynamicFriction1: number,
+  cpos2: Vector2,
+  ppos2: Vector2,
+  mass2: number,
+  restitution2: number,
+  staticFriction2: number,
+  dynamicFriction2: number,
+  collisionNormal: Vector2,
+  vel1out: Vector2,
+  vel2out: Vector2
 ) => {
-
   // blank out all preallocated vectors.
-  basis.x = basisNeg.x = vel1.x = vel1x.x = vel1y.x = vel2.x = vel2x.x = vel2y.x = newVel1.x = newVel2.x = t1.x = t2.x = u1.x = u2.x =
-  basis.y = basisNeg.y = vel1.y = vel1x.y = vel1y.y = vel2.y = vel2x.y = vel2y.y = newVel1.y = newVel2.y = t1.y = t2.y = u1.y = u2.y = 0;
+  set(basis, 0, 0);
+  set(basisNeg, 0, 0);
+  set(vel1, 0, 0);
+  set(vel1x, 0, 0);
+  set(vel1y, 0, 0);
+  set(vel2, 0, 0);
+  set(vel2x, 0, 0);
+  set(vel2y, 0, 0);
+  set(newVel1, 0, 0);
+  set(newVel2, 0, 0);
+  set(t1, 0, 0);
+  set(t2, 0, 0);
+  set(u1, 0, 0);
+  set(u2, 0, 0);
 
   // If collisionNormal is provided, use it. Otherwise, use midpoint between
   // current positions as axis of collision. Midpoint will model a circular
   // collision if used.
-  if (collisionNormal) {
+  if (collisionNormal && collisionNormal.x !== 0 && collisionNormal.y !== 0) {
     set(basis, collisionNormal.x, collisionNormal.y);
   } else {
     sub(basis, cpos1, cpos2);
@@ -128,7 +151,6 @@ export default (
 
   // only apply significant friction
   if (jtMag > EPSILON) {
-
     // magnitudes of velocity along the collision tangent, hopefully.
     const vel1ymag = magnitude(vel1y);
     const vel2ymag = magnitude(vel2y);
@@ -140,7 +162,7 @@ export default (
     // TODO: may need to use Math.max(Math.abs(vel1ymag, vel2ymag)) when
     // choosing to incorporate velocity magnitude into the friction calc.
     // A stationary box getting hit currently receives perfect energy
-    // transfer, since it's vel2ymag is 0.
+    // transfer, since its vel2ymag is 0.
 
     if (jtMag < vel1ymag * staticFriction1) {
       scale(frictionImpulse1, tangent, staticFriction1);
@@ -161,4 +183,4 @@ export default (
   // output new velocity of box1 and box2
   copy(vel1out, newVel1);
   copy(vel2out, newVel2);
-}
+};

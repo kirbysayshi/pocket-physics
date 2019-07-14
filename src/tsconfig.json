@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.common.json",
+  "include": ["./*.ts"],
+  "compilerOptions": {
+    "outDir": "../types",
+    "emitDeclarationOnly": true,
+    "noEmit": false
+  }
+}

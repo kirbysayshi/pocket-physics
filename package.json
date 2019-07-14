@@ -2,19 +2,27 @@
   "name": "pocket-physics",
   "version": "7.1.2",
   "description": "Verlet physics extracted from pocket-ces demos",
-  "main": "dist/index.js",
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
+  "types": "types",
   "browserify": {
     "transform": [
       "babelify"
     ]
   },
+  
   "files": [
-    "dist/",
-    "src/"
+    "esm/",
+    "cjs",
+    "src/",
+    "types"
   ],
   "scripts": {
-    "prepublishOnly": "babel --out-dir dist/ src",
-    "test": "tape -r @babel/register test*.js",
+    "prepublishOnly": "yarn build:esm && yarn build:cjs && yarn build:types",
+    "build:esm": "BABEL_ENV=build-esm babel --extensions '.ts' --out-dir esm/ src",
+    "build:cjs": "BABEL_ENV=build-cjs babel --extensions '.ts' --out-dir cjs/ src",
+    "build:types": "tsc --build",
+    "test": "babel-node --extensions .ts src/test*.ts",
     "demos": "beefy $(for f in examples/*.js; do echo \"$f:examples/$(basename $f .js)-bundle.js \"; done)",
     "demos:bundle": "rm examples/*-bundle.js; for js in examples/*.js; do browserify $js > examples/$(basename $js .js)-bundle.js; done"
   },
@@ -37,13 +45,18 @@
   "devDependencies": {
     "@babel/cli": "^7.5.0",
     "@babel/core": "^7.5.4",
+    "@babel/node": "^7.5.0",
     "@babel/preset-env": "^7.5.4",
+    "@babel/preset-typescript": "^7.3.3",
     "@babel/register": "^7.4.4",
+    "@types/debug": "^4.1.4",
+    "@types/tape": "^4.2.33",
     "babelify": "^10.0.0",
     "beefy": "^2.1.5",
     "browserify": "^16.3.0",
     "science-halt": "^0.2.0",
-    "tape": "^4.6.0"
+    "tape": "^4.6.0",
+    "typescript": "^3.5.3"
   },
   "dependencies": {
     "debug": "^4.1.1"
