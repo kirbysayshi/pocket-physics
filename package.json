@@ -6,8 +6,9 @@
   "module": "esm/index.js",
   "types": "types",
   "browserify": {
+    "extensions": [".ts",".tsx"],
     "transform": [
-      "babelify"
+      [ "babelify", {"extensions": [".ts"]} ]
     ]
   },
   
@@ -23,8 +24,8 @@
     "build:cjs": "BABEL_ENV=build-cjs babel --extensions '.ts' --out-dir cjs/ src",
     "build:types": "tsc --build",
     "test": "babel-node --extensions .ts src/test*.ts",
-    "demos": "beefy $(for f in examples/*.js; do echo \"$f:examples/$(basename $f .js)-bundle.js \"; done)",
-    "demos:bundle": "rm examples/*-bundle.js; for js in examples/*.js; do browserify $js > examples/$(basename $js .js)-bundle.js; done"
+    "demos": "tools/demos.sh",
+    "demos:bundle": "tools/demos-bundle.sh"
   },
   "repository": {
     "type": "git",
