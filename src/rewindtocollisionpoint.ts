@@ -1,10 +1,6 @@
 import { sub, v2, Vector2 } from "./v2";
 import { segmentIntersection } from "./segmentintersection";
-
-import Debug from "debug";
 import { Integratable } from "./common-types";
-
-const debug = Debug("pocket-physics:rewind-to-collision-point");
 
 const tunnelPoint = v2();
 const offset = v2();
@@ -27,18 +23,11 @@ export function rewindToCollisionPoint(
 
   if (!hasTunneled) return;
 
-  debug("hasTunneled %s", hasTunneled);
-
   // Translate point3 to tunnelPoint
   sub(offset, point3.cpos, tunnelPoint);
-  debug("offset %o", offset);
-  debug("point3.cpos %o", point3.cpos);
-  debug("point3.ppos %o", point3.ppos);
-
+  
   sub(point3.cpos, point3.cpos, offset);
   sub(point3.ppos, point3.ppos, offset);
-  debug("corrected point3.cpos %o", point3.cpos);
-  debug("corrected point3.ppos %o", point3.ppos);
 }
 
 function debuggerIfNaN(point: Vector2) {

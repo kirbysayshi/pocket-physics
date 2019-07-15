@@ -1,4 +1,4 @@
-import { add, magnitude, normalize, scale, set, sub, v2 } from "./v2";
+import { add, magnitude, normalize, scale, set, v2 } from "./v2";
 import { Integratable, VelocityDerivable } from "./common-types";
 const accel1 = v2();
 

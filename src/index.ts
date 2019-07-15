@@ -1,33 +1,22 @@
-// for file in src/*; do name=`basename $file .js`; echo "export { default as $name } from ""'"./"$name""';"""; done
 
-export { aabbFriction } from "./aabb-friction";
-export { accelerate } from "./accelerate2d";
-export { collideCircleCircle } from "./collidecirclecircle";
-export { collideCircleEdge } from "./collidecircleedge";
-export { collisionResponseAABB } from "./collision-response-aabb";
-export { solveDistanceConstraint } from "./distanceconstraint2d";
-export { solveDrag } from "./drag2d";
-export { solveGravitation } from "./gravitation2d";
-export { inertia } from "./inertia2d";
-export { overlapAABBAABB, AABBOverlapResult } from "./overlapaabbaabb2";
-export { overlapCircleCircle } from "./overlapcirclecircle";
-export { rewindToCollisionPoint } from "./rewindtocollisionpoint";
-export { segmentIntersection } from "./segmentintersection";
-export { solveSpringConstraint } from "./springconstraint2d";
-export {
-  Vector2,
-  v2,
-  copy,
-  set,
-  add,
-  sub,
-  dot,
-  scale,
-  distance,
-  distance2,
-  magnitude,
-  normalize,
-  normal,
-  perpDot
-} from "./v2";
-export { DeltaTimeMS, Integratable } from "./common-types";
+// I would prefer to name all the exports here to prevent name clobbering,
+// but Babel cannot know if a named export is a Type or not. So even loading
+// this transpiled file in a project will cause failures when a builder,
+// like webpack or rollup, tries to resolve a Type as a code export.
+
+export * from "./aabb-friction";
+export * from "./accelerate2d";
+export * from "./collidecirclecircle";
+export * from "./collidecircleedge";
+export * from "./collision-response-aabb";
+export * from "./distanceconstraint2d";
+export * from "./drag2d";
+export * from "./gravitation2d";
+export * from "./inertia2d";
+export * from "./overlapaabbaabb2";
+export * from "./overlapcirclecircle";
+export * from "./rewindtocollisionpoint";
+export * from "./segmentintersection";
+export * from "./springconstraint2d";
+export * from "./v2";
+export * from "./common-types";

@@ -1,5 +1,4 @@
 import {
-  v2,
   set,
   Vector2,
 } from './v2';

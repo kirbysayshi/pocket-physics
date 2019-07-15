@@ -1,7 +1,5 @@
 import { add, scale, sub, v2 } from "./v2";
 import { Integratable } from "./common-types";
-import Debug from 'debug';
-const debug = Debug("pocket-physics:springconstraint");
 
 export function solveSpringConstraint(
   follower: Integratable,
@@ -23,13 +21,8 @@ export function solveSpringConstraint(
   // Current relative vector
   const delta = sub(v2(), p2.cpos, p1.cpos);
 
-  debug("target", target);
-  debug("delta", delta);
-
   //scale(delta, delta, stiffness * damping * imass2);
   scale(delta, delta, stiffness * damping * imass1);
-
-  debug("delta * stiffness * damping", delta);
 
   add(p1.acel, p1.acel, delta);
 }
