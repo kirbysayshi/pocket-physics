@@ -4,7 +4,6 @@
   "description": "Verlet physics extracted from pocket-ces demos",
   "main": "cjs/index.js",
   "module": "esm/index.js",
-  "types": "types/index.js",
   "browserify": {
     "extensions": [
       ".ts",
@@ -24,18 +23,12 @@
   "files": [
     "esm/",
     "cjs",
-    "src/",
-    "types/"
+    "src/"
   ],
   "scripts": {
     "prepublishOnly": "yarn build",
-    "build": "yarn build:esm && yarn build:cjs && yarn build:types",
-    "build:esm": "BABEL_ENV=build-esm babel --extensions '.ts' --out-dir esm/ src",
-    "build:cjs": "BABEL_ENV=build-cjs babel --extensions '.ts' --out-dir cjs/ src",
-    "build:types": "tsc --build",
-    "test": "babel-node --extensions .ts src/test*.ts",
-    "demos": "tools/demos.sh",
-    "demos:bundle": "tools/demos-bundle.sh"
+    "build": "tsc --build",
+    "test": "babel-node --extensions .ts src/test*.ts"
   },
   "repository": {
     "type": "git",
