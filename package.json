@@ -28,7 +28,10 @@
   "scripts": {
     "prepublishOnly": "yarn build",
     "build": "tsc --build",
-    "test": "babel-node --extensions .ts src/test*.ts"
+    "test": "babel-node --extensions .ts src/test*.ts",
+    "demos": "parcel serve examples/index.html",
+    "demos:bundle": "parcel build examples/index.html",
+    "demos:deploy": "yarn demos:bundle && gh-pages -d dist/"
   },
   "repository": {
     "type": "git",
@@ -55,8 +58,9 @@
     "@babel/register": "^7.4.4",
     "@types/tape": "^4.2.33",
     "babelify": "^10.0.0",
-    "beefy": "^2.1.5",
     "browserify": "^16.3.0",
+    "gh-pages": "^2.0.1",
+    "parcel-bundler": "^1.12.3",
     "science-halt": "^0.2.0",
     "tape": "^4.6.0",
     "typescript": "^3.5.3"

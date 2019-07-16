@@ -1,4 +1,7 @@
 node_modules
 cjs
 esm
-types
+
+# parcel
+.cache
+dist
