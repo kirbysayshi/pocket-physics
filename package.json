@@ -4,22 +4,6 @@
   "description": "Verlet physics extracted from pocket-ces demos",
   "main": "cjs/index.js",
   "module": "esm/index.js",
-  "browserify": {
-    "extensions": [
-      ".ts",
-      ".tsx"
-    ],
-    "transform": [
-      [
-        "babelify",
-        {
-          "extensions": [
-            ".ts"
-          ]
-        }
-      ]
-    ]
-  },
   "files": [
     "esm/",
     "cjs",
@@ -28,7 +12,7 @@
   "scripts": {
     "prepublishOnly": "yarn build",
     "build": "tsc --build",
-    "test": "babel-node --extensions .ts src/test*.ts",
+    "test": "jest src",
     "demos": "parcel serve examples/index.html",
     "demos:bundle": "parcel build examples/index.html",
     "demos:deploy": "yarn demos:bundle && gh-pages -d dist/"
@@ -50,19 +34,12 @@
   },
   "homepage": "https://github.com/kirbysayshi/pocket-physics",
   "devDependencies": {
-    "@babel/cli": "^7.5.0",
-    "@babel/core": "^7.5.4",
-    "@babel/node": "^7.5.0",
-    "@babel/preset-env": "^7.5.4",
-    "@babel/preset-typescript": "^7.3.3",
-    "@babel/register": "^7.4.4",
-    "@types/tape": "^4.2.33",
-    "babelify": "^10.0.0",
-    "browserify": "^16.3.0",
+    "@types/jest": "^24.0.15",
     "gh-pages": "^2.0.1",
+    "jest": "^24.8.0",
     "parcel-bundler": "^1.12.3",
     "science-halt": "^0.2.0",
-    "tape": "^4.6.0",
+    "ts-jest": "^24.0.2",
     "typescript": "^3.5.3"
   },
   "dependencies": {}

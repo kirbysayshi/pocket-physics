@@ -1,4 +1,3 @@
-import test from "tape";
 import { solveGravitation } from "./gravitation2d";
 import { accelerate } from "./accelerate2d";
 import { inertia } from "./inertia2d";
@@ -12,7 +11,7 @@ import { overlapAABBAABB, AABBOverlapResult } from "./overlapaabbaabb2";
 import { collisionResponseAABB } from "./collision-response-aabb";
 //import frictionAABB from './aabb-friction';
 
-test("2d", t => {
+test("2d", () => {
   const point = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
@@ -23,13 +22,12 @@ test("2d", t => {
   accelerate(point, 1);
   inertia(point);
 
-  t.equals(point.cpos.x, 0.02, "current position is correct");
-  t.equals(point.ppos.x, 0.01, "previous position is correct");
-  t.equals(point.acel.x, 0, "acceleration is reset");
-  t.end();
+  expect(point.cpos.x).toBe(0.02);
+  expect(point.ppos.x).toBe(0.01);
+  expect(point.acel.x).toBe(0);
 });
 
-test("2d gravitation", t => {
+test("2d gravitation", () => {
   const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
@@ -49,13 +47,12 @@ test("2d gravitation", t => {
   solveGravitation(point1, p1mass, point2, p2mass, 1);
   solveGravitation(point2, p2mass, point1, p1mass, 1);
 
-  t.equals(point1.acel.x, 1, "gravitation1 is correct");
-  t.equals(point2.acel.x, -1, "gravitation2 is correct");
-  t.equals(point1.acel.x, point2.acel.x * -1, "gravitation equal and opposite");
-  t.end();
+  expect(point1.acel.x).toBe(1);
+  expect(point2.acel.x).toBe(-1);
+  expect(point1.acel.x).toBe(point2.acel.x * -1);
 });
 
-test("2d spring constraint with equal mass", t => {
+test("2d spring constraint with equal mass", () => {
   const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
@@ -77,11 +74,10 @@ test("2d spring constraint with equal mass", t => {
   inertia(point1);
   inertia(point2);
 
-  t.equal(point2.acel.x, -0.036000000000000004, "point2 moves towards point1");
-  t.end();
+  expect(point2.acel.x).toBe(-0.036000000000000004);
 });
 
-test("2d collision with equal mass and inertia preserved", t => {
+test("2d collision with equal mass and inertia preserved", () => {
   const damping = 0.99;
 
   const point1 = {
@@ -114,26 +110,26 @@ test("2d collision with equal mass and inertia preserved", t => {
     damping
   );
 
-  t.equal(point1.cpos.x, -0.5, "point1 moves left");
-  t.equal(point1.cpos.y, 0, "point1 does not move vertically");
-  t.equal(point1.ppos.x, 0, "point1 has not had inertia applied(x)");
-  t.equal(point1.ppos.y, 0, "point1 has not had inertia applied(y)");
-  t.equal(point2.cpos.x, 9.5, "point2 moves right");
-  t.equal(point2.cpos.y, 0, "point2 does not move vertically");
-  t.equal(point2.ppos.x, 9, "point2 has not had inertia applied(x)");
-  t.equal(point2.ppos.y, 0, "point2 has not had inertia applied(y)");
+  expect(point1.cpos.x).toBe(-0.5);
+  expect(point1.cpos.y).toBe(0);
+  expect(point1.ppos.x).toBe(0);
+  expect(point1.ppos.y).toBe(0);
+  expect(point2.cpos.x).toBe(9.5);
+  expect(point2.cpos.y).toBe(0);
+  expect(point2.ppos.x).toBe(9);
+  expect(point2.ppos.y).toBe(0);
 
   inertia(point1);
   inertia(point2);
 
-  t.equal(point1.cpos.x, -1, "point1 continues left");
-  t.equal(point1.cpos.y, 0, "point1 does not move vertically");
-  t.equal(point1.ppos.x, -0.5, "point1 has inertia applied(x)");
-  t.equal(point1.ppos.y, 0, "point1 has inertia applied(y)");
-  t.equal(point2.cpos.x, 10, "point2 continues right");
-  t.equal(point2.cpos.y, 0, "point2 does not move vertically");
-  t.equal(point2.ppos.x, 9.5, "point2 has inertia applied(x)");
-  t.equal(point2.ppos.y, 0, "point2 has inertia applied(y)");
+  expect(point1.cpos.x).toBe(-1);
+  expect(point1.cpos.y).toBe(0);
+  expect(point1.ppos.x).toBe(-0.5);
+  expect(point1.ppos.y).toBe(0);
+  expect(point2.cpos.x).toBe(10);
+  expect(point2.cpos.y).toBe(0);
+  expect(point2.ppos.x).toBe(9.5);
+  expect(point2.ppos.y).toBe(0);
 
   collideCircleCircle(
     point1,
@@ -146,19 +142,17 @@ test("2d collision with equal mass and inertia preserved", t => {
     damping
   );
 
-  t.equal(point1.cpos.x, -0.5, "point1 is corrected left");
-  t.equal(point1.cpos.y, 0, "point1 does not move vertically");
-  t.equal(point1.ppos.x, -0.9900000000000001, "point1 has inertia applied(x)");
-  t.equal(point1.ppos.y, 0, "point1 has not had inertia applied(y)");
-  t.equal(point2.cpos.x, 9.5, "point2 is corrected right");
-  t.equal(point2.cpos.y, 0, "point2 does not move vertically");
-  t.equal(point2.ppos.x, 9.99, "point2 has inertia applied(x)");
-  t.equal(point2.ppos.y, 0, "point2 has inertia applied(y)");
-
-  t.end();
+  expect(point1.cpos.x).toBe(-0.5);
+  expect(point1.cpos.y).toBe(0);
+  expect(point1.ppos.x).toBe(-0.9900000000000001);
+  expect(point1.ppos.y).toBe(0);
+  expect(point2.cpos.x).toBe(9.5);
+  expect(point2.cpos.y).toBe(0);
+  expect(point2.ppos.x).toBe(9.99);
+  expect(point2.ppos.y).toBe(0);
 });
 
-test("2d collision with inequal mass and inertia preserved", t => {
+test("2d collision with inequal mass and inertia preserved", () => {
   const damping = 0.99;
 
   const point1 = {
@@ -191,26 +185,26 @@ test("2d collision with inequal mass and inertia preserved", t => {
     damping
   );
 
-  t.equal(point1.cpos.x, -0.75, "point1 moves left");
-  t.equal(point1.cpos.y, 0, "point1 does not move vertically");
-  t.equal(point1.ppos.x, 0, "point1 has not had inertia applied(x)");
-  t.equal(point1.ppos.y, 0, "point1 has not had inertia applied(y)");
-  t.equal(point2.cpos.x, 9.25, "point2 moves right");
-  t.equal(point2.cpos.y, 0, "point2 does not move vertically");
-  t.equal(point2.ppos.x, 9, "point2 has not had inertia applied(x)");
-  t.equal(point2.ppos.y, 0, "point2 has not had inertia applied(y)");
+  expect(point1.cpos.x).toBe(-0.75);
+  expect(point1.cpos.y).toBe(0);
+  expect(point1.ppos.x).toBe(0);
+  expect(point1.ppos.y).toBe(0);
+  expect(point2.cpos.x).toBe(9.25);
+  expect(point2.cpos.y).toBe(0);
+  expect(point2.ppos.x).toBe(9);
+  expect(point2.ppos.y).toBe(0);
 
   inertia(point1);
   inertia(point2);
 
-  t.equal(point1.cpos.x, -1.5, "point1 continues left");
-  t.equal(point1.cpos.y, 0, "point1 does not move vertically");
-  t.equal(point1.ppos.x, -0.75, "point1 has inertia applied(x)");
-  t.equal(point1.ppos.y, 0, "point1 has inertia applied(y)");
-  t.equal(point2.cpos.x, 9.5, "point2 continues right");
-  t.equal(point2.cpos.y, 0, "point2 does not move vertically");
-  t.equal(point2.ppos.x, 9.25, "point2 had inertia applied(x)");
-  t.equal(point2.ppos.y, 0, "point2 had inertia applied(y)");
+  expect(point1.cpos.x).toBe(-1.5);
+  expect(point1.cpos.y).toBe(0);
+  expect(point1.ppos.x).toBe(-0.75);
+  expect(point1.ppos.y).toBe(0);
+  expect(point2.cpos.x).toBe(9.5);
+  expect(point2.cpos.y).toBe(0);
+  expect(point2.ppos.x).toBe(9.25);
+  expect(point2.ppos.y).toBe(0);
 
   collideCircleCircle(
     point1,
@@ -223,19 +217,17 @@ test("2d collision with inequal mass and inertia preserved", t => {
     damping
   );
 
-  t.equal(point1.cpos.x, -0.75, "point1 is corrected left");
-  t.equal(point1.cpos.y, 0, "point1 does not move vertically");
-  t.equal(point1.ppos.x, -0.9900000000000001, "point1 has inertia applied(x)");
-  t.equal(point1.ppos.y, 0, "point1 has not had inertia applied(y)");
-  t.equal(point2.cpos.x, 9.25, "point2 is corrected right");
-  t.equal(point2.cpos.y, 0, "point2 does not move vertically");
-  t.equal(point2.ppos.x, 9.33, "point2 has inertia applied(x)");
-  t.equal(point2.ppos.y, 0, "point2 has inertia applied(y)");
-
-  t.end();
+  expect(point1.cpos.x).toBe(-0.75);
+  expect(point1.cpos.y).toBe(0);
+  expect(point1.ppos.x).toBe(-0.9900000000000001);
+  expect(point1.ppos.y).toBe(0);
+  expect(point2.cpos.x).toBe(9.25);
+  expect(point2.cpos.y).toBe(0);
+  expect(point2.ppos.x).toBe(9.33);
+  expect(point2.ppos.y).toBe(0);
 });
 
-test("2d collision, vs infinite mass and inertia preserved", t => {
+test("2d collision, vs infinite mass and inertia preserved", () => {
   const damping = 0.99;
 
   const point1 = {
@@ -268,26 +260,26 @@ test("2d collision, vs infinite mass and inertia preserved", t => {
     damping
   );
 
-  t.equal(point1.cpos.x, -1, "point1 moves left");
-  t.equal(point1.cpos.y, 0, "point1 does not move vertically");
-  t.equal(point1.ppos.x, 0, "point1 has not had inertia applied(x)");
-  t.equal(point1.ppos.y, 0, "point1 has not had inertia applied(y)");
-  t.equal(point2.cpos.x, 9, "point2 does not move right");
-  t.equal(point2.cpos.y, 0, "point2 does not move vertically");
-  t.equal(point2.ppos.x, 9, "point2 has not had inertia applied(x)");
-  t.equal(point2.ppos.y, 0, "point2 has not had inertia applied(y)");
+  expect(point1.cpos.x).toBe(-1);
+  expect(point1.cpos.y).toBe(0);
+  expect(point1.ppos.x).toBe(0);
+  expect(point1.ppos.y).toBe(0);
+  expect(point2.cpos.x).toBe(9);
+  expect(point2.cpos.y).toBe(0);
+  expect(point2.ppos.x).toBe(9);
+  expect(point2.ppos.y).toBe(0);
 
   inertia(point1);
   inertia(point2);
 
-  t.equal(point1.cpos.x, -2, "point1 continues left");
-  t.equal(point1.cpos.y, 0, "point1 does not move vertically");
-  t.equal(point1.ppos.x, -1, "point1 has inertia applied(x)");
-  t.equal(point1.ppos.y, 0, "point1 has inertia applied(y)");
-  t.equal(point2.cpos.x, 9, "point2 does not continue right");
-  t.equal(point2.cpos.y, 0, "point2 does not move vertically");
-  t.equal(point2.ppos.x, 9, "point2 has not had inertia applied(x)");
-  t.equal(point2.ppos.y, 0, "point2 has not had inertia applied(y)");
+  expect(point1.cpos.x).toBe(-2);
+  expect(point1.cpos.y).toBe(0);
+  expect(point1.ppos.x).toBe(-1);
+  expect(point1.ppos.y).toBe(0);
+  expect(point2.cpos.x).toBe(9);
+  expect(point2.cpos.y).toBe(0);
+  expect(point2.ppos.x).toBe(9);
+  expect(point2.ppos.y).toBe(0);
 
   collideCircleCircle(
     point1,
@@ -300,19 +292,17 @@ test("2d collision, vs infinite mass and inertia preserved", t => {
     damping
   );
 
-  t.equal(point1.cpos.x, -1, "point1 is corrected left");
-  t.equal(point1.cpos.y, 0, "point1 does not move vertically");
-  t.equal(point1.ppos.x, -0.9900000000000001, "point1 has inertia applied(x)");
-  t.equal(point1.ppos.y, 0, "point1 has not had inertia applied(y)");
-  t.equal(point2.cpos.x, 9, "point2 is not corrected right");
-  t.equal(point2.cpos.y, 0, "point2 does not move vertically");
-  t.equal(point2.ppos.x, 9, "point2 has not had inertia applied(x)");
-  t.equal(point2.ppos.y, 0, "point2 has not had inertia applied(y)");
-
-  t.end();
+  expect(point1.cpos.x).toBe(-1);
+  expect(point1.cpos.y).toBe(0);
+  expect(point1.ppos.x).toBe(-0.9900000000000001);
+  expect(point1.ppos.y).toBe(0);
+  expect(point2.cpos.x).toBe(9);
+  expect(point2.cpos.y).toBe(0);
+  expect(point2.ppos.x).toBe(9);
+  expect(point2.ppos.y).toBe(0);
 });
 
-test("overlap circles", t => {
+test("overlap circles", () => {
   const point1 = {
     cpos: { x: 0, y: 0 }
   };
@@ -333,42 +323,36 @@ test("overlap circles", t => {
     p2radius
   );
 
-  t.ok(overlapping, "circles are overlapping");
-  t.end();
+  expect(overlapping).toBeTruthy();
 });
 
-test("normal, existing point", t => {
+test("normal, existing point", () => {
   const out = { x: 0, y: 0 };
   const n = normal(out, { x: 2, y: 2 }, { x: 4, y: 4 });
-  t.equal(n, out, "same object given is returned");
-  t.end();
+  expect(n).toBe(out);
 });
 
-test("normal, down", t => {
+test("normal, down", () => {
   const n = normal({ x: 0, y: 0 }, { x: 2, y: 2 }, { x: 0, y: 2 });
-  t.deepEqual(n, { x: 0, y: -1 });
-  t.end();
+  expect(n).toEqual({ x: 0, y: -1 });
 });
 
-test("normal, up", t => {
+test("normal, up", () => {
   const n = normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 4, y: 0 });
-  t.deepEqual(n, { x: 0, y: 1 });
-  t.end();
+  expect(n).toEqual({ x: 0, y: 1 });
 });
 
-test("normal, left", t => {
+test("normal, left", () => {
   const n = normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 });
-  t.deepEqual(n, { x: -1, y: 0 });
-  t.end();
+  expect(n).toEqual({ x: -1, y: 0 });
 });
 
-test("normal, right", t => {
+test("normal, right", () => {
   const n = normal({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: -2 });
-  t.deepEqual(n, { x: 1, y: 0 });
-  t.end();
+  expect(n).toEqual({ x: 1, y: 0 });
 });
 
-test.skip("collide circle edge, equal mass", t => {
+test.skip("collide circle edge, equal mass", () => {
   const damping = 0.99;
 
   const point1 = {
@@ -465,31 +449,11 @@ test.skip("collide circle edge, equal mass", t => {
     damping
   );
 
-  t.equal(
-    point3.cpos.y,
-    checkpoint1Top.cpos.y,
-    "before inertia: point3.cpos.y matches checkpoint1Top.cpos.y"
-  );
-  t.equal(
-    point1.cpos.y,
-    checkpoint1Bottom.cpos.y,
-    "before inertia: endpoint1.cpos.y matches checkpoint1Bottom.cpos.y"
-  );
-  t.equal(
-    point1.ppos.y,
-    checkpoint1Bottom.ppos.y,
-    "before inertia: endpoint1.ppos.y matches checkpoint1Bottom.ppos.y"
-  );
-  t.equal(
-    point2.cpos.y,
-    checkpoint2Bottom.cpos.y,
-    "before inertia: endpoint2.cpos.y matches checkpoint2Bottom.cpos.y"
-  );
-  t.equal(
-    point2.ppos.y,
-    checkpoint2Bottom.ppos.y,
-    "before inertia: endpoint2.ppos.y matches checkpoint2Bottom.ppos.y"
-  );
+  expect(point3.cpos.y).toBe(checkpoint1Top.cpos.y);
+  expect(point1.cpos.y).toBe(checkpoint1Bottom.cpos.y);
+  expect(point1.ppos.y).toBe(checkpoint1Bottom.ppos.y);
+  expect(point2.cpos.y).toBe(checkpoint2Bottom.cpos.y);
+  expect(point2.ppos.y).toBe(checkpoint2Bottom.ppos.y);
 
   inertia(point1);
   inertia(point2);
@@ -500,31 +464,11 @@ test.skip("collide circle edge, equal mass", t => {
   inertia(checkpoint2Top);
   inertia(checkpoint2Bottom);
 
-  t.equal(
-    point3.cpos.y,
-    checkpoint1Top.cpos.y,
-    "after inertia: point3.cpos.y matches checkpoint1Top.cpos.y"
-  );
-  t.equal(
-    point1.cpos.y,
-    checkpoint1Bottom.cpos.y,
-    "after inertia: endpoint1.cpos.y matches checkpoint1Bottom.cpos.y"
-  );
-  t.equal(
-    point1.ppos.y,
-    checkpoint1Bottom.ppos.y,
-    "after inertia: endpoint1.ppos.y matches checkpoint1Bottom.ppos.y"
-  );
-  t.equal(
-    point2.cpos.y,
-    checkpoint2Bottom.cpos.y,
-    "after inertia: endpoint2.cpos.y matches checkpoint2Bottom.cpos.y"
-  );
-  t.equal(
-    point2.ppos.y,
-    checkpoint2Bottom.ppos.y,
-    "after inertia: endpoint2.ppos.y matches checkpoint2Bottom.ppos.y"
-  );
+  expect(point3.cpos.y).toBe(checkpoint1Top.cpos.y);
+  expect(point1.cpos.y).toBe(checkpoint1Bottom.cpos.y);
+  expect(point1.ppos.y).toBe(checkpoint1Bottom.ppos.y);
+  expect(point2.cpos.y).toBe(checkpoint2Bottom.cpos.y);
+  expect(point2.ppos.y).toBe(checkpoint2Bottom.ppos.y);
 
   collideCircleEdge(
     point3,
@@ -560,46 +504,20 @@ test.skip("collide circle edge, equal mass", t => {
     damping
   );
 
-  t.equal(
-    point1.cpos.y,
-    checkpoint1Bottom.cpos.y,
-    "after inertia: endpoint1.cpos.y matches checkpoint1Bottom.cpos.y"
-  );
-  t.equal(
-    point1.ppos.y,
-    checkpoint1Bottom.ppos.y,
-    "after inertia: endpoint1.ppos.y matches checkpoint1Bottom.ppos.y"
-  );
-  t.equal(
-    point2.cpos.y,
-    checkpoint2Bottom.cpos.y,
-    "after inertia: endpoint2.cpos.y matches checkpoint2Bottom.cpos.y"
-  );
-  t.equal(
-    point2.ppos.y,
-    checkpoint2Bottom.ppos.y,
-    "after inertia: endpoint2.ppos.y matches checkpoint2Bottom.ppos.y"
-  );
+  expect(point1.cpos.y).toBe(checkpoint1Bottom.cpos.y);
+  expect(point1.ppos.y).toBe(checkpoint1Bottom.ppos.y);
+  expect(point2.cpos.y).toBe(checkpoint2Bottom.cpos.y);
+  expect(point2.ppos.y).toBe(checkpoint2Bottom.ppos.y);
 
-  t.equal(
-    point3.cpos.y,
-    checkpoint1Top.cpos.y,
-    "after inertia: point3.cpos.y matches checkpoint1Top.cpos.y"
-  );
-  t.equal(
-    point3.ppos.y,
-    checkpoint1Top.ppos.y,
-    "after inertia: point3.ppos.y matches checkpoint1Top.ppos.y"
-  );
+  expect(point3.cpos.y).toBe(checkpoint1Top.cpos.y);
+  expect(point3.ppos.y).toBe(checkpoint1Top.ppos.y);
 
-  t.equal(point1.cpos.x, 0, "edge has not moved horizontally");
-  t.equal(point2.cpos.x, 5, "edge has not moved horizontally");
-  t.equal(point3.cpos.x, 2.5, "point has not moved horizontally");
-
-  t.end();
+  expect(point1.cpos.x).toBe(0);
+  expect(point2.cpos.x).toBe(5);
+  expect(point3.cpos.x).toBe(2.5);
 });
 
-test.skip("collide circle edge, equal mass, start", t => {
+test.skip("collide circle edge, equal mass, start", () => {
   const damping = 0.99;
 
   //       (point3)
@@ -679,26 +597,10 @@ test.skip("collide circle edge, equal mass, start", t => {
     damping
   );
 
-  t.equal(
-    point1.cpos.y,
-    checkpoint2.cpos.y,
-    "before inertia: endpoint1.cpos.y matches checkpoint2.cpos.y"
-  );
-  t.equal(
-    point1.ppos.y,
-    checkpoint2.ppos.y,
-    "before inertia: endpoint1.ppos.y matches checkpoint2.ppos.y"
-  );
-  t.notEqual(
-    point2.cpos.y,
-    checkpoint2.cpos.y,
-    "before inertia: endpoint2.cpos.y does not match checkpoint2.cpos.y"
-  );
-  t.equal(
-    point2.ppos.y,
-    checkpoint2.ppos.y,
-    "before inertia: endpoint2.ppos.y matches checkpoint2.ppos.y"
-  );
+  expect(point1.cpos.y).toBe(checkpoint2.cpos.y);
+  expect(point1.ppos.y).toBe(checkpoint2.ppos.y);
+  expect(point2.cpos.y).not.toBe(checkpoint2.cpos.y);
+  expect(point2.ppos.y).toBe(checkpoint2.ppos.y);
 
   // Do some fakery, just to allow our checkpoints to succeed. The projection
   // of the point3 along the edge line will be different the second time, since
@@ -738,47 +640,22 @@ test.skip("collide circle edge, equal mass, start", t => {
     damping
   );
 
-  t.equal(
-    point1.cpos.y,
-    checkpoint2.cpos.y,
-    "after inertia: endpoint1.cpos.y matches checkpoint2.cpos.y"
-  );
-  t.equal(
-    point1.ppos.y,
-    checkpoint2.ppos.y,
-    "after inertia: endpoint1.ppos.y matches checkpoint2.ppos.y"
-  );
+  expect(point1.cpos.y).toBe(checkpoint2.cpos.y);
+  expect(point1.ppos.y).toBe(checkpoint2.ppos.y);
 
-  t.notEqual(
-    point2.cpos.y,
-    checkpoint2.cpos.y,
-    "after inertia: endpoint2.cpos.y does not match checkpoint2.cpos.y"
-  );
-  t.notEqual(
-    point2.ppos.y,
-    checkpoint2.ppos.y,
-    "after inertia: endpoint2.ppos.y does not match checkpoint2.ppos.y"
-  );
+  expect(point2.cpos.y).not.toBe(checkpoint2.cpos.y);
+  expect(point2.ppos.y).not.toBe(checkpoint2.ppos.y);
 
-  t.equal(
-    point3.cpos.y,
-    checkpoint3.cpos.y,
-    "after inertia: point3.cpos.y matches checkpoint3.cpos.y"
-  );
-  t.equal(
-    point3.ppos.y,
-    checkpoint3.ppos.y,
-    "after inertia: point3.ppos.y matches checkpoint3.ppos.y"
-  );
+  expect(point3.cpos.y).toBe(checkpoint3.cpos.y);
+  expect(point3.ppos.y).toBe(checkpoint3.ppos.y);
 
-  t.equal(point1.cpos.x, 0, "edge has not moved horizontally");
-  t.equal(point2.cpos.x, 5, "edge has not moved horizontally");
-  t.equal(point3.cpos.x, 0, "point has not moved horizontally");
+  expect(point1.cpos.x).toBe(0);
+  expect(point2.cpos.x).toBe(5);
+  expect(point3.cpos.x).toBe(0);
 
-  t.end();
 });
 
-test.skip("tunneling", t => {
+test.skip("tunneling", () => {
   const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
@@ -803,10 +680,9 @@ test.skip("tunneling", t => {
   console.log("point2", point2);
   console.log("point3", point3);
   
-  t.end();
 });
 
-test("aabb2 overlap, very oblong", t => {
+test("aabb2 overlap, very oblong", () => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     w: 100,
@@ -838,14 +714,12 @@ test("aabb2 overlap, very oblong", t => {
     resolutionVector
   );
 
-  t.equal(isOverlapping, resolutionVector, "should be overlapping");
-  t.equal(resolutionVector.resolve.x, 0, "x resolution");
-  t.equal(resolutionVector.resolve.y, 1, "y resolution due to oblong nature");
-
-  t.end();
+  expect(isOverlapping).toBe(resolutionVector);
+  expect(resolutionVector.resolve.x).toBe(0);
+  expect(resolutionVector.resolve.y).toBe(1);
 });
 
-test("aabb2 overlap X", t => {
+test("aabb2 overlap X", () => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     w: 10,
@@ -876,19 +750,17 @@ test("aabb2 overlap X", t => {
     result
   );
 
-  t.equal(isOverlapping, result, "should be overlapping");
-  t.equal(result.resolve.x, 8, "x resolve");
-  t.equal(result.resolve.y, 0, "y resolve");
+  expect(isOverlapping).toBe(result);
+  expect(result.resolve.x).toBe(8);
+  expect(result.resolve.y).toBe(0);
 
-  t.equal(result.hitPos.x, 5, "x hit position");
-  t.equal(result.hitPos.y, 5, "y hit position");
+  expect(result.hitPos.x).toBe(5);
+  expect(result.hitPos.y).toBe(5);
 
-  t.equal(result.normal.x, 1, "normal is ->");
-
-  t.end();
+  expect(result.normal.x).toBe(1);
 });
 
-test("aabb2 overlap Y", t => {
+test("aabb2 overlap Y", () => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     w: 20,
@@ -919,19 +791,17 @@ test("aabb2 overlap Y", t => {
     result
   );
 
-  t.equal(isOverlapping, result, "should be overlapping");
-  t.equal(result.resolve.x, 0, "x resolve");
-  t.equal(result.resolve.y, 5, "y resolve");
+  expect(isOverlapping).toBe(result);
+  expect(result.resolve.x).toBe(0);
+  expect(result.resolve.y).toBe(5);
 
-  t.equal(result.hitPos.x, 2, "x hit position");
-  t.equal(result.hitPos.y, 5, "y hit position");
+  expect(result.hitPos.x).toBe(2);
+  expect(result.hitPos.y).toBe(5);
 
-  t.equal(result.normal.y, 1, "normal is ^");
-
-  t.end();
+  expect(result.normal.y).toBe(1);
 });
 
-test("aabb collision-response", t => {
+test("aabb collision-response", () => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: -5, y: -5 },
@@ -996,16 +866,14 @@ test("aabb collision-response", t => {
   sub(box1.ppos, box1.cpos, box1v);
   sub(box2.ppos, box2.cpos, box2v);
 
-  t.deepEqual(box1.cpos, { x: 0, y: 0 }, "box1 has not moved");
-  t.deepEqual(box2.cpos, { x: 5, y: 0 }, "box1 has not moved");
+  expect(box1.cpos).toEqual({ x: 0, y: 0 });
+  expect(box2.cpos).toEqual({ x: 5, y: 0 });
 
-  t.deepEqual(box1.ppos, { x: 5, y: -5 }, "box1 will bounce to the left");
-  t.deepEqual(box2.ppos, { x: 0, y: -5 }, "box2 will bounce to the right");
-
-  t.end();
+  expect(box1.ppos).toEqual({ x: 5, y: -5 });
+  expect(box2.ppos).toEqual({ x: 0, y: -5 });
 });
 
-test("aabb collision-response: very inequal masses", t => {
+test("aabb collision-response: very inequal masses", () => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: -5, y: -5 },
@@ -1070,24 +938,14 @@ test("aabb collision-response: very inequal masses", t => {
   sub(box1.ppos, box1.cpos, box1v);
   sub(box2.ppos, box2.cpos, box2v);
 
-  t.deepEqual(box1.cpos, { x: 0, y: 0 }, "box1 has not moved");
-  t.deepEqual(box2.cpos, { x: 5, y: 0 }, "box2 has not moved");
+  expect(box1.cpos).toEqual({ x: 0, y: 0 });
+  expect(box2.cpos).toEqual({ x: 5, y: 0 });
 
-  t.deepEqual(
-    box1.ppos,
-    { x: -4.999999998, y: -5 },
-    "box1 will mostly continue to the right"
-  );
-  t.deepEqual(
-    box2.ppos,
-    { x: -9.999999998, y: -5 },
-    "box2 will mostly move in the direction of box1 (pushing)"
-  );
-
-  t.end();
+  expect(box1.ppos).toEqual({ x: -4.999999998, y: -5 });
+  expect(box2.ppos).toEqual({ x: -9.999999998, y: -5 });
 });
 
-test("aabb friction", t => {
+test("aabb friction", () => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: -5, y: -5 },
@@ -1171,10 +1029,9 @@ test("aabb friction", t => {
   console.log(box1.ppos);
   console.log(box2.ppos);
 
-  t.deepEqual(box1.cpos, { x: -0.5, y: 0 }, "box1 moved to non-overlapping");
-  t.deepEqual(box2.cpos, { x: 4.5, y: 0 }, "box2 has moved to non-overlapping");
+  expect(box1.cpos).toEqual({ x: -0.5, y: 0 });
+  expect(box2.cpos).toEqual({ x: 4.5, y: 0 });
 
-  t.deepEqual(box1.ppos, { x: 4.5, y: -2.5 }, "box1 will bounce to the left");
-  t.deepEqual(box2.ppos, { x: -0.5, y: -2.5 }, "box2 will bounce to the right");
-  t.end();
+  expect(box1.ppos).toEqual({ x: 4.5, y: -2.5 });
+  expect(box2.ppos).toEqual({ x: -0.5, y: -2.5 });
 });
