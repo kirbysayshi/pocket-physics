@@ -1,5 +1,5 @@
 import { sub, v2, Vector2 } from "./v2";
-import { segmentIntersection } from "./segmentintersection";
+import { segmentIntersection } from "./segment-intersection";
 import { Integratable } from "./common-types";
 
 const tunnelPoint = v2();

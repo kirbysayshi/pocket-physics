@@ -1,13 +1,13 @@
-import { solveGravitation } from "./gravitation2d";
-import { accelerate } from "./accelerate2d";
-import { inertia } from "./inertia2d";
-import { solveSpringConstraint } from "./springconstraint2d";
-import { collideCircleCircle } from "./collidecirclecircle";
-import { overlapCircleCircle } from "./overlapcirclecircle";
+import { solveGravitation } from "./solve-gravitation";
+import { accelerate } from "./accelerate";
+import { inertia } from "./inertia";
+import { solveSpringConstraint } from "./solve-spring-constraint";
+import { collideCircleCircle } from "./collide-circle-circle";
+import { overlapCircleCircle } from "./overlap-circle-circle";
 import { add, normal, scale, sub, v2 } from "./v2";
-import { collideCircleEdge } from "./collidecircleedge";
-import { rewindToCollisionPoint } from "./rewindtocollisionpoint";
-import { overlapAABBAABB, AABBOverlapResult } from "./overlapaabbaabb2";
+import { collideCircleEdge } from "./collide-circle-edge";
+import { rewindToCollisionPoint } from "./rewind-to-collision-point";
+import { overlapAABBAABB, AABBOverlapResult } from "./overlap-aabb-aabb";
 import { collisionResponseAABB } from "./collision-response-aabb";
 //import frictionAABB from './aabb-friction';
 

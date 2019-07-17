@@ -11,7 +11,7 @@ import {
   normalize,
   Vector2
 } from './v2';
-import {collideCircleCircle} from './collidecirclecircle';
+import {collideCircleCircle} from './collide-circle-circle';
 import { VelocityDerivable } from './common-types';
 
 // Preallocations
