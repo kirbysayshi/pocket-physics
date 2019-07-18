@@ -30,7 +30,7 @@ export const start = () => {
     ppos: copy(v2(), CENTER),
     acel: v2(),
     radius: 20,
-    mass: 100000
+    mass: 10000
   };
   const RADIUS = 15;
   const DAMPING = 0.1;
@@ -44,7 +44,7 @@ export const start = () => {
 
   (function step() {
     const force = v2();
-    const dt = 1;
+    const dt = 16;
     for (let i = 0; i < points.length; i++) {
       const point = points[i];
       if (point !== GRAVITATIONAL_POINT) {
