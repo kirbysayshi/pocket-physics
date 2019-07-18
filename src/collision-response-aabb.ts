@@ -78,7 +78,7 @@ export const collisionResponseAABB = (
   // If collisionNormal is provided, use it. Otherwise, use midpoint between
   // current positions as axis of collision. Midpoint will model a circular
   // collision if used.
-  if (collisionNormal && collisionNormal.x !== 0 && collisionNormal.y !== 0) {
+  if (collisionNormal && (collisionNormal.x !== 0 || collisionNormal.y !== 0)) {
     set(basis, collisionNormal.x, collisionNormal.y);
   } else {
     sub(basis, cpos1, cpos2);

@@ -9,7 +9,7 @@ import {
   inertia,
   overlapAABBAABB,
   collisionResponseAABB
-} from "../src/index";
+} from "../src";
 
 export const start = () => {
   const cvs = document.createElement("canvas");

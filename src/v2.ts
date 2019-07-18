@@ -77,3 +77,16 @@ export const normal = (out: Vector2, v1: Vector2, v2: Vector2) => {
 export const perpDot = (v1: Vector2, v2: Vector2) => {
   return v1.x * v2.y - v1.y * v2.x;
 }
+
+/**
+ * This is mostly useful for moving a verlet-style [current, previous]
+ * by the same amount, translating them while preserving velocity.
+ * @param by the vector to add to each subsequent vector
+ * @param vN any number of vectors to translate
+ */
+export const translate = (by: Vector2, ...vN: Vector2[]) => {
+  for (let i = 0; i < vN.length; i++) {
+    const v = vN[i];
+    add(v, v, by);
+  }
+}
