@@ -69,6 +69,6 @@ export const collideCircleCircle = (
   vel1.y += (f2 * diff.y - f1 * diff.y) / (mass1 || 1); // * (mass2 / massT);
   vel2.y += (f1 * diff.y - f2 * diff.y) / (mass2 || 1); // * (mass1 / massT);
 
-  set(p1.ppos, p1.cpos.x - vel1.x, p1.cpos.y - vel1.y);
-  set(p2.ppos, p2.cpos.x - vel2.x, p2.cpos.y - vel2.y);
+  if (mass1 > 0) set(p1.ppos, p1.cpos.x - vel1.x, p1.cpos.y - vel1.y);
+  if (mass2 > 0) set(p2.ppos, p2.cpos.x - vel2.x, p2.cpos.y - vel2.y);
 };
