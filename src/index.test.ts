@@ -1,7 +1,6 @@
 import { solveGravitation } from "./solve-gravitation";
 import { accelerate } from "./accelerate";
 import { inertia } from "./inertia";
-import { solveSpringConstraint } from "./solve-spring-constraint";
 import { collideCircleCircle } from "./collide-circle-circle";
 import { overlapCircleCircle } from "./overlap-circle-circle";
 import { add, normal, scale, sub, v2 } from "./v2";
@@ -50,31 +49,6 @@ test("2d gravitation", () => {
   expect(point1.acel.x).toBe(1);
   expect(point2.acel.x).toBe(-1);
   expect(point1.acel.x).toBe(point2.acel.x * -1);
-});
-
-test("2d spring constraint with equal mass", () => {
-  const point1 = {
-    cpos: { x: 0, y: 0 },
-    ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
-  };
-
-  const point2 = {
-    cpos: { x: 10, y: 0 },
-    ppos: { x: 10, y: 0 },
-    acel: { x: 0, y: 0 }
-  };
-
-  const p1mass = 25;
-  const p2mass = 25;
-
-  accelerate(point1, 1);
-  accelerate(point2, 1);
-  solveSpringConstraint(point2, p2mass, point1, p1mass, 0.1, 0.9);
-  inertia(point1);
-  inertia(point2);
-
-  expect(point2.acel.x).toBe(-0.036000000000000004);
 });
 
 test("2d collision with equal mass and inertia preserved", () => {

@@ -16,11 +16,11 @@ const move = { x: 0, y: 0 };
 export const collideCircleCircle = (
   p1: VelocityDerivable,
   p1radius: number,
-  p1mass: number | undefined,
+  p1mass: number,
   p2: VelocityDerivable,
   p2radius: number,
-  p2mass: number | undefined,
-  preserveInertia: any,
+  p2mass: number,
+  preserveInertia: boolean,
   damping: number
 ) => {
   const dist2 = distance2(p1.cpos, p2.cpos);
@@ -39,21 +39,21 @@ export const collideCircleCircle = (
   // Avoid division by zero in case points are directly atop each other.
   if (dist === 0) factor = 1;
 
-  const mass1 = p1mass === undefined ? 1 : p1mass;
-  const mass2 = p2mass === undefined ? 1 : p2mass;
+  const mass1 = p1mass > 0 ? p1mass : 1;
+  const mass2 = p2mass > 0 ? p2mass : 1;
   const massT = mass1 + mass2;
 
   // Move a away
   move.x = diff.x * factor * (mass2 / massT);
   move.y = diff.y * factor * (mass2 / massT);
-  if (mass1 > 0) {
+  if (p1mass > 0) {
     sub(p1.cpos, p1.cpos, move);
   }
 
   // Move b away
   move.x = diff.x * factor * (mass1 / massT);
   move.y = diff.y * factor * (mass1 / massT);
-  if (mass2 > 0) {
+  if (p2mass > 0) {
     add(p2.cpos, p2.cpos, move);
   }
 
@@ -69,6 +69,6 @@ export const collideCircleCircle = (
   vel1.y += (f2 * diff.y - f1 * diff.y) / (mass1 || 1); // * (mass2 / massT);
   vel2.y += (f1 * diff.y - f2 * diff.y) / (mass2 || 1); // * (mass1 / massT);
 
-  if (mass1 > 0) set(p1.ppos, p1.cpos.x - vel1.x, p1.cpos.y - vel1.y);
-  if (mass2 > 0) set(p2.ppos, p2.cpos.x - vel2.x, p2.cpos.y - vel2.y);
+  if (p1mass > 0) set(p1.ppos, p1.cpos.x - vel1.x, p1.cpos.y - vel1.y);
+  if (p2mass > 0) set(p2.ppos, p2.cpos.x - vel2.x, p2.cpos.y - vel2.y);
 };

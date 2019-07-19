@@ -9,7 +9,7 @@ export function rewindToCollisionPoint(
   point3: Integratable,
   point1: Integratable,
   point2: Integratable
-) {
+): boolean {
   // detect if a collision has occurred but would have been missed due to
   // point3 moving beyond the edge in one time step.
 
@@ -21,13 +21,14 @@ export function rewindToCollisionPoint(
     tunnelPoint
   );
 
-  if (!hasTunneled) return;
+  if (!hasTunneled) return false;
 
   // Translate point3 to tunnelPoint
   sub(offset, point3.cpos, tunnelPoint);
   
   sub(point3.cpos, point3.cpos, offset);
   sub(point3.ppos, point3.ppos, offset);
+  return true;
 }
 
 function debuggerIfNaN(point: Vector2) {

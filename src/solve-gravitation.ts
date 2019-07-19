@@ -10,7 +10,7 @@ export function solveGravitation(
   gravityConstant = 0.99
 ) {
   // handle either obj not having mass
-  if (!p1mass || !p2mass) return;
+  if (p1mass <= 0 || p2mass <= 0) return;
 
   let mag;
   let factor;

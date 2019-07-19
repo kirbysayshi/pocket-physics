@@ -10,9 +10,9 @@ import {
   copy,
   normalize,
   Vector2
-} from './v2';
-import {collideCircleCircle} from './collide-circle-circle';
-import { VelocityDerivable } from './common-types';
+} from "./v2";
+import { collideCircleCircle } from "./collide-circle-circle";
+import { VelocityDerivable } from "./common-types";
 
 // Preallocations
 const edgeDir = v2();
@@ -35,12 +35,16 @@ const epBefore = {
 };
 
 export function collideCircleEdge(
-  point3: VelocityDerivable, radius3: number, mass3: number,
-  point1: VelocityDerivable, mass1: number | undefined,
-  point2: VelocityDerivable, mass2: number | undefined,
-  preserveInertia: any, damping: number
+  point3: VelocityDerivable,
+  radius3: number,
+  mass3: number,
+  point1: VelocityDerivable,
+  mass1: number,
+  point2: VelocityDerivable,
+  mass2: number,
+  preserveInertia: boolean,
+  damping: number
 ) {
-
   // Edge direction (edge in local space)
   sub(edge, point2.cpos, point1.cpos);
 
@@ -120,14 +124,26 @@ export function collideCircleEdge(
 
   // Collide standins with endpoints
   collideCircleCircle(
-    standin1, radius3, standinMass1,
-    point1, edgeRadius, mass1,
-    preserveInertia, damping);
+    standin1,
+    radius3,
+    standinMass1,
+    point1,
+    edgeRadius,
+    mass1,
+    preserveInertia,
+    damping
+  );
 
   collideCircleCircle(
-    standin2, radius3, standinMass2,
-    point2, edgeRadius, mass2,
-    preserveInertia, damping);
+    standin2,
+    radius3,
+    standinMass2,
+    point2,
+    edgeRadius,
+    mass2,
+    preserveInertia,
+    damping
+  );
 
   const standin1Delta = {
     cpos: v2(),
@@ -170,4 +186,4 @@ export function collideCircleEdge(
   // Apply ppos changes to point3
   add(point3.ppos, point3.ppos, standin1Delta.ppos);
   add(point3.ppos, point3.ppos, standin2Delta.ppos);
-};
+}
