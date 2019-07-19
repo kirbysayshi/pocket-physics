@@ -2,6 +2,7 @@ import * as AABBOverlapDemo from "./aabb-overlap";
 import * as AABBSoupDemo from "./aabb-soup";
 import * as CircleCollisions from "./circle-collisions";
 import * as EdgeCollisions from "./edge-collisions";
+import * as EdgeCollision from "./edge-collision";
 import * as Platformer from "./platformer";
 
 const qs = new URLSearchParams(window.location.search);
@@ -12,6 +13,7 @@ const demos = new Map<string, { start: () => void; stop?: () => void }>([
   ["AABB Soup Demo", AABBSoupDemo],
   ["Circle Collisions", CircleCollisions],
   ["Edge Collisions", EdgeCollisions],
+  ["Edge Collision...", EdgeCollision],
   ["Platformer", Platformer],
 ]);
 

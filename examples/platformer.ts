@@ -75,8 +75,6 @@ export const start = () => {
   (function step() {
     const dt = 16;
 
-    // TODO: add keyboard controls left/right/jump
-
     // gravity!
     add(player.acel, player.acel, v2(0, GRAVITY));
 
