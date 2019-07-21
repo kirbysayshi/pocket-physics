@@ -66,6 +66,10 @@ export const normalize = (out: Vector2, a: Vector2) => {
   return out;
 }
 
+/**
+ * Compute the normal pointing away perpendicular from two vectors.
+ * Given v1(0,0) -> v2(10, 0), the normal will be (0, 1)
+ * */
 export const normal = (out: Vector2, v1: Vector2, v2: Vector2) => {
   out.y = v2.x - v1.x;
   out.x = v1.y - v2.y;

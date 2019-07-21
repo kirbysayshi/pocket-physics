@@ -4,4 +4,4 @@ esm
 
 # parcel
 .cache
-dist
+build-demos

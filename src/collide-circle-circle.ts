@@ -7,6 +7,9 @@ const vel2 = { x: 0, y: 0 };
 const diff = { x: 0, y: 0 };
 const move = { x: 0, y: 0 };
 
+// TODO: is the below even true???
+// The codeflow demo does nothing if the circles are no longer overlapping.
+
 // It's very important that this function not do any distance checking.
 // It is assumed that if this function is called, then the points are
 // definitely colliding, and that after being called with preserveInertia
@@ -27,7 +30,7 @@ export const collideCircleCircle = (
   const target = p1radius + p2radius;
   const min2 = target * target;
 
-  //if (dist2 > min2) return;
+  // if (dist2 > min2) return;
 
   sub(vel1, p1.cpos, p1.ppos);
   sub(vel2, p2.cpos, p2.ppos);

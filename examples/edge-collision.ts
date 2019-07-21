@@ -57,7 +57,7 @@ export const start = () => {
       acel: v2(0, 0),
       // mass: 100000000,
       // mass: -1,
-      mass: 1,
+      mass: -1,
       radius: 0
     },
     goal: 500
@@ -95,7 +95,7 @@ export const start = () => {
       accelerate(box, dt);
     }
 
-    rewindToCollisionPoint(player, platform.point1, platform.point2);
+    rewindToCollisionPoint(player, player.radius, platform.point1, platform.point2);
 
     collideCircleEdge(
       player,
@@ -109,6 +109,11 @@ export const start = () => {
       0.9
     );
 
+    for (let i = 0; i < circles.length; i++) {
+      const box = circles[i];
+      inertia(box);
+    }
+
     collideCircleEdge(
       player,
       player.radius,
@@ -120,11 +125,6 @@ export const start = () => {
       true,
       0.9
     );
-
-    for (let i = 0; i < circles.length; i++) {
-      const box = circles[i];
-      inertia(box);
-    } 
 
     for (let i = 0; i < 5; i++) {
       solveDistanceConstraint(

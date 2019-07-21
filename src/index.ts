@@ -17,6 +17,5 @@ export * from "./overlap-aabb-aabb";
 export * from "./overlap-circle-circle";
 export * from "./rewind-to-collision-point";
 export * from "./segment-intersection";
-export * from "./solve-spring-constraint";
 export * from "./v2";
 export * from "./common-types";

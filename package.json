@@ -13,8 +13,8 @@
     "prepublishOnly": "yarn build",
     "build": "tsc --build",
     "test": "jest src",
-    "demos": "parcel serve examples/index.html",
-    "demos:bundle": "parcel build examples/index.html",
+    "demos": "parcel serve --out-dir build-demos examples/index.html",
+    "demos:bundle": "parcel build --out-dir build-demos examples/index.html",
     "demos:deploy": "yarn demos:bundle && gh-pages -d dist/"
   },
   "repository": {

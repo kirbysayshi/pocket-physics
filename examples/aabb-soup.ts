@@ -159,8 +159,8 @@ export const start = () => {
       ppos: v2(x, y),
       acel: v2(),
       mass: 10,
-      w: 10,
-      h: 10
+      w: 50,
+      h: 50
     };
   }
 

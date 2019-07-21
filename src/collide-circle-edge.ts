@@ -187,3 +187,99 @@ export function collideCircleEdge(
   add(point3.ppos, point3.ppos, standin1Delta.ppos);
   add(point3.ppos, point3.ppos, standin2Delta.ppos);
 }
+
+type Particle = {
+  mass: number;
+  radius: number;
+} & VelocityDerivable;
+
+function snapshotDebug(
+  name: string,
+  particles: Particle[] = [],
+  points: [string, Vector2][] = []
+) {
+  const cvs = document.createElement("canvas");
+  const ctx = cvs.getContext("2d")!;
+  document.body.appendChild(cvs);
+  // let minX = Number.MAX_SAFE_INTEGER;
+  // let maxX = Number.MIN_SAFE_INTEGER;
+  // let minY = Number.MAX_SAFE_INTEGER;
+  // let maxY = Number.MIN_SAFE_INTEGER;
+  // for (let i = 0; i < particles.length; i++) {
+  //   const particle = particles[i];
+  //   minX = Math.min(
+  //     minX,
+  //     particle.cpos.x - particle.radius,
+  //     particle.ppos.x - particle.radius
+  //   );
+  //   maxX = Math.max(
+  //     maxX,
+  //     particle.cpos.x + particle.radius,
+  //     particle.ppos.x + particle.radius
+  //   );
+  //   minY = Math.min(
+  //     minY,
+  //     particle.cpos.y - particle.radius,
+  //     particle.ppos.y - particle.radius
+  //   );
+  //   maxY = Math.max(
+  //     maxY,
+  //     particle.cpos.y + particle.radius,
+  //     particle.ppos.y + particle.radius
+  //   );
+  // }
+
+  // for (let i = 0; i < points.length; i++) {
+  //   const [, point] = points[i];
+  //   minX = Math.min(minX, point.x, point.x);
+  //   maxX = Math.max(maxX, point.x, point.x);
+  //   minY = Math.min(minY, point.y, point.y);
+  //   maxY = Math.max(maxY, point.y, point.y);
+  // }
+
+  // cvs.width = maxX - minX;
+  // cvs.height = maxY - minY;
+
+  // ctx.translate(-minX, -minY);
+
+  cvs.width = 800;
+  cvs.height = 800;
+
+  for (let i = 0; i < particles.length; i++) {
+    const particle = particles[i];
+    ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+    ctx.beginPath();
+    ctx.arc(
+      particle.ppos.x,
+      particle.ppos.y,
+      particle.radius,
+      0,
+      Math.PI * 2,
+      false
+    );
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.beginPath();
+    ctx.arc(
+      particle.cpos.x,
+      particle.cpos.y,
+      particle.radius,
+      0,
+      Math.PI * 2,
+      false
+    );
+    ctx.fill();
+  }
+
+  for (let i = 0; i < points.length; i++) {
+    const [name, point] = points[i];
+    ctx.fillStyle = "purple";
+    ctx.fillRect(point.x, point.y, 1, 1);
+    ctx.fillText(`${name} (${point.x},${point.y})`, point.x + 1, point.y + 1);
+  }
+
+  // ctx.translate(minX, minY);
+  ctx.fillStyle = "black";
+  ctx.fillText(name, 10, 10);
+}

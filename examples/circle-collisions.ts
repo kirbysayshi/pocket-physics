@@ -84,6 +84,10 @@ export const start = () => {
       inertia(point);
     }
 
+    // TODO: the original demo code technically "detects" collisions with each
+    // iteration, but when we do this, it actually becomes more unstable. 
+    // collisionPairs(colliding, points);
+
     for (let i = 0; i < colliding.length; i += 2) {
       const pointA = colliding[i];
       const pointB = colliding[i + 1];

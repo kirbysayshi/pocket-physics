@@ -4,6 +4,7 @@ import * as CircleCollisions from "./circle-collisions";
 import * as EdgeCollisions from "./edge-collisions";
 import * as EdgeCollision from "./edge-collision";
 import * as Platformer from "./platformer";
+import * as Bucket from './bucket';
 
 const qs = new URLSearchParams(window.location.search);
 const demoName = qs.get("demo");
@@ -13,8 +14,9 @@ const demos = new Map<string, { start: () => void; stop?: () => void }>([
   ["AABB Soup Demo", AABBSoupDemo],
   ["Circle Collisions", CircleCollisions],
   ["Edge Collisions", EdgeCollisions],
-  ["Edge Collision...", EdgeCollision],
+  ["Single Edge Collision", EdgeCollision],
   ["Platformer", Platformer],
+  ["Bucket of Circles", Bucket],
 ]);
 
 if (demoName && demos.has(demoName)) {

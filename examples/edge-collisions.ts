@@ -33,13 +33,13 @@ export const start = () => {
     cpos: copy(v2(), CENTER),
     ppos: copy(v2(), CENTER),
     acel: v2(),
-    radius: 20,
+    radius: 200,
     mass: 1000000
   };
   const RADIUS = 13;
   const DAMPING = 0.5;
   const CONSTRAINT_ITERATIONS = 30;
-  const boxes = generateBoxes(CENTER, RADIUS, 4);
+  const boxes = generateBoxes(CENTER, RADIUS, 40);
   const points = boxes.reduce<Point[]>((all, box) => {
     all.push(...box.points);
     return all;
@@ -215,10 +215,10 @@ export const start = () => {
           continue;
         }
 
-        rewindToCollisionPoint(point, box.points[0], box.points[1]);
-        rewindToCollisionPoint(point, box.points[1], box.points[2]);
-        rewindToCollisionPoint(point, box.points[2], box.points[3]);
-        rewindToCollisionPoint(point, box.points[3], box.points[0]);
+        rewindToCollisionPoint(point, point.radius, box.points[0], box.points[1]);
+        rewindToCollisionPoint(point, point.radius, box.points[1], box.points[2]);
+        rewindToCollisionPoint(point, point.radius, box.points[2], box.points[3]);
+        rewindToCollisionPoint(point, point.radius, box.points[3], box.points[0]);
 
         collideCircleEdge(
           point,
