@@ -55,10 +55,10 @@ export const start = () => {
   constraints.push(...box.constraints);
 
   circles.push({
-    cpos: v2(500, 220),
-    ppos: v2(510, 220),
+    cpos: v2(500, 320),
+    ppos: v2(510, 320),
     acel: v2(0, 0),
-    mass: 1,
+    mass: 100,
     radius: 10
   });
 
@@ -76,7 +76,6 @@ export const start = () => {
     for (let i = 0; i < CONSTRAINT_ITERATIONS; i++) {
       for (let j = 0; j < constraints.length; j++) {
         const constraint = constraints[j];
-
         solveDistanceConstraint(
           constraint.point1,
           constraint.point1.mass,
@@ -206,17 +205,15 @@ export const start = () => {
       const line = lines[i];
       for (let j = 0; j < circles.length; j++) {
         const circle = circles[j];
-        // Using the below code will prevent tunneling, but since there is no
-        // collision manifold there is not way for the rewind to know if it
-        // tunneled due to a collision or the result of resolving a collision!
-        // Sigh.
-        // if (!preserveInertia)
-        //   rewindToCollisionPoint(
-        //     circle,
-        //     circle.radius,
-        //     line.point1,
-        //     line.point2
-        //   );
+        // Don't collide with yourself! This would be very very bad.
+        if (line.point1 == circle || line.point2 === circle) continue;
+        if (!preserveInertia)
+          rewindToCollisionPoint(
+            circle,
+            circle.radius,
+            line.point1,
+            line.point2
+          );
         collideCircleEdge(
           circle,
           circle.radius,
