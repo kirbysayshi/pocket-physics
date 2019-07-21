@@ -14,7 +14,10 @@ import {
   collideCircleEdge,
   solveDistanceConstraint,
   rewindToCollisionPoint,
-  Vector2
+  Vector2,
+  VelocityDerivable,
+  distance,
+  Integratable
 } from "../src/index";
 
 export const start = () => {
@@ -24,317 +27,219 @@ export const start = () => {
   cvs.style.border = "1px solid gray";
   document.body.appendChild(cvs);
 
-  type Box = (ReturnType<typeof generateBoxes>)[0];
-  type Point = Box["points"][0];
-
-  // generate a circle of circles
-  const CENTER = { x: 400, y: 400 };
-  const GRAVITATIONAL_POINT = {
-    cpos: copy(v2(), CENTER),
-    ppos: copy(v2(), CENTER),
-    acel: v2(),
-    radius: 200,
-    mass: 1000000
+  type CollidableLine = {
+    point1: CollidableCircle;
+    point2: CollidableCircle;
   };
-  const RADIUS = 13;
-  const DAMPING = 0.5;
-  const CONSTRAINT_ITERATIONS = 30;
-  const boxes = generateBoxes(CENTER, RADIUS, 40);
-  const points = boxes.reduce<Point[]>((all, box) => {
-    all.push(...box.points);
-    return all;
-  }, []);
-  const colliding: Point[] = [];
 
-  points.unshift(GRAVITATIONAL_POINT);
+  type CollidableCircle = {
+    mass: number;
+    radius: number;
+  } & Integratable;
+
+  type DistanceConstraint = {
+    point1: Exclude<CollidableCircle, "radius">;
+    point2: Exclude<CollidableCircle, "radius">;
+    goal: number;
+  };
+
+  const CONSTRAINT_ITERATIONS = 2;
+
+  const circles: CollidableCircle[] = [];
+  const lines: CollidableLine[] = [];
+  const constraints: DistanceConstraint[] = [];
+
+  const box = makeBox(300, 200, 100, 200);
+  circles.push(...box.circles);
+  lines.push(...box.lines);
+  constraints.push(...box.constraints);
+
+  circles.push({
+    cpos: v2(500, 220),
+    ppos: v2(510, 220),
+    acel: v2(0, 0),
+    mass: 1,
+    radius: 10
+  });
 
   let running = true;
   scihalt(() => (running = false));
 
   (function step() {
-    const force = v2();
-    const dt = 1;
+    const dt = 16;
+
+    for (let i = 0; i < circles.length; i++) {
+      const circle = circles[i];
+      accelerate(circle, dt);
+    }
 
     for (let i = 0; i < CONSTRAINT_ITERATIONS; i++) {
-      for (let i = 0; i < boxes.length; i++) {
-        const box = boxes[i];
-        const { points, goals } = box;
+      for (let j = 0; j < constraints.length; j++) {
+        const constraint = constraints[j];
 
-        // p1, p1mass, p2, p2mass, goal
         solveDistanceConstraint(
-          points[0],
-          points[0].mass,
-          points[1],
-          points[1].mass,
-          goals[0]
-        );
-        solveDistanceConstraint(
-          points[1],
-          points[1].mass,
-          points[2],
-          points[2].mass,
-          goals[1]
-        );
-        solveDistanceConstraint(
-          points[2],
-          points[2].mass,
-          points[3],
-          points[3].mass,
-          goals[2]
-        );
-        solveDistanceConstraint(
-          points[3],
-          points[3].mass,
-          points[0],
-          points[0].mass,
-          goals[3]
-        );
-        solveDistanceConstraint(
-          points[0],
-          points[0].mass,
-          points[2],
-          points[2].mass,
-          goals[4]
-        );
-        solveDistanceConstraint(
-          points[1],
-          points[1].mass,
-          points[3],
-          points[3].mass,
-          goals[5]
+          constraint.point1,
+          constraint.point1.mass,
+          constraint.point2,
+          constraint.point2.mass,
+          constraint.goal
         );
       }
     }
 
-    for (let i = 0; i < points.length; i++) {
-      const point = points[i];
-      if (point !== GRAVITATIONAL_POINT) {
-        solveGravitation(
-          point,
-          point.mass,
-          GRAVITATIONAL_POINT,
-          GRAVITATIONAL_POINT.mass
-        );
-        //sub(force, GRAVITATIONAL_POINT.cpos, point.cpos);
-        //normalize(force, force);
-        //scale(force, force, 50);
-        //add(point.acel, point.acel, force);
-      }
-      accelerate(point, dt);
+    collideCircles(circles, false);
+    collideEdges(lines, circles, false);
+
+    for (let i = 0; i < circles.length; i++) {
+      const circle = circles[i];
+      inertia(circle);
     }
 
-    collisionPairs(colliding, points);
+    collideCircles(circles, true);
+    collideEdges(lines, circles, true);
 
-    for (let i = 0; i < colliding.length; i += 2) {
-      const pointA = colliding[i];
-      const pointB = colliding[i + 1];
-      collideCircleCircle(
-        pointA,
-        pointA.radius,
-        pointA.mass,
-        pointB,
-        pointB.radius,
-        pointB.mass,
-        false,
-        DAMPING
-      );
-    }
-
-    collisionEdges(false, points, boxes);
-
-    for (let i = 0; i < points.length; i++) {
-      const point = points[i];
-      inertia(point);
-    }
-
-    for (let i = 0; i < colliding.length; i += 2) {
-      const pointA = colliding[i];
-      const pointB = colliding[i + 1];
-      collideCircleCircle(
-        pointA,
-        pointA.radius,
-        pointA.mass,
-        pointB,
-        pointB.radius,
-        pointB.mass,
-        true,
-        DAMPING
-      );
-    }
-
-    collisionEdges(true, points, boxes);
-
-    render(boxes, points, ctx);
+    render(circles, lines, ctx);
     if (!running) return;
     window.requestAnimationFrame(step);
   })();
 
-  function collisionPairs(pairs: Point[], points: Point[]) {
-    pairs.length = 0;
-
+  function makeBox(x: number, y: number, width: number, height: number) {
+    const lines: CollidableLine[] = [];
+    const circles: CollidableCircle[] = [];
+    const constraints: DistanceConstraint[] = [];
+    const points = [
+      v2(x, y),
+      v2(x + width, y),
+      v2(x + width, y + height),
+      v2(x, y + height)
+    ];
     for (let i = 0; i < points.length; i++) {
-      const pointA = points[i];
-      for (let j = i + 1; j < points.length; j++) {
-        const pointB = points[j];
-        if (
-          overlapCircleCircle(
-            pointA.cpos.x,
-            pointA.cpos.y,
-            pointA.radius,
-            pointB.cpos.x,
-            pointB.cpos.y,
-            pointB.radius
-          )
-        ) {
-          pairs.push(pointA, pointB);
-        }
+      const point = points[i];
+      const prev = circles.length === 0 ? null : circles[i - 1];
+      const circle = {
+        cpos: copy(v2(), point),
+        ppos: copy(v2(), point),
+        acel: v2(0, 0),
+        mass: i === 0 ? -1 : 1,
+        radius: 1
+      };
+      if (prev) {
+        lines.push({
+          point1: prev,
+          point2: circle
+        });
+
+        constraints.push({
+          point1: prev,
+          point2: circle,
+          goal: distance(point, prev.cpos)
+        });
       }
+      circles.push(circle);
     }
 
-    return pairs;
+    lines.push({
+      point1: circles[circles.length - 1],
+      point2: circles[0]
+    });
+
+    constraints.push({
+      point1: circles[circles.length - 1],
+      point2: circles[0],
+      goal: distance(circles[circles.length - 1].cpos, circles[0].cpos)
+    });
+
+    constraints.push({
+      point1: circles[0],
+      point2: circles[2],
+      goal: distance(circles[0].cpos, circles[2].cpos)
+    });
+
+    return {
+      lines,
+      circles,
+      constraints
+    };
   }
 
-  function collisionEdges(
+  function collideCircles(
+    circles: CollidableCircle[],
     preserveInertia: boolean,
-    points: Point[],
-    boxes: Box[]
+    damping = 0.9
   ) {
-    //collidingEdges.length = 0;
-
-    // for each edge, test against each point
-    for (let i = 0; i < boxes.length; i++) {
-      const box = boxes[i];
-      for (let j = 0; j < points.length; j++) {
-        const point = points[j];
+    for (let i = 0; i < circles.length; i++) {
+      const a = circles[i];
+      for (let j = i + 1; j < circles.length; j++) {
+        const b = circles[j];
         if (
-          point === box.points[0] ||
-          point === box.points[1] ||
-          point === box.points[2] ||
-          point === box.points[3]
-        ) {
+          !overlapCircleCircle(
+            a.cpos.x,
+            a.cpos.y,
+            a.radius,
+            b.cpos.x,
+            b.cpos.y,
+            b.radius
+          )
+        )
           continue;
-        }
-
-        rewindToCollisionPoint(point, point.radius, box.points[0], box.points[1]);
-        rewindToCollisionPoint(point, point.radius, box.points[1], box.points[2]);
-        rewindToCollisionPoint(point, point.radius, box.points[2], box.points[3]);
-        rewindToCollisionPoint(point, point.radius, box.points[3], box.points[0]);
-
-        collideCircleEdge(
-          point,
-          point.radius,
-          point.mass,
-          box.points[0],
-          box.points[0].mass,
-          box.points[1],
-          box.points[1].mass,
+        collideCircleCircle(
+          a,
+          a.radius,
+          a.mass,
+          b,
+          b.radius,
+          b.mass,
           preserveInertia,
-          DAMPING
-        );
-
-        collideCircleEdge(
-          point,
-          point.radius,
-          point.mass,
-          box.points[1],
-          box.points[1].mass,
-          box.points[2],
-          box.points[2].mass,
-          preserveInertia,
-          DAMPING
-        );
-
-        collideCircleEdge(
-          point,
-          point.radius,
-          point.mass,
-          box.points[2],
-          box.points[2].mass,
-          box.points[3],
-          box.points[3].mass,
-          preserveInertia,
-          DAMPING
-        );
-
-        collideCircleEdge(
-          point,
-          point.radius,
-          point.mass,
-          box.points[3],
-          box.points[3].mass,
-          box.points[0],
-          box.points[0].mass,
-          preserveInertia,
-          DAMPING
+          damping
         );
       }
     }
   }
 
-  function generateBoxes(center: Vector2, baseRadius: number, num: number) {
-    const all = [];
-    const minRadius = 10;
-    for (let i = 0; i < num; i++) {
-      const x = Math.cos(i) * center.x + center.x;
-      const y = Math.sin(i) * center.y + center.y;
-      const group = [];
-      const half = Math.max(
-        Math.abs(Math.cos(i) + Math.sin(i)) * baseRadius,
-        minRadius
-      );
-      const radius = 5;
-      const mass = Math.max(Math.abs(Math.cos(i) + Math.sin(i)) * 1, 1);
-      group.push({
-        cpos: { x: x - half, y: y - half },
-        ppos: { x: x - half, y: y - half },
-        acel: v2(),
-        radius,
-        mass
-      });
-      group.push({
-        cpos: { x: x + half, y: y - half },
-        ppos: { x: x + half, y: y - half },
-        acel: v2(),
-        radius,
-        mass
-      });
-      group.push({
-        cpos: { x: x + half, y: y + half },
-        ppos: { x: x + half, y: y + half },
-        acel: v2(),
-        radius,
-        mass
-      });
-      group.push({
-        cpos: { x: x - half, y: y + half },
-        ppos: { x: x - half, y: y + half },
-        acel: v2(),
-        radius,
-        mass
-      });
-      all.push({
-        points: group,
-        goals: [
-          half * 2,
-          half * 2,
-          half * 2,
-          half * 2,
-          half * 2 * Math.SQRT2,
-          half * 2 * Math.SQRT2
-        ]
-      });
+  function collideEdges(
+    lines: CollidableLine[],
+    circles: CollidableCircle[],
+    preserveInertia: boolean,
+    damping = 0.9
+  ) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      for (let j = 0; j < circles.length; j++) {
+        const circle = circles[j];
+        // Using the below code will prevent tunneling, but since there is no
+        // collision manifold there is not way for the rewind to know if it
+        // tunneled due to a collision or the result of resolving a collision!
+        // Sigh.
+        // if (!preserveInertia)
+        //   rewindToCollisionPoint(
+        //     circle,
+        //     circle.radius,
+        //     line.point1,
+        //     line.point2
+        //   );
+        collideCircleEdge(
+          circle,
+          circle.radius,
+          circle.mass,
+          line.point1,
+          line.point1.mass,
+          line.point2,
+          line.point2.mass,
+          preserveInertia,
+          damping
+        );
+      }
     }
-    return all;
   }
 
   function render(
-    boxes: Box[],
-    points: Point[],
+    circles: CollidableCircle[],
+    segments: CollidableLine[],
     ctx: CanvasRenderingContext2D
   ) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    for (let i = 0; i < points.length; i++) {
-      const point = points[i];
+    for (let i = 0; i < circles.length; i++) {
+      const point = circles[i];
 
       ctx.fillStyle = "red";
       ctx.beginPath();
@@ -347,17 +252,18 @@ export const start = () => {
       ctx.fill();
     }
 
-    for (let i = 0; i < boxes.length; i++) {
-      const box = boxes[i];
-
-      ctx.fillStyle = "rgba(255,0,0,0.5)";
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      ctx.strokeStyle = "red";
       ctx.beginPath();
-      ctx.moveTo(box.points[0].cpos.x, box.points[0].cpos.y);
-      ctx.lineTo(box.points[1].cpos.x, box.points[1].cpos.y);
-      ctx.lineTo(box.points[2].cpos.x, box.points[2].cpos.y);
-      ctx.lineTo(box.points[3].cpos.x, box.points[3].cpos.y);
-      ctx.lineTo(box.points[0].cpos.x, box.points[0].cpos.y);
-      ctx.fill();
+      ctx.moveTo(segment.point1.ppos.x, segment.point1.ppos.y);
+      ctx.lineTo(segment.point2.ppos.x, segment.point2.ppos.y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.strokeStyle = "black";
+      ctx.moveTo(segment.point1.cpos.x, segment.point1.cpos.y);
+      ctx.lineTo(segment.point2.cpos.x, segment.point2.cpos.y);
+      ctx.stroke();
     }
   }
 };

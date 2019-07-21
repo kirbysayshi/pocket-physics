@@ -13,7 +13,7 @@ const demos = new Map<string, { start: () => void; stop?: () => void }>([
   ["AABB Overlap Demo", AABBOverlapDemo],
   ["AABB Soup Demo", AABBSoupDemo],
   ["Circle Collisions", CircleCollisions],
-  ["Edge Collisions", EdgeCollisions],
+  ["Circle to Box Collision", EdgeCollisions],
   ["Single Edge Collision", EdgeCollision],
   ["Platformer", Platformer],
   ["Bucket of Circles", Bucket],

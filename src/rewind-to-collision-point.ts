@@ -20,7 +20,9 @@ export function rewindToCollisionPoint(
   // point3 moving beyond the edge in one time step.
   
   // TODO: this should accept some sort of manifold or collision contact object,
-  // not randum args (radius, etc).
+  // not randum args (radius, etc). Without a manifold it's imposible to know 
+  // if the point "tunneled" due to a collision or the result of _resolving_
+  // a collision!
 
   // Compute where the cpos would be if the segment actually included the
   // radius.

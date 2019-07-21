@@ -55,28 +55,12 @@ export const start = () => {
     v2(width - 500, (width / 2) + 200)
   ]);
   midLine.pop(); // remove the double link back to beginning
-
   bucket.push(...midLine);
-
-  // const circles = bucket.reduce((all, line) => {
-  //   all.push(line.point1, line.point2);
-  //   return all;
-  // }, [] as CollidableCircle[]);
 
   const circles = makeCircles(v2(width / 2, width / 2), width / 4, 10, 50);
 
   let running = true;
   scihalt(() => (running = false));
-
-  // const keys: { [key: string]: boolean } = {};
-  // cvs.addEventListener("keydown", e => {
-  //   keys[e.key] = true;
-  //   e.preventDefault();
-  // });
-  // document.body.addEventListener("keyup", e => {
-  //   keys[e.key] = false;
-  //   e.preventDefault();
-  // });
 
   (function step() {
     const dt = 16;
@@ -95,9 +79,7 @@ export const start = () => {
       const line = bucket[i];
       for (let j = 0; j < circles.length; j++) {
         const circle = circles[j];
-        // render(circles, bucket, ctx);
         rewindToCollisionPoint(circle, circle.radius, line.point1, line.point2);
-        // render(circles, bucket, ctx);
         collideCircleEdge(
           circle,
           circle.radius,
@@ -109,7 +91,6 @@ export const start = () => {
           false,
           0.9
         );
-        // render(circles, bucket, ctx);
       }
     }
 
