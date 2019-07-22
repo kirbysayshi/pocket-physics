@@ -168,16 +168,6 @@ export const start = () => {
     };
   }
 
-  // function copyCollisionData (output, input) {
-  //   output.resolve = v2();
-  //   output.hitPos = v2();
-  //   output.normal = v2();
-  //   copy(output.resolve, input.resolve);
-  //   copy(output.hitPos, input.hitPos);
-  //   copy(output.normal, input.normal);
-  //   return output;
-  // }
-
   function render(points: Box[], ctx: CanvasRenderingContext2D) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     for (let i = 0; i < points.length; i++) {

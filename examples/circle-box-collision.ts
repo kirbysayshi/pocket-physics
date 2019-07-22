@@ -55,8 +55,8 @@ export const start = () => {
   constraints.push(...box.constraints);
 
   circles.push({
-    cpos: v2(500, 320),
-    ppos: v2(510, 320),
+    cpos: v2(500, 390),
+    ppos: v2(510, 390),
     acel: v2(0, 0),
     mass: 100,
     radius: 10
