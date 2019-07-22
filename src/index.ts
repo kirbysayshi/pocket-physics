@@ -4,7 +4,6 @@
 // this transpiled file in a project will cause failures when a builder,
 // like webpack or rollup, tries to resolve a Type as a code export.
 
-export * from "./aabb-friction";
 export * from "./accelerate";
 export * from "./collide-circle-circle";
 export * from "./collide-circle-edge";
