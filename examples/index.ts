@@ -1,7 +1,7 @@
 import * as AABBOverlapDemo from "./aabb-overlap";
 import * as AABBSoupDemo from "./aabb-soup";
 import * as CircleCollisions from "./circle-collisions";
-import * as EdgeCollisions from "./edge-collisions";
+import * as CircleBoxCollision from "./circle-box-collision";
 import * as EdgeCollision from "./edge-collision";
 import * as Platformer from "./platformer";
 import * as Bucket from './bucket';
@@ -13,7 +13,7 @@ const demos = new Map<string, { start: () => void; stop?: () => void }>([
   ["AABB Overlap Demo", AABBOverlapDemo],
   ["AABB Soup Demo", AABBSoupDemo],
   ["Circle Collisions", CircleCollisions],
-  ["Circle to Box Collision", EdgeCollisions],
+  ["Circle to Box Collision", CircleBoxCollision],
   ["Single Edge Collision", EdgeCollision],
   ["Platformer", Platformer],
   ["Bucket of Circles", Bucket],

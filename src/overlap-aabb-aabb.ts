@@ -1,6 +1,7 @@
 import {
   set,
   Vector2,
+  normalize,
 } from './v2';
 
 // https://github.com/noonat/intersect/blob/master/intersect.js
@@ -9,6 +10,12 @@ export type AABBOverlapResult = {
   resolve: Vector2; hitPos: Vector2; normal: Vector2;
 }
 
+/**
+ * Compute the "collision manifold" for two AABB, storing the result in `result`.
+ * Note: The `normal` is always perpendicular to an AABB edge, which may produce
+ * some slighly weird-looking collisions. `collisionResponseAABB()` will compute
+ * a normal using the midpoints, which looks more natural.
+ */
 export const overlapAABBAABB = (
   center1X: number, center1Y: number, width1: number, height1: number,
   center2X: number, center2Y: number, width2: number, height2: number,

@@ -25,7 +25,7 @@ export const start = () => {
 
   const points: Box[] = [];
 
-  for (let count = 30, i = 0; i < count; i++) {
+  for (let count = 25, i = 0; i < count; i++) {
     const centerX = cvs.width / 2;
     const centerY = cvs.height / 2;
     const distance = Math.min(centerX, centerY) * 0.5;
@@ -108,8 +108,8 @@ export const start = () => {
           const box2v = v2();
 
           const restitution = 1;
-          const staticFriction = 1;
-          const dynamicFriction = 1;
+          const staticFriction = 0.9;
+          const dynamicFriction = 0.01;
 
           collisionResponseAABB(
             box1.cpos,
@@ -124,7 +124,11 @@ export const start = () => {
             restitution,
             staticFriction,
             dynamicFriction,
-            collision.normal,
+            // Allow the response function to recompute a normal based on the
+            // axis between the centers of the boxes. this produces a more
+            // natural looking collision.
+            // collision.normal,
+            v2(),
             box1v,
             box2v
           );
@@ -159,8 +163,8 @@ export const start = () => {
       ppos: v2(x, y),
       acel: v2(),
       mass: 10,
-      w: 50,
-      h: 50
+      w: 10,
+      h: 10
     };
   }
 

@@ -103,7 +103,11 @@ export const start = () => {
         restitution,
         staticFriction,
         dynamicFriction,
-        collision.normal,
+        // Allow the response function to recompute a normal based on the
+        // axis between the centers of the boxes. this produces a more
+        // natural looking collision.
+        // collision.normal,
+        v2(),
         box1v,
         box2v
       );
