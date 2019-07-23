@@ -115,10 +115,19 @@ export const start = () => {
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
+      const lineIsBounds = bucket.indexOf(line) > -1;
       for (let j = 0; j < circles.length; j++) {
         const circle = circles[j];
         if (circle === line.point1 || circle === line.point2) continue;
-        // rewindToCollisionPoint(circle, circle.radius, line.point1, line.point2);
+        // TODO: this needs to be smarter. Without this rewind, simple circles
+        // will tunnel through the line. But if done indiscriminately, the rewind
+        // will cause an infinite build up of velocity, and eventually explode. OR
+        // it will cause a circle to "stick" to an edge until their velocity
+        // dissipates.
+        if (!lineIsBounds) {
+          rewindToCollisionPoint(circle, circle.radius, line.point1, line.point2);
+        }
+        
         collideCircleEdge(
           circle,
           circle.radius,
