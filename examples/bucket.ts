@@ -16,7 +16,8 @@ import {
   normalize,
   scale,
   normal,
-  dot
+  dot,
+  solveDistanceConstraint
 } from "../src";
 
 export const start = () => {
@@ -41,7 +42,18 @@ export const start = () => {
     radius: number;
   };
 
+  type DistanceConstraint = {
+    point1: Exclude<CollidableCircle, "radius">;
+    point2: Exclude<CollidableCircle, "radius">;
+    goal: number;
+  };
+
   const GRAVITY = 0.8;
+  const CONSTRAINT_ITERS = 5;
+
+  const lines: CollidableLine[] = [];
+  const constraints: DistanceConstraint[] = [];
+  const circles: CollidableCircle[] = [];
 
   const bucket = makeStaticMesh([
     v2(50, 50),
@@ -52,12 +64,24 @@ export const start = () => {
 
   const midLine = makeStaticMesh([
     v2(500, width / 2),
-    v2(width - 500, (width / 2) + 200)
+    v2(width - 500, width / 2 + 200)
   ]);
   midLine.pop(); // remove the double link back to beginning
-  bucket.push(...midLine);
+  lines.push(...bucket, ...midLine);
 
-  const circles = makeCircles(v2(width / 2, width / 2), width / 4, 10, 50);
+  circles.push(...makeCircles(v2(width / 2, width / 2), width / 4, 10, 400));
+
+  const polys = [
+    makePolygon(6, v2(300, 100), 15),
+    makePolygon(3, v2(400, 100), 15),
+    makePolygon(4, v2(600, 100), 15),
+  ];
+
+  polys.forEach(poly => {
+    circles.push(...poly.circles);
+    constraints.push(...poly.constraints);
+    lines.push(...poly.lines);
+  });
 
   let running = true;
   scihalt(() => (running = false));
@@ -75,11 +99,26 @@ export const start = () => {
       accelerate(circle, dt);
     }
 
-    for (let i = 0; i < bucket.length; i++) {
-      const line = bucket[i];
+    for (let i = 0; i < CONSTRAINT_ITERS; i++) {
+      for (let j = 0; j < constraints.length; j++) {
+        const constraint = constraints[j];
+        solveDistanceConstraint(
+          constraint.point1,
+          constraint.point1.mass,
+          constraint.point2,
+          constraint.point2.mass,
+          constraint.goal,
+          1
+        );
+      }
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       for (let j = 0; j < circles.length; j++) {
         const circle = circles[j];
-        rewindToCollisionPoint(circle, circle.radius, line.point1, line.point2);
+        if (circle === line.point1 || circle === line.point2) continue;
+        // rewindToCollisionPoint(circle, circle.radius, line.point1, line.point2);
         collideCircleEdge(
           circle,
           circle.radius,
@@ -127,13 +166,11 @@ export const start = () => {
       inertia(circle);
     }
 
-    for (let i = 0; i < bucket.length; i++) {
-      const line = bucket[i];
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       for (let j = 0; j < circles.length; j++) {
         const circle = circles[j];
-        // render(circles, bucket, ctx);
-        // rewindToCollisionPoint(circle, circle.radius, line.point1, line.point2);
-        // render(circles, bucket, ctx);
+        if (circle === line.point1 || circle === line.point2) continue;
         collideCircleEdge(
           circle,
           circle.radius,
@@ -145,7 +182,6 @@ export const start = () => {
           true,
           0.9
         );
-        // render(circles, bucket, ctx);
       }
     }
 
@@ -245,11 +281,11 @@ export const start = () => {
         add(circle.cpos, circle.cpos, offset);
         // Don't correct ppos, otherwise velocity will continue to increase
         // forever.
-        add(circle.ppos, circle.ppos, offset);
+        // add(circle.ppos, circle.ppos, offset);
       }
     }
 
-    render(circles, bucket, ctx);
+    render(circles, lines, constraints, ctx);
     if (!running) return;
     window.requestAnimationFrame(step);
   })();
@@ -257,7 +293,6 @@ export const start = () => {
   function makeStaticMesh(points: Vector2[]) {
     const clines: CollidableLine[] = [];
     const circles: CollidableCircle[] = [];
-    // let prev: CollidableCircle | null = null;
     for (let i = 0; i < points.length; i++) {
       const point = points[i];
       const prev = circles.length === 0 ? null : circles[i - 1];
@@ -272,7 +307,6 @@ export const start = () => {
         const line = {
           point1: prev,
           point2: circle
-          // goal: distance(point, prev.cpos),
         };
         clines.push(line);
       }
@@ -282,7 +316,6 @@ export const start = () => {
     clines.push({
       point1: circles[circles.length - 1],
       point2: circles[0]
-      // goal
     });
 
     return clines;
@@ -313,9 +346,65 @@ export const start = () => {
     return all;
   }
 
+  function makePolygon(gon: number, center: Vector2, radius: number) {
+    const clines: CollidableLine[] = [];
+    const circles: CollidableCircle[] = [];
+    const constraints: DistanceConstraint[] = [];
+    for (let i = 0; i < gon; i++) {
+      const x = center.x + Math.cos((i / gon) * Math.PI * 2) * radius;
+      const y = center.y + Math.sin((i / gon) * Math.PI * 2) * radius;
+      circles.push({
+        cpos: { x, y },
+        ppos: { x, y },
+        acel: { x: 0, y: 0 },
+        radius: 5,
+        mass: 5
+      });
+    }
+
+    for (let i = 0; i < circles.length; i++) {
+      const point1 = circles[i];
+      const point2 = i === circles.length - 1 ? circles[0] : circles[i + 1];
+      clines.push({
+        point1,
+        point2
+      });
+    }
+
+    for (let i = 0; i < circles.length; i++) {
+      const point1 = circles[i];
+      let j = i;
+      while (true) {
+        j++;
+        const point2 = circles[j % circles.length];
+        if (point2 === point1) break;
+        if (
+          constraints.find(
+            c =>
+              (c.point1 === point1 && c.point2 === point2) ||
+              (c.point2 === point1 && c.point1 === point2)
+          ) !== undefined
+        )
+          break;
+        constraints.push({
+          point1,
+          point2,
+          goal: distance(point1.cpos, point2.cpos)
+        });
+      }
+    }
+
+    return {
+      circles,
+      lines: clines,
+      constraints
+    };
+  }
+
   function render(
     circles: CollidableCircle[],
     segments: CollidableLine[],
+    constraints: DistanceConstraint[],
     ctx: CanvasRenderingContext2D
   ) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -344,6 +433,20 @@ export const start = () => {
       ctx.strokeStyle = "black";
       ctx.moveTo(segment.point1.cpos.x, segment.point1.cpos.y);
       ctx.lineTo(segment.point2.cpos.x, segment.point2.cpos.y);
+      ctx.stroke();
+    }
+
+    for (let i = 0; i < constraints.length; i++) {
+      const c = constraints[i];
+      ctx.strokeStyle = "magenta";
+      ctx.beginPath();
+      ctx.moveTo(c.point1.ppos.x, c.point1.ppos.y);
+      ctx.lineTo(c.point2.ppos.x, c.point2.ppos.y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.strokeStyle = "purple";
+      ctx.moveTo(c.point1.cpos.x, c.point1.cpos.y);
+      ctx.lineTo(c.point2.cpos.x, c.point2.cpos.y);
       ctx.stroke();
     }
   }
