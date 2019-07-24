@@ -1,6 +1,8 @@
 pocket-physics
 ==============
 
+Demos at [github.io/kirbysayshi/pocket-physics](github.io/kirbysayshi/pocket-physics).
+
 ```
 npm install pocket-physics
 ```
@@ -20,6 +22,21 @@ inertia(point);
 
 console.log(point.cpos)
 // { x: 5.12, y: 0 }
+```
+
+Maintenance
+===========
+
+Demos to gh-pages:
+
+```
+yarn demos:deploy
+```
+
+Publishing:
+
+```
+npm publish
 ```
 
 LICENSE

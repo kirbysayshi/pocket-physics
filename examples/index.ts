@@ -10,13 +10,13 @@ const qs = new URLSearchParams(window.location.search);
 const demoName = qs.get("demo");
 
 const demos = new Map<string, { start: () => void; stop?: () => void }>([
-  ["AABB Overlap Demo", AABBOverlapDemo],
-  ["AABB Soup Demo", AABBSoupDemo],
-  ["Circle Collisions", CircleCollisions],
-  ["Circle to Box Collision", CircleBoxCollision],
-  ["Single Edge Collision", EdgeCollision],
-  ["Platformer", Platformer],
-  ["Bucket of Circles", Bucket],
+  ["Bucket of Circles (Verlet)", Bucket],
+  ["Circle Collisions (Verlet)", CircleCollisions],
+  ["Circle to Box Collision (Verlet)", CircleBoxCollision],
+  ["Single Edge Collision (Verlet)", EdgeCollision],
+  ["Platformer (AABB Impulse Model)", Platformer],
+  ["AABB Overlap Demo (AABB Impulse Model)", AABBOverlapDemo],
+  ["AABB Soup Demo (AABB Impulse Model)", AABBSoupDemo],
 ]);
 
 if (demoName && demos.has(demoName)) {
