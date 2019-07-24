@@ -23,11 +23,14 @@ if (demoName && demos.has(demoName)) {
   demos.get(demoName)!.start();
 } else {
   const names = Array.from(demos.keys());
-  const url = `${window.location.pathname}?demo=${encodeURIComponent(name)}`;
 
-  const li = (name: string) => `
-    <li><a href="${url}">${name}</a></li>
-  `;
+  const li = (name: string) => {
+    const cmp = encodeURIComponent(name);
+    const url = `${window.location.pathname}?demo=${cmp}`;
+    return `
+      <li><a href="${url}">${name}</a></li>
+    `;
+  };
 
   const html = `
     <ul>
