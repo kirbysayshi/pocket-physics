@@ -25,7 +25,7 @@ if (demoName && demos.has(demoName)) {
   const names = Array.from(demos.keys());
 
   const li = (name: string) => `
-    <li><a href="/?demo=${encodeURIComponent(name)}">${name}</a></li>
+    <li><a href="?demo=${encodeURIComponent(name)}">${name}</a></li>
   `;
 
   const html = `
