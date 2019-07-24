@@ -15,7 +15,7 @@
     "test": "jest src",
     "demos": "parcel serve --out-dir build-demos examples/index.html",
     "demos:bundle": "parcel build --out-dir build-demos examples/index.html",
-    "demos:deploy": "yarn demos:bundle && gh-pages -d build-demos/"
+    "demos:deploy": "yarn demos:bundle --public-url pocket-physics && gh-pages -d build-demos/"
   },
   "repository": {
     "type": "git",
