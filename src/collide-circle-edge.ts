@@ -35,24 +35,24 @@ const epBefore = {
 };
 
 export function collideCircleEdge(
-  point3: VelocityDerivable,
+  circle: VelocityDerivable,
   radius3: number,
   mass3: number,
-  point1: VelocityDerivable,
+  endpoint1: VelocityDerivable,
   mass1: number,
-  point2: VelocityDerivable,
+  endpoint2: VelocityDerivable,
   mass2: number,
   preserveInertia: boolean,
   damping: number
 ) {
   // Edge direction (edge in local space)
-  sub(edge, point2.cpos, point1.cpos);
+  sub(edge, endpoint2.cpos, endpoint1.cpos);
 
   // Normalize collision edge (assume collision axis is edge)
   normalize(edgeDir, edge);
 
   // Vector from endpoint1 to particle
-  sub(hypo, point3.cpos, point1.cpos);
+  sub(hypo, circle.cpos, endpoint1.cpos);
 
   // Where is the particle on the edge, before, after, or on?
   // Also used for interpolation later.
@@ -70,8 +70,8 @@ export function collideCircleEdge(
 
   // Find the point of collision on the edge.
   scale(collisionPoint, edgeDir, t * edgeMag);
-  add(collisionPoint, collisionPoint, point1.cpos);
-  const dist = distance(collisionPoint, point3.cpos);
+  add(collisionPoint, collisionPoint, endpoint1.cpos);
+  const dist = distance(collisionPoint, circle.cpos);
 
   // Bail if point and edge are too far apart.
   if (dist > radius3) return;
@@ -94,15 +94,15 @@ export function collideCircleEdge(
 
   // Slide standin1 along edge to be in front of endpoint1
   scale(standin1.cpos, edgeDir, t * edgeMag);
-  sub(standin1.cpos, point3.cpos, standin1.cpos);
+  sub(standin1.cpos, circle.cpos, standin1.cpos);
   scale(standin1.ppos, edgeDir, t * edgeMag);
-  sub(standin1.ppos, point3.ppos, standin1.ppos);
+  sub(standin1.ppos, circle.ppos, standin1.ppos);
 
   // Slide standin2 along edge to be in front of endpoint2
   scale(standin2.cpos, edgeDir, u * edgeMag);
-  add(standin2.cpos, point3.cpos, standin2.cpos);
+  add(standin2.cpos, circle.cpos, standin2.cpos);
   scale(standin2.ppos, edgeDir, u * edgeMag);
-  add(standin2.ppos, point3.ppos, standin2.ppos);
+  add(standin2.ppos, circle.ppos, standin2.ppos);
 
   const standin1Before = {
     cpos: v2(),
@@ -127,7 +127,7 @@ export function collideCircleEdge(
     standin1,
     radius3,
     standinMass1,
-    point1,
+    endpoint1,
     edgeRadius,
     mass1,
     preserveInertia,
@@ -138,7 +138,7 @@ export function collideCircleEdge(
     standin2,
     radius3,
     standinMass2,
-    point2,
+    endpoint2,
     edgeRadius,
     mass2,
     preserveInertia,
@@ -165,8 +165,8 @@ export function collideCircleEdge(
   scale(standin2Delta.cpos, standin2Delta.cpos, t);
 
   // Apply cpos changes to point3
-  add(point3.cpos, point3.cpos, standin1Delta.cpos);
-  add(point3.cpos, point3.cpos, standin2Delta.cpos);
+  add(circle.cpos, circle.cpos, standin1Delta.cpos);
+  add(circle.cpos, circle.cpos, standin2Delta.cpos);
 
   if (!preserveInertia) return;
 
@@ -184,8 +184,8 @@ export function collideCircleEdge(
   scale(standin2Delta.ppos, standin2Delta.ppos, t);
 
   // Apply ppos changes to point3
-  add(point3.ppos, point3.ppos, standin1Delta.ppos);
-  add(point3.ppos, point3.ppos, standin2Delta.ppos);
+  add(circle.ppos, circle.ppos, standin1Delta.ppos);
+  add(circle.ppos, circle.ppos, standin2Delta.ppos);
 }
 
 type Particle = {
