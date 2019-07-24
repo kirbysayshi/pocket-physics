@@ -17,7 +17,9 @@ import {
   scale,
   normal,
   dot,
-  solveDistanceConstraint
+  solveDistanceConstraint,
+  projectPointEdge,
+  PointEdgeProjection
 } from "../src";
 
 export const start = () => {
@@ -235,58 +237,31 @@ export const start = () => {
       // The right way to do this is to create systems.
       if (line === midLine[0]) continue;
 
-      // Edge direction (edge in local space)
-      const edge = sub(v2(), line.point2.cpos, line.point1.cpos);
-
-      // Normalize collision edge (assume collision axis is edge)
-      const edgeDir = normalize(v2(), edge);
-
-      // We know which way the edges were wound, so we implicitly know which order
-      // these points should be used in to compute the normal.
-      const edgeNormal = normal(v2(), line.point1.cpos, line.point2.cpos);
-
       for (let j = 0; j < circles.length; j++) {
         const circle = circles[j];
 
-        // Vector from endpoint1 to particle
-        const hypo = sub(v2(), circle.cpos, line.point1.cpos);
+        const projection: PointEdgeProjection = {
+          distance: Number.MIN_SAFE_INTEGER,
+          similarty: 0, 
+          t: Number.MIN_SAFE_INTEGER,
+          projectedPoint: v2(),
+          edgeNormal: v2(),
+        };
 
-        // Where is the particle on the edge, before, after, or on?
-        // Also used for interpolation later.
-        const projection = dot(edge, hypo);
-        const maxDot = dot(edge, edge);
-        const edgeMag = Math.sqrt(maxDot);
-
-        // Projection is beyond the enpoints!
-        // If we were doing an intersection test, we'd use this to say there
-        // was no intersection.
-        // if (projection < 0 || projection > maxDot) return;
-
-        // Create interpolation factor of where point closest
-        // to particle is on the line.
-        const t = projection / maxDot;
-        const u = 1 - t;
-
-        // Find the point of projection on the edge.
-        const projectionPoint = v2();
-        scale(projectionPoint, edgeDir, t * edgeMag);
-        add(projectionPoint, projectionPoint, line.point1.cpos);
-
-        const edgePointingToCircleDirection = sub(
-          v2(),
-          circle.cpos,
-          projectionPoint
-        );
+        // We know which way the edges were wound, so we implicitly know which order
+        // these points should be used in to compute the normal.
+        projectPointEdge(circle.cpos, line.point1.cpos, line.point2.cpos, projection);
 
         // both the edge normal and the segment from edge to circle are
         // facing a similar direction
-        const similarity = dot(edgePointingToCircleDirection, edgeNormal);
-        if (similarity > 0) continue;
+        // We only know it is > 0 because of the order line.point,point2 were inputted
+        // into the projection.
+        if (projection.similarty > 0) continue;
 
         // If we get here, the directions so dissimilar that the circle must
         // be on the other side of the edge! Move it back!
         const offset = v2();
-        sub(offset, projectionPoint, circle.cpos);
+        sub(offset, projection.projectedPoint, circle.cpos);
         add(circle.cpos, circle.cpos, offset);
         // Don't correct ppos, otherwise velocity will continue to increase
         // forever.

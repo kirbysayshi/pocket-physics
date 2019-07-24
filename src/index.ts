@@ -18,3 +18,4 @@ export * from "./rewind-to-collision-point";
 export * from "./segment-intersection";
 export * from "./v2";
 export * from "./common-types";
+export * from './project-point-edge';
