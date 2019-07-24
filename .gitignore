@@ -1,2 +1,7 @@
 node_modules
-dist
+cjs
+esm
+
+# parcel
+.cache
+build-demos
