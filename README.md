@@ -1,7 +1,7 @@
 pocket-physics
 ==============
 
-Demos at [github.io/kirbysayshi/pocket-physics](github.io/kirbysayshi/pocket-physics).
+Demos at [https://kirbysayshi.github.io/pocket-physics](kirbysayshi.github.io/pocket-physics).
 
 ```
 npm install pocket-physics
