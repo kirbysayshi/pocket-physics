@@ -21,6 +21,9 @@ export function solveDistanceConstraint(
   const delta = sub(v2(), p2.cpos, p1.cpos);
   const deltaMag = magnitude(delta);
 
+  // nothing to do.
+  if (deltaMag === 0) return;
+
   // Difference between current distance and goal distance
   const diff = (deltaMag - goal) / deltaMag;
 
