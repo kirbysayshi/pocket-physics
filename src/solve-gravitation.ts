@@ -12,14 +12,17 @@ export function solveGravitation(
   // handle either obj not having mass
   if (p1mass <= 0 || p2mass <= 0) return;
 
-  let mag;
-  let factor;
+  let mag: number;
+  let factor: number;
 
   const diffx = p2.cpos.x - p1.cpos.x;
   const diffy = p2.cpos.y - p1.cpos.y;
 
   set(accel1, diffx, diffy);
   mag = magnitude(accel1);
+
+  // Prevent divide by zero.
+  mag = mag === 0 ? 1 : mag;
 
   // Newton's Law of Universal Gravitation -- Vector Form!
   factor = gravityConstant * ((p1mass * p2mass) / (mag * mag));
