@@ -1,4 +1,10 @@
 module.exports = {
-  preset: 'ts-jest'
+  preset: 'ts-jest',
+  roots: ['src'],
+  globals: {
+    'ts-jest': {
+      diagnostics: false
+    }
+  }
 };
 

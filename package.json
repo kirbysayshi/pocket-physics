@@ -12,7 +12,7 @@
   "scripts": {
     "prepublishOnly": "yarn build",
     "build": "tsc --build",
-    "test": "jest src",
+    "test": "jest",
     "demos": "parcel serve --out-dir build-demos examples/index.html",
     "demos:bundle": "parcel build --out-dir build-demos examples/index.html",
     "demos:deploy": "yarn demos:bundle --public-url . && gh-pages -d build-demos/"
@@ -38,6 +38,7 @@
     "gh-pages": "^2.0.1",
     "jest": "^24.8.0",
     "parcel-bundler": "^1.12.3",
+    "prettier": "^2.1.1",
     "science-halt": "^0.2.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.5.3"

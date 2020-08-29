@@ -242,8 +242,8 @@ export const start = () => {
 
         const projection: PointEdgeProjection = {
           distance: Number.MIN_SAFE_INTEGER,
-          similarty: 0, 
-          t: Number.MIN_SAFE_INTEGER,
+          similarity: 0,
+          u: Number.MIN_SAFE_INTEGER,
           projectedPoint: v2(),
           edgeNormal: v2(),
         };
@@ -256,7 +256,7 @@ export const start = () => {
         // facing a similar direction
         // We only know it is > 0 because of the order line.point,point2 were inputted
         // into the projection.
-        if (projection.similarty > 0) continue;
+        if (projection.similarity > 0) continue;
 
         // If we get here, the directions so dissimilar that the circle must
         // be on the other side of the edge! Move it back!
