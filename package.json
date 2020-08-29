@@ -34,14 +34,14 @@
   },
   "homepage": "https://github.com/kirbysayshi/pocket-physics",
   "devDependencies": {
-    "@types/jest": "^24.0.15",
-    "gh-pages": "^2.0.1",
-    "jest": "^24.8.0",
-    "parcel-bundler": "^1.12.3",
+    "@types/jest": "^26.0.10",
+    "gh-pages": "^3.1.0",
+    "jest": "^26.4.2",
+    "parcel-bundler": "^1.12.4",
     "prettier": "^2.1.1",
     "science-halt": "^0.2.0",
-    "ts-jest": "^24.0.2",
-    "typescript": "^3.5.3"
+    "ts-jest": "^26.3.0",
+    "typescript": "^4.0.2"
   },
   "dependencies": {}
 }
