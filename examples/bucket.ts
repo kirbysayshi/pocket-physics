@@ -19,7 +19,8 @@ import {
   dot,
   solveDistanceConstraint,
   projectPointEdge,
-  PointEdgeProjection
+  PointEdgeProjection,
+  createPointEdgeProjectionResult
 } from "../src";
 
 export const start = () => {
@@ -127,7 +128,7 @@ export const start = () => {
         // it will cause a circle to "stick" to an edge until their velocity
         // dissipates.
         if (!lineIsBounds) {
-          rewindToCollisionPoint(circle, circle.radius, line.point1, line.point2);
+          rewindToCollisionPoint(circle, circle.radius, line.point1.cpos, line.point2.cpos);
         }
         
         collideCircleEdge(
@@ -240,13 +241,7 @@ export const start = () => {
       for (let j = 0; j < circles.length; j++) {
         const circle = circles[j];
 
-        const projection: PointEdgeProjection = {
-          distance: Number.MIN_SAFE_INTEGER,
-          similarity: 0,
-          u: Number.MIN_SAFE_INTEGER,
-          projectedPoint: v2(),
-          edgeNormal: v2(),
-        };
+        const projection = createPointEdgeProjectionResult();
 
         // We know which way the edges were wound, so we implicitly know which order
         // these points should be used in to compute the normal.

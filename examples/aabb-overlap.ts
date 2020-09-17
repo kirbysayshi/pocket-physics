@@ -8,8 +8,18 @@ import {
   accelerate,
   inertia,
   overlapAABBAABB,
-  collisionResponseAABB
+  collisionResponseAABB,
+  Vector2
 } from "../src";
+
+type Box = {
+  cpos: Vector2;
+  ppos: Vector2;
+  acel: Vector2;
+  w: number;
+  h: number;
+  mass: number;
+}
 
 export const start = () => {
   const cvs = document.createElement("canvas");
@@ -35,8 +45,6 @@ export const start = () => {
     h: 150,
     mass: 10
   };
-
-  type Box = typeof box1;
 
   const points: Box[] = [];
   const collision: AABBOverlapResult = {

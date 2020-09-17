@@ -211,8 +211,8 @@ export const start = () => {
           rewindToCollisionPoint(
             circle,
             circle.radius,
-            line.point1,
-            line.point2
+            line.point1.cpos,
+            line.point2.cpos
           );
         collideCircleEdge(
           circle,

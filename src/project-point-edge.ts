@@ -26,6 +26,19 @@ export type PointEdgeProjection = {
   edgeNormal: Vector2;
 };
 
+/**
+ * Create a pre-made result object for tests.
+ */
+export function createPointEdgeProjectionResult(): PointEdgeProjection {
+  return {
+    distance: 0,
+    similarity: 0,
+    u: 0,
+    projectedPoint: v2(),
+    edgeNormal: v2(),
+  };
+}
+
 const edgeDelta = v2();
 const perp = v2();
 

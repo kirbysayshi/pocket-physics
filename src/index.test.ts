@@ -648,7 +648,7 @@ test.skip("tunneling", () => {
     acel: { x: 0, y: 0 }
   };
 
-  rewindToCollisionPoint(point3, 0, point1, point2);
+  rewindToCollisionPoint(point3, 0, point1.cpos, point2.cpos);
 
   console.log("point1", point1);
   console.log("point2", point2);

@@ -42,6 +42,42 @@ const EPSILON = 0.0001;
 // restitution: box2d: https://github.com/erincatto/Box2D/blob/6a69ddbbd59b21c0d6699c43143b4114f7f92e21/Box2D/Box2D/Dynamics/Contacts/b2Contact.h#L42-L47
 // Math.max(restitution1, restitution2);
 
+/**
+ * Really should be called collisionResponseImpulse, as it has nothing to do
+ * with the shape of the bodies colliding. It's just two points with mass and
+ * friction.
+ * @param cpos1 
+ * @param ppos1 
+ * @param mass1 
+ * @param restitution1 1 == perfectly elastic collision, 0 == all energy is
+ * killed.
+ * @param staticFriction1 How much friction must be overcome before the object
+ * will start moving. 0 == no friction, 1 == max friction. Set this higher, like
+ * 0.9.
+ * @param dynamicFriction1 How much constant friction occurs when the object is
+ * already in motion. 0 == no friction, 1 == max friction. Better to set this
+ * low, like 0.1.
+ * @param cpos2 
+ * @param ppos2 
+ * @param mass2 
+ * @param restitution2 1 == perfectly elastic collision, 0 == all energy is
+ * killed.
+ * @param staticFriction2 How much friction must be overcome before the object
+ * will start moving. 0 == no friction, 1 == max friction. Set this higher, like
+ * 0.9.
+ * @param dynamicFriction2 How much constant friction occurs when the object is
+ * already in motion. 0 == no friction, 1 == max friction. Better to set this
+ * low, like 0.1.
+ * @param collisionNormal The vector defining the relative axis of collision.
+ * Leaving this as 0,0 will compute it as the midpoint between positions of the
+ * two colliding objects (modeling a circular collision). If colliding with a
+ * known edge or line segment, it's best to provide the edge normal as this
+ * value.
+ * @param vel1out The new velocity resulting from reacting to this collison.
+ * cpos1 - this value == new ppos1.
+ * @param vel2out The new velocity resulting from reacting to this collison.
+ * cpos2 - this value == new ppos2.
+ */
 export const collisionResponseAABB = (
   cpos1: Vector2,
   ppos1: Vector2,

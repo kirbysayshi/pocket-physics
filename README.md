@@ -3,6 +3,8 @@ pocket-physics
 
 Demos at [https://kirbysayshi.github.io/pocket-physics](https://kirbysayshi.github.io/pocket-physics).
 
+Fully typed, as it's written in Typescript!
+
 ```
 npm install pocket-physics
 ```

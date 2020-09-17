@@ -95,7 +95,7 @@ export const start = () => {
       accelerate(box, dt);
     }
 
-    rewindToCollisionPoint(player, player.radius, platform.point1, platform.point2);
+    rewindToCollisionPoint(player, player.radius, platform.point1.cpos, platform.point2.cpos);
 
     collideCircleEdge(
       player,

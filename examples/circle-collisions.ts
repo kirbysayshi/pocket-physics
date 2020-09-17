@@ -42,12 +42,14 @@ export const start = () => {
   let running = true;
   scihalt(() => (running = false));
 
+  let ticks = 0;
+
   (function step() {
     const force = v2();
     const dt = 16;
     for (let i = 0; i < points.length; i++) {
       const point = points[i];
-      if (point !== GRAVITATIONAL_POINT) {
+      if (point !== GRAVITATIONAL_POINT && ticks < 100) {
         solveGravitation(
           point,
           point.mass,
@@ -104,6 +106,7 @@ export const start = () => {
     }
 
     render(points, ctx);
+    ticks++;
     if (!running) return;
     window.requestAnimationFrame(step);
   })();

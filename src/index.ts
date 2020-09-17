@@ -19,3 +19,4 @@ export * from "./segment-intersection";
 export * from "./v2";
 export * from "./common-types";
 export * from './project-point-edge';
+export * from './project-capsule';

@@ -13,8 +13,8 @@ const cposIncludingRadius = v2();
 export function rewindToCollisionPoint(
   point3: Integratable,
   radius3: number,
-  point1: Integratable,
-  point2: Integratable
+  point1: Vector2,
+  point2: Vector2
 ): boolean {
   // detect if a collision has occurred but would have been missed due to
   // point3 moving beyond the edge in one time step.
@@ -36,8 +36,8 @@ export function rewindToCollisionPoint(
   const hasTunneled = segmentIntersection(
     cposIncludingRadius,
     point3.ppos,
-    point1.cpos,
-    point2.cpos,
+    point1,
+    point2,
     tunnelPoint
   );
 
