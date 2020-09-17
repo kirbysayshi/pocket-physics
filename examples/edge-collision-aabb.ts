@@ -5,7 +5,6 @@ import {
   accelerate,
   inertia,
   add,
-  rewindToCollisionPoint,
   solveDistanceConstraint,
   collisionResponseAABB,
   createPointEdgeProjectionResult,
@@ -90,8 +89,9 @@ export const start = () => {
     }
 
     // Use the ppos to account for tunneling: if the ppos->cpos vector is
-    // intersecting with the edge, and ppos is still >0, that means the circle
-    // has collided or even tunneled.
+    // intersecting with the edge, and ppos is still <0, that means the circle
+    // has collided or even tunneled. But if the similarity is in the opposite
+    // direction, that could mean this circle has already collided this frame.
     const projectedResult = createPointEdgeProjectionResult();
     projectPointEdge(
       player.ppos,
@@ -101,10 +101,7 @@ export const start = () => {
     );
 
     // Project the cpos using the radius just for the sake of doing a
-    // line-intersection. Technically we don't have to do this line segment
-    // intersetion test because rewindToCollisionPoint will do it internally,
-    // but it's useful to know if it _will_ rewind or not, and sadly the rewind
-    // function mutates. This can be a problem in environments with more than
+    // line-intersection. This can be a problem in environments with more than
     // one collision happening per frame.
     const intersectionPoint = v2();
     const cposCapsule = projectCposWithRadius(v2(), player, player.radius);
