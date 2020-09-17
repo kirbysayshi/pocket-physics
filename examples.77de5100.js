@@ -134,7 +134,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.v2 = v2;
-exports.translate = exports.perpDot = exports.normal = exports.normalize = exports.magnitude = exports.distance2 = exports.distance = exports.scale = exports.dot = exports.sub = exports.add = exports.set = exports.copy = void 0;
+exports.vd = vd;
+exports.angleOf = angleOf;
+exports.rotate2d = exports.translate = exports.perpDot = exports.normal = exports.normalize = exports.magnitude = exports.distance2 = exports.distance = exports.scale = exports.dot = exports.sub = exports.add = exports.set = exports.copy = void 0;
 
 function v2(x, y) {
   return {
@@ -269,8 +271,43 @@ var translate = function translate(by) {
     add(v, v, by);
   }
 };
+/**
+ *
+ * @param v Print this vector for nice logs
+ */
+
 
 exports.translate = translate;
+
+function vd(v) {
+  return "(" + v.x + ", " + v.y + ")";
+}
+/**
+ * Rotate a vector around another point. Taken nearly verbatim from gl-matrix
+ */
+
+
+var rotate2d = function rotate2d(out, target, origin, rad) {
+  //Translate point to the origin
+  var p0 = target.x - origin.x;
+  var p1 = target.y - origin.y;
+  var sinC = Math.sin(rad);
+  var cosC = Math.cos(rad); //perform rotation and translate to correct position
+
+  out.x = p0 * cosC - p1 * sinC + origin.x;
+  out.y = p0 * sinC + p1 * cosC + origin.y;
+  return out;
+};
+/**
+ * Compute the Theta angle between a vector and the origin.
+ */
+
+
+exports.rotate2d = rotate2d;
+
+function angleOf(v) {
+  return Math.atan2(v.y, v.x);
+}
 },{}],"../src/accelerate.ts":[function(require,module,exports) {
 "use strict";
 
@@ -605,6 +642,43 @@ var EPSILON = 0.0001; // TODO: change this API to accept numbers (x, y) instead 
 // restitution: box2d: https://github.com/erincatto/Box2D/blob/6a69ddbbd59b21c0d6699c43143b4114f7f92e21/Box2D/Box2D/Dynamics/Contacts/b2Contact.h#L42-L47
 // Math.max(restitution1, restitution2);
 
+/**
+ * Really should be called collisionResponseImpulse, as it has nothing to do
+ * with the shape of the bodies colliding. It's just two points with mass and
+ * friction.
+ * @param cpos1
+ * @param ppos1
+ * @param mass1
+ * @param restitution1 1 == perfectly elastic collision, 0 == all energy is
+ * killed.
+ * @param staticFriction1 How much friction must be overcome before the object
+ * will start moving. 0 == no friction, 1 == max friction. Set this higher, like
+ * 0.9.
+ * @param dynamicFriction1 How much constant friction occurs when the object is
+ * already in motion. 0 == no friction, 1 == max friction. Better to set this
+ * low, like 0.1.
+ * @param cpos2
+ * @param ppos2
+ * @param mass2
+ * @param restitution2 1 == perfectly elastic collision, 0 == all energy is
+ * killed.
+ * @param staticFriction2 How much friction must be overcome before the object
+ * will start moving. 0 == no friction, 1 == max friction. Set this higher, like
+ * 0.9.
+ * @param dynamicFriction2 How much constant friction occurs when the object is
+ * already in motion. 0 == no friction, 1 == max friction. Better to set this
+ * low, like 0.1.
+ * @param collisionNormal The vector defining the relative axis of collision.
+ * Leaving this as 0,0 will compute it as the midpoint between positions of the
+ * two colliding objects (modeling a circular collision). If colliding with a
+ * known edge or line segment, it's best to provide the edge normal as this
+ * value.
+ * @param vel1out The new velocity resulting from reacting to this collison.
+ * cpos1 - this value == new ppos1.
+ * @param vel2out The new velocity resulting from reacting to this collison.
+ * cpos2 - this value == new ppos2.
+ */
+
 var collisionResponseAABB = function collisionResponseAABB(cpos1, ppos1, mass1, restitution1, staticFriction1, dynamicFriction1, cpos2, ppos2, mass2, restitution2, staticFriction2, dynamicFriction2, collisionNormal, vel1out, vel2out) {
   // blank out all preallocated vectors.
   (0, _v.set)(basis, 0, 0);
@@ -844,16 +918,30 @@ exports.inertia = inertia;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.overlapAABBAABB = void 0;
+exports.overlapAABBAABB = exports.createAABBOverlapResult = void 0;
 
 var _v = require("./v2");
 
+/**
+ * Create a result object to use for overlap tests.
+ */
+var createAABBOverlapResult = function createAABBOverlapResult() {
+  return {
+    resolve: (0, _v.v2)(),
+    hitPos: (0, _v.v2)(),
+    normal: (0, _v.v2)()
+  };
+};
 /**
  * Compute the "collision manifold" for two AABB, storing the result in `result`.
  * Note: The `normal` is always perpendicular to an AABB edge, which may produce
  * some slighly weird-looking collisions. `collisionResponseAABB()` will compute
  * a normal using the midpoints, which looks more natural.
  */
+
+
+exports.createAABBOverlapResult = createAABBOverlapResult;
+
 var overlapAABBAABB = function overlapAABBAABB(center1X, center1Y, width1, height1, center2X, center2Y, width2, height2, result) {
   var dx = center2X - center1X;
   var px = width2 / 2 + width1 / 2 - Math.abs(dx);
@@ -963,7 +1051,7 @@ function rewindToCollisionPoint(point3, radius3, point1, point2) {
   (0, _v.normalize)(direction, v);
   (0, _v.scale)(radiusSegment, direction, radius3);
   (0, _v.add)(cposIncludingRadius, radiusSegment, point3.cpos);
-  var hasTunneled = (0, _segmentIntersection.segmentIntersection)(cposIncludingRadius, point3.ppos, point1.cpos, point2.cpos, tunnelPoint);
+  var hasTunneled = (0, _segmentIntersection.segmentIntersection)(cposIncludingRadius, point3.ppos, point1, point2, tunnelPoint);
   if (!hasTunneled) return false; // Translate point3 to tunnelPoint, including the radius of the point.
 
   (0, _v.sub)(offset, cposIncludingRadius, tunnelPoint);
@@ -989,9 +1077,23 @@ Object.defineProperty(exports, "__esModule", {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.createPointEdgeProjectionResult = createPointEdgeProjectionResult;
 exports.projectPointEdge = projectPointEdge;
 
 var _v = require("./v2");
+
+/**
+ * Create a pre-made result object for tests.
+ */
+function createPointEdgeProjectionResult() {
+  return {
+    distance: 0,
+    similarity: 0,
+    u: 0,
+    projectedPoint: (0, _v.v2)(),
+    edgeNormal: (0, _v.v2)()
+  };
+}
 
 var edgeDelta = (0, _v.v2)();
 var perp = (0, _v.v2)();
@@ -1020,6 +1122,33 @@ function projectPointEdge(point, endpoint1, endpoint2, result) {
   (0, _v.sub)(perp, point, proj);
   result.similarity = (0, _v.dot)(edgeNorm, perp);
 }
+},{"./v2":"../src/v2.ts"}],"../src/project-capsule.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.projectCposWithRadius = void 0;
+
+var _v = require("./v2");
+
+// preallocations
+var v = (0, _v.v2)();
+var direction = (0, _v.v2)();
+var radiusSegment = (0, _v.v2)();
+/**
+ * Compute the leading edge of a circular moving object given a radius: cpos + radius in the direction of velocity.
+ */
+
+var projectCposWithRadius = function projectCposWithRadius(out, p, radius) {
+  (0, _v.sub)(v, p.cpos, p.ppos);
+  (0, _v.normalize)(direction, v);
+  (0, _v.scale)(radiusSegment, direction, radius);
+  (0, _v.add)(out, radiusSegment, p.cpos);
+  return out;
+};
+
+exports.projectCposWithRadius = projectCposWithRadius;
 },{"./v2":"../src/v2.ts"}],"../src/index.ts":[function(require,module,exports) {
 "use strict";
 
@@ -1206,7 +1335,19 @@ Object.keys(_projectPointEdge).forEach(function (key) {
     }
   });
 });
-},{"./accelerate":"../src/accelerate.ts","./collide-circle-circle":"../src/collide-circle-circle.ts","./collide-circle-edge":"../src/collide-circle-edge.ts","./collision-response-aabb":"../src/collision-response-aabb.ts","./solve-distance-constraint":"../src/solve-distance-constraint.ts","./solve-drag":"../src/solve-drag.ts","./solve-gravitation":"../src/solve-gravitation.ts","./inertia":"../src/inertia.ts","./overlap-aabb-aabb":"../src/overlap-aabb-aabb.ts","./overlap-circle-circle":"../src/overlap-circle-circle.ts","./rewind-to-collision-point":"../src/rewind-to-collision-point.ts","./segment-intersection":"../src/segment-intersection.ts","./v2":"../src/v2.ts","./common-types":"../src/common-types.ts","./project-point-edge":"../src/project-point-edge.ts"}],"aabb-overlap.ts":[function(require,module,exports) {
+
+var _projectCapsule = require("./project-capsule");
+
+Object.keys(_projectCapsule).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _projectCapsule[key];
+    }
+  });
+});
+},{"./accelerate":"../src/accelerate.ts","./collide-circle-circle":"../src/collide-circle-circle.ts","./collide-circle-edge":"../src/collide-circle-edge.ts","./collision-response-aabb":"../src/collision-response-aabb.ts","./solve-distance-constraint":"../src/solve-distance-constraint.ts","./solve-drag":"../src/solve-drag.ts","./solve-gravitation":"../src/solve-gravitation.ts","./inertia":"../src/inertia.ts","./overlap-aabb-aabb":"../src/overlap-aabb-aabb.ts","./overlap-circle-circle":"../src/overlap-circle-circle.ts","./rewind-to-collision-point":"../src/rewind-to-collision-point.ts","./segment-intersection":"../src/segment-intersection.ts","./v2":"../src/v2.ts","./common-types":"../src/common-types.ts","./project-point-edge":"../src/project-point-edge.ts","./project-capsule":"../src/project-capsule.ts"}],"aabb-overlap.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -1503,6 +1644,7 @@ exports.start = function () {
   science_halt_1.default(function () {
     return running = false;
   });
+  var ticks = 0;
 
   (function step() {
     var force = index_1.v2();
@@ -1511,7 +1653,7 @@ exports.start = function () {
     for (var i = 0; i < points.length; i++) {
       var point = points[i];
 
-      if (point !== GRAVITATIONAL_POINT) {
+      if (point !== GRAVITATIONAL_POINT && ticks < 100) {
         index_1.solveGravitation(point, point.mass, GRAVITATIONAL_POINT, GRAVITATIONAL_POINT.mass); //sub(force, GRAVITATIONAL_POINT.cpos, point.cpos);
         //normalize(force, force);
         //scale(force, force, 50);
@@ -1544,6 +1686,7 @@ exports.start = function () {
     }
 
     render(points, ctx);
+    ticks++;
     if (!running) return;
     window.requestAnimationFrame(step);
   })();
@@ -1765,7 +1908,7 @@ exports.start = function () {
         var circle = circles[j]; // Don't collide with yourself! This would be very very bad.
 
         if (line.point1 == circle || line.point2 === circle) continue;
-        if (!preserveInertia) index_1.rewindToCollisionPoint(circle, circle.radius, line.point1, line.point2);
+        if (!preserveInertia) index_1.rewindToCollisionPoint(circle, circle.radius, line.point1.cpos, line.point2.cpos);
         index_1.collideCircleEdge(circle, circle.radius, circle.mass, line.point1, line.point1.mass, line.point2, line.point2.mass, preserveInertia, damping);
       }
     }
@@ -1880,7 +2023,7 @@ exports.start = function () {
       src_1.accelerate(box, dt);
     }
 
-    src_1.rewindToCollisionPoint(player, player.radius, platform.point1, platform.point2);
+    src_1.rewindToCollisionPoint(player, player.radius, platform.point1.cpos, platform.point2.cpos);
     src_1.collideCircleEdge(player, player.radius, player.mass, platform.point1, platform.point1.mass, platform.point2, platform.point2.mass, false, 0.9);
 
     for (var i = 0; i < circles.length; i++) {
@@ -2160,7 +2303,7 @@ exports.start = function () {
         // dissipates.
 
         if (!lineIsBounds) {
-          src_1.rewindToCollisionPoint(circle, circle.radius, line.point1, line.point2);
+          src_1.rewindToCollisionPoint(circle, circle.radius, line.point1.cpos, line.point2.cpos);
         }
 
         src_1.collideCircleEdge(circle, circle.radius, circle.mass, line.point1, line.point1.mass, line.point2, line.point2.mass, false, 0.9);
@@ -2217,13 +2360,7 @@ exports.start = function () {
 
       for (var j = 0; j < circles.length; j++) {
         var circle = circles[j];
-        var projection = {
-          distance: Number.MIN_SAFE_INTEGER,
-          similarity: 0,
-          u: Number.MIN_SAFE_INTEGER,
-          projectedPoint: src_1.v2(),
-          edgeNormal: src_1.v2()
-        }; // We know which way the edges were wound, so we implicitly know which order
+        var projection = src_1.createPointEdgeProjectionResult(); // We know which way the edges were wound, so we implicitly know which order
         // these points should be used in to compute the normal.
 
         src_1.projectPointEdge(circle.cpos, line.point1.cpos, line.point2.cpos, projection); // both the edge normal and the segment from edge to circle are
@@ -2423,6 +2560,157 @@ exports.start = function () {
     }
   }
 };
+},{"science-halt":"../node_modules/science-halt/index.js","../src":"../src/index.ts"}],"edge-collision-aabb.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.start = void 0;
+
+var science_halt_1 = __importDefault(require("science-halt"));
+
+var src_1 = require("../src");
+
+exports.start = function () {
+  var cvs = document.createElement("canvas");
+  var ctx = cvs.getContext("2d");
+  cvs.tabIndex = 1; // for keyboard events
+
+  cvs.width = cvs.height = 800;
+  cvs.style.border = "1px solid gray";
+  document.body.appendChild(cvs);
+  var player = {
+    cpos: src_1.v2(600, 100),
+    ppos: src_1.v2(600, 100),
+    acel: src_1.v2(0, 0),
+    mass: 1,
+    radius: 20
+  };
+  var GRAVITY = 0.98; // Use similar masses because even if the platform is immobile, a huge mass
+  // will impart nearly all velocity into the ball, and make restitution and
+  // friction nearly meaningless.
+
+  var platform = {
+    point1: {
+      cpos: src_1.v2(100, 300),
+      ppos: src_1.v2(100, 300),
+      acel: src_1.v2(0, 0),
+      mass: 1,
+      radius: 0
+    },
+    point2: {
+      cpos: src_1.v2(700, 300),
+      ppos: src_1.v2(700, 300),
+      acel: src_1.v2(0, 0),
+      mass: 1,
+      radius: 0
+    },
+    goal: 500
+  };
+  var circles = [player, platform.point1, platform.point2];
+  var running = true;
+  science_halt_1.default(function () {
+    return running = false;
+  });
+
+  (function step() {
+    var dt = 16; // gravity!
+
+    src_1.add(player.acel, player.acel, src_1.v2(0, GRAVITY));
+
+    for (var i = 0; i < circles.length; i++) {
+      var box = circles[i];
+      src_1.accelerate(box, dt);
+    } // Use the ppos to account for tunneling: if the ppos->cpos vector is
+    // intersecting with the edge, and ppos is still >0, that means the circle
+    // has collided or even tunneled.
+
+
+    var projectedResult = src_1.createPointEdgeProjectionResult();
+    src_1.projectPointEdge(player.ppos, platform.point1.cpos, platform.point2.cpos, projectedResult); // Project the cpos using the radius just for the sake of doing a
+    // line-intersection. Technically we don't have to do this line segment
+    // intersetion test because rewindToCollisionPoint will do it internally,
+    // but it's useful to know if it _will_ rewind or not, and sadly the rewind
+    // function mutates. This can be a problem in environments with more than
+    // one collision happening per frame.
+
+    var intersectionPoint = src_1.v2();
+    var cposCapsule = src_1.projectCposWithRadius(src_1.v2(), player, player.radius);
+    var intersected = src_1.segmentIntersection(player.ppos, cposCapsule, platform.point1.cpos, platform.point2.cpos, intersectionPoint);
+
+    if (intersected && projectedResult.similarity < 0) {
+      // Do our best to prevent tunneling: rewind by the distance from the cpos
+      // capsule to the segment intersection point. `Translate` adds, so we have
+      // to sub intersectionPoint - capsule, which is slightly counterintuitive.
+      var offset = src_1.v2();
+      src_1.sub(offset, intersectionPoint, cposCapsule);
+      src_1.translate(offset, player.cpos, player.ppos);
+      var vout1 = src_1.v2();
+      var vout2 = src_1.v2(); // 1: nearly perfectly elastic (we still lose some energy due to gravity)
+      // 0: dead
+
+      var restitution = 1;
+      src_1.collisionResponseAABB(player.cpos, player.ppos, player.mass, restitution, 0.9, 0.1, projectedResult.projectedPoint, projectedResult.projectedPoint, (platform.point1.mass + platform.point2.mass) * projectedResult.u, restitution, 0.9, 0.1, projectedResult.edgeNormal, vout1, vout2);
+      src_1.sub(player.ppos, player.cpos, vout1); // preserve systemic energy by giving the velocity that would have been
+      // imparted to the edge (if it were moveable) to the ball instead.
+
+      src_1.add(player.ppos, player.ppos, vout2);
+    }
+
+    for (var i = 0; i < circles.length; i++) {
+      var box = circles[i];
+      src_1.inertia(box);
+    }
+
+    for (var i = 0; i < 5; i++) {
+      // Not really necessary since we're never imparting velocity to the
+      // platform, but could be useful to demonstrate how to keep the shape if
+      // we did.
+      src_1.solveDistanceConstraint(platform.point1, platform.point1.mass, platform.point2, platform.point2.mass, platform.goal);
+    }
+
+    render(circles, [platform], ctx);
+    if (!running) return;
+    window.requestAnimationFrame(step);
+  })();
+
+  function render(circles, segments, ctx) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    for (var i = 0; i < circles.length; i++) {
+      var point = circles[i];
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.arc(point.ppos.x, point.ppos.y, point.radius, 0, Math.PI * 2, false);
+      ctx.fill();
+      ctx.fillStyle = "black";
+      ctx.beginPath();
+      ctx.arc(point.cpos.x, point.cpos.y, point.radius, 0, Math.PI * 2, false);
+      ctx.fill();
+    }
+
+    for (var i = 0; i < segments.length; i++) {
+      var segment = segments[i];
+      ctx.strokeStyle = "red";
+      ctx.beginPath();
+      ctx.moveTo(segment.point1.ppos.x, segment.point1.ppos.y);
+      ctx.lineTo(segment.point2.ppos.x, segment.point2.ppos.y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.strokeStyle = "black";
+      ctx.moveTo(segment.point1.cpos.x, segment.point1.cpos.y);
+      ctx.lineTo(segment.point2.cpos.x, segment.point2.cpos.y);
+      ctx.stroke();
+    }
+  }
+};
 },{"science-halt":"../node_modules/science-halt/index.js","../src":"../src/index.ts"}],"index.ts":[function(require,module,exports) {
 "use strict";
 
@@ -2478,9 +2766,11 @@ var Platformer = __importStar(require("./platformer"));
 
 var Bucket = __importStar(require("./bucket"));
 
+var EdgeCollisionAABB = __importStar(require("./edge-collision-aabb"));
+
 var qs = new URLSearchParams(window.location.search);
 var demoName = qs.get("demo");
-var demos = new Map([["Bucket of Circles (Verlet)", Bucket], ["Circle Collisions (Verlet)", CircleCollisions], ["Circle to Box Collision (Verlet)", CircleBoxCollision], ["Single Edge Collision (Verlet)", EdgeCollision], ["Platformer (AABB Impulse Model)", Platformer], ["AABB Overlap Demo (AABB Impulse Model)", AABBOverlapDemo], ["AABB Soup Demo (AABB Impulse Model)", AABBSoupDemo]]);
+var demos = new Map([["Bucket of Circles (Verlet)", Bucket], ["Circle Collisions (Verlet)", CircleCollisions], ["Circle to Box Collision (Verlet)", CircleBoxCollision], ["Single Edge Collision (Verlet)", EdgeCollision], ["Platformer (AABB Impulse Model)", Platformer], ["AABB Overlap Demo (AABB Impulse Model)", AABBOverlapDemo], ["AABB Soup Demo (AABB Impulse Model)", AABBSoupDemo], ["Single Edge Collision (AABB Impulse Model)", EdgeCollisionAABB]]);
 
 if (demoName && demos.has(demoName)) {
   demos.get(demoName).start();
@@ -2500,7 +2790,7 @@ if (demoName && demos.has(demoName)) {
   el.innerHTML = html;
   document.body.appendChild(el);
 }
-},{"./aabb-overlap":"aabb-overlap.ts","./aabb-soup":"aabb-soup.ts","./circle-collisions":"circle-collisions.ts","./circle-box-collision":"circle-box-collision.ts","./edge-collision":"edge-collision.ts","./platformer":"platformer.ts","./bucket":"bucket.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./aabb-overlap":"aabb-overlap.ts","./aabb-soup":"aabb-soup.ts","./circle-collisions":"circle-collisions.ts","./circle-box-collision":"circle-box-collision.ts","./edge-collision":"edge-collision.ts","./platformer":"platformer.ts","./bucket":"bucket.ts","./edge-collision-aabb":"edge-collision-aabb.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -2528,7 +2818,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65446" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62508" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
