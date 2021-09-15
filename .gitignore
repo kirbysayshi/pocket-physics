@@ -3,8 +3,17 @@ cjs
 esm
 
 # parcel
-.cache
+.parcel-cache
 build-demos
 
 # tsc
 tsconfig.tsbuildinfo
+
+# yarn
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*

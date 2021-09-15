@@ -1,0 +1,17 @@
+{
+  "name": "pocket-physics-demo-page",
+  "packageManager": "yarn@3.0.2",
+  "private": true,
+  "dependencies": {
+    "science-halt": "^0.2.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^3.2.3",
+    "parcel": "^2.0.0-rc.0"
+  },
+  "scripts": {
+    "demos": "parcel serve --dist-dir ../build-demos index.html",
+    "demos:bundle": "parcel build --dist-dir ../build-demos index.html",
+    "demos:deploy": "yarn demos:bundle --public-url . && gh-pages -d ../build-demos/"
+  }
+}
