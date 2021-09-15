@@ -1,7 +1,14 @@
 {
-  "name": "pocket-physics-demo-page",
+  "name": "examples",
   "packageManager": "yarn@3.0.2",
   "private": true,
+  "targets": {
+    "default": {
+      "source": "./index.html",
+      "distDir": "./build-demos/",
+      "publicUrl": "."
+    }
+  },
   "dependencies": {
     "science-halt": "^0.2.0"
   },
@@ -10,8 +17,8 @@
     "parcel": "^2.0.0-rc.0"
   },
   "scripts": {
-    "demos": "parcel serve --dist-dir ../build-demos index.html",
-    "demos:bundle": "parcel build --dist-dir ../build-demos index.html",
-    "demos:deploy": "yarn demos:bundle --public-url . && gh-pages -d ../build-demos/"
+    "demos": "parcel serve --target default --dist-dir ./build-demos/ .",
+    "demos:bundle": "rm -rf build-demos && parcel build --target default .",
+    "demos:deploy": "yarn demos:bundle && gh-pages -d ./build-demos/"
   }
 }

@@ -3947,6 +3947,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"examples@workspace:examples":
+  version: 0.0.0-use.local
+  resolution: "examples@workspace:examples"
+  dependencies:
+    gh-pages: ^3.2.3
+    parcel: ^2.0.0-rc.0
+    science-halt: ^0.2.0
+  languageName: unknown
+  linkType: soft
+
 "execa@npm:^5.0.0":
   version: 5.1.1
   resolution: "execa@npm:5.1.1"
@@ -7429,16 +7439,6 @@ fsevents@^2.3.2:
   checksum: e4654186dc92a187c8c7fe4ccda902f4d39dd9c10f98d1c5a08ce5fad5507ef1e33ddb091240c3950bee81bd201b4c55098604c433a33b5e8bdd97f38b732fa0
   languageName: node
   linkType: hard
-
-"pocket-physics-demo-page@workspace:examples":
-  version: 0.0.0-use.local
-  resolution: "pocket-physics-demo-page@workspace:examples"
-  dependencies:
-    gh-pages: ^3.2.3
-    parcel: ^2.0.0-rc.0
-    science-halt: ^0.2.0
-  languageName: unknown
-  linkType: soft
 
 "pocket-physics@workspace:.":
   version: 0.0.0-use.local
