@@ -9,8 +9,13 @@ export function solveDistanceConstraint(
   p2mass: number,
   goal: number,
   // number between 0 and 1
-  stiffness: number = 1
-) {
+  stiffness = 1,
+  // If false, correct the previous position in addition to the current position
+  // when solving the constraint. While unnatural looking, this will prevent
+  // "energy" (velocity) from being spontaneously created in the constraint
+  // system.
+  impartEnergy = true
+): void {
   const mass1 = p1mass > 0 ? p1mass : 1;
   const mass2 = p2mass > 0 ? p2mass : 1;
   const imass1 = 1 / (mass1 || 1);
@@ -39,15 +44,19 @@ export function solveDistanceConstraint(
   // If it's pinned and p2 is not, apply it to p2.
   if (p1mass > 0) {
     add(p1.cpos, p1.cpos, p1correction);
+    if (!impartEnergy) add(p1.ppos, p1.ppos, p1correction);
   } else if (p2mass > 0) {
     sub(p2.cpos, p2.cpos, p1correction);
+    if (!impartEnergy) sub(p2.ppos, p2.ppos, p1correction);
   }
 
   // Add correction to p2, but only if not "pinned".
   // If it's pinned and p1 is not, apply it to p1.
   if (p2mass > 0) {
     sub(p2.cpos, p2.cpos, p2correction);
+    if (!impartEnergy) sub(p2.ppos, p2.ppos, p2correction);
   } else if (p1mass > 0) {
     add(p1.cpos, p1.cpos, p2correction);
+    if (!impartEnergy) add(p1.ppos, p1.ppos, p2correction);
   }
 }
