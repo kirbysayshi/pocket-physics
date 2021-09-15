@@ -6,7 +6,7 @@
     "default": {
       "source": "./index.html",
       "distDir": "./build-demos/",
-      "publicUrl": "."
+      "publicUrl": "/pocket-physics"
     }
   },
   "dependencies": {
