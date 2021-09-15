@@ -1,6 +1,6 @@
 {
   "name": "pocket-physics",
-  "version": "10.0.0",
+  "version": "10.1.0",
   "description": "Verlet physics extracted from pocket-ces demos",
   "main": "cjs/index.js",
   "module": "esm/index.js",
