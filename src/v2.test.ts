@@ -1,17 +1,18 @@
 import {
-  v2,
-  sub,
   add,
-  dot,
-  scale,
+  copy,
   distance,
   distance2,
-  normalize,
+  dot,
   normal,
+  normalize,
   perpDot,
-  translate,
-  Vector2,
   rotate2d,
+  scale,
+  sub,
+  translate,
+  v2,
+  Vector2,
 } from "./v2";
 
 test("generics + nominal types", () => {
@@ -31,6 +32,10 @@ test("generics + nominal types", () => {
   // @ts-expect-error
   dot(v0, v2<Millis>());
 
+  // @ts-expect-error
+  copy(out, v1);
+
+  const c: Vector2<Nanos> = copy(v2(), v1);
   const s: Vector2<Nanos> = sub(v2(), v0, v1);
 
   // @ts-expect-error
