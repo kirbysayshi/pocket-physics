@@ -1,7 +1,7 @@
 {
   "name": "pocket-physics",
   "packageManager": "yarn@3.0.2",
-  "version": "10.1.0",
+  "version": "10.1.1",
   "description": "Verlet physics extracted from pocket-ces demos",
   "main": "cjs/index.js",
   "module": "esm/index.js",
