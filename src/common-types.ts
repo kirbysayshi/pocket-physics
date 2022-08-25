@@ -1,5 +1,12 @@
 import { Vector2 } from "./v2";
 
-export type Integratable = { cpos: Vector2; ppos: Vector2; acel: Vector2; };
-export type VelocityDerivable = Pick<Integratable, 'cpos' | 'ppos'>;
+export type Integratable<T extends number> = {
+  cpos: Vector2<T>;
+  ppos: Vector2<T>;
+  acel: Vector2<T>;
+};
+export type VelocityDerivable<T extends number> = Pick<
+  Integratable<T>,
+  "cpos" | "ppos"
+>;
 export type DeltaTimeMS = number;
