@@ -1,17 +1,19 @@
-import { set, Vector2, normalize, v2 } from "./v2";
+import { set, v2, Vector2 } from "./v2";
 
 // https://github.com/noonat/intersect/blob/master/intersect.js
 
-export type AABBOverlapResult = {
-  resolve: Vector2;
-  hitPos: Vector2;
-  normal: Vector2;
+export type AABBOverlapResult<V2 extends Vector2> = {
+  resolve: V2;
+  hitPos: V2;
+  normal: V2;
 };
 
 /**
  * Create a result object to use for overlap tests.
  */
-export const createAABBOverlapResult = () => {
+export const createAABBOverlapResult = <V extends number>(): AABBOverlapResult<
+  Vector2<V>
+> => {
   return { resolve: v2(), hitPos: v2(), normal: v2() };
 };
 
@@ -30,7 +32,7 @@ export const overlapAABBAABB = (
   center2Y: number,
   width2: number,
   height2: number,
-  result: AABBOverlapResult
+  result: AABBOverlapResult<Vector2>
 ) => {
   const dx = center2X - center1X;
   const px = width2 / 2 + width1 / 2 - Math.abs(dx);

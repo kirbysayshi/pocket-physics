@@ -1,15 +1,15 @@
 import scihalt from "science-halt";
 import {
+  accelerate,
   add,
+  collisionResponseAABB,
+  createAABBOverlapResult,
+  inertia,
+  overlapAABBAABB,
   scale,
   sub,
   v2,
-  AABBOverlapResult,
-  accelerate,
-  inertia,
-  overlapAABBAABB,
-  collisionResponseAABB,
-  Vector2
+  Vector2,
 } from "../src";
 
 type Box = {
@@ -47,11 +47,7 @@ export const start = () => {
   };
 
   const points: Box[] = [];
-  const collision: AABBOverlapResult = {
-    resolve: v2(),
-    hitPos: v2(),
-    normal: v2()
-  };
+  const collision = createAABBOverlapResult();
 
   points.push(box1, box2);
 

@@ -1,20 +1,20 @@
-import { solveGravitation } from "./solve-gravitation";
 import { accelerate } from "./accelerate";
-import { inertia } from "./inertia";
 import { collideCircleCircle } from "./collide-circle-circle";
-import { overlapCircleCircle } from "./overlap-circle-circle";
-import { add, normal, scale, sub, v2 } from "./v2";
 import { collideCircleEdge } from "./collide-circle-edge";
-import { rewindToCollisionPoint } from "./rewind-to-collision-point";
-import { overlapAABBAABB, AABBOverlapResult } from "./overlap-aabb-aabb";
 import { collisionResponseAABB } from "./collision-response-aabb";
+import { inertia } from "./inertia";
+import { createAABBOverlapResult, overlapAABBAABB } from "./overlap-aabb-aabb";
+import { overlapCircleCircle } from "./overlap-circle-circle";
+import { rewindToCollisionPoint } from "./rewind-to-collision-point";
+import { solveGravitation } from "./solve-gravitation";
+import { add, normal, scale, sub, v2 } from "./v2";
 //import frictionAABB from './aabb-friction';
 
 test("2d", () => {
   const point = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 10, y: 0 }
+    acel: { x: 10, y: 0 },
   };
 
   // 1 is the delta time between steps
@@ -30,7 +30,7 @@ test("2d gravitation", () => {
   const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const p1mass = 1;
@@ -38,7 +38,7 @@ test("2d gravitation", () => {
   const point2 = {
     cpos: { x: 1, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const p2mass = 1;
@@ -57,13 +57,13 @@ test("2d collision with equal mass and inertia preserved", () => {
   const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const point2 = {
     cpos: { x: 9, y: 0 },
     ppos: { x: 9, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const p1mass = 1;
@@ -132,13 +132,13 @@ test("2d collision with inequal mass and inertia preserved", () => {
   const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const point2 = {
     cpos: { x: 9, y: 0 },
     ppos: { x: 9, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const p1mass = 1;
@@ -207,13 +207,13 @@ test("2d collision, vs infinite mass and inertia preserved", () => {
   const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const point2 = {
     cpos: { x: 9, y: 0 },
     ppos: { x: 9, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const p1mass = 1;
@@ -278,11 +278,11 @@ test("2d collision, vs infinite mass and inertia preserved", () => {
 
 test("overlap circles", () => {
   const point1 = {
-    cpos: { x: 0, y: 0 }
+    cpos: { x: 0, y: 0 },
   };
 
   const point2 = {
-    cpos: { x: 9, y: 0 }
+    cpos: { x: 9, y: 0 },
   };
 
   const p1radius = 5;
@@ -332,19 +332,19 @@ test.skip("collide circle edge, equal mass", () => {
   const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const point2 = {
     cpos: { x: 5, y: 0 },
     ppos: { x: 5, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const point3 = {
     cpos: { x: 2.5, y: 1 },
     ppos: { x: 2.5, y: 1 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const radius3 = 2;
@@ -356,25 +356,25 @@ test.skip("collide circle edge, equal mass", () => {
   const checkpoint1Top = {
     cpos: { x: 0, y: 1 },
     ppos: { x: 0, y: 1 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const checkpoint1Bottom = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const checkpoint2Top = {
     cpos: { x: 5, y: 1 },
     ppos: { x: 5, y: 1 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const checkpoint2Bottom = {
     cpos: { x: 5, y: 0 },
     ppos: { x: 5, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   // Just like the edge...
@@ -505,19 +505,19 @@ test.skip("collide circle edge, equal mass, start", () => {
   const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const point2 = {
     cpos: { x: 5, y: 0 },
     ppos: { x: 5, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const point3 = {
     cpos: { x: 0, y: 1 },
     ppos: { x: 0, y: 1 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const radius3 = 2;
@@ -529,13 +529,13 @@ test.skip("collide circle edge, equal mass, start", () => {
   const checkpoint3 = {
     cpos: { x: 0, y: 1 },
     ppos: { x: 0, y: 1 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const checkpoint2 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   // Just like the edge...
@@ -626,26 +626,25 @@ test.skip("collide circle edge, equal mass, start", () => {
   expect(point1.cpos.x).toBe(0);
   expect(point2.cpos.x).toBe(5);
   expect(point3.cpos.x).toBe(0);
-
 });
 
 test.skip("tunneling", () => {
   const point1 = {
     cpos: { x: 0, y: 0 },
     ppos: { x: 0, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const point2 = {
     cpos: { x: 5, y: 0 },
     ppos: { x: 5, y: 0 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   const point3 = {
     cpos: { x: 2.5, y: -2 },
     ppos: { x: 2.5, y: 2 },
-    acel: { x: 0, y: 0 }
+    acel: { x: 0, y: 0 },
   };
 
   rewindToCollisionPoint(point3, 0, point1.cpos, point2.cpos);
@@ -653,28 +652,35 @@ test.skip("tunneling", () => {
   console.log("point1", point1);
   console.log("point2", point2);
   console.log("point3", point3);
-  
+});
+
+test("aabb2 result types", () => {
+  type CustomNumber = number & { special: true };
+  function asCustomVector(n: number) {
+    return n as CustomNumber;
+  }
+
+  const result = createAABBOverlapResult<CustomNumber>();
+  // @ts-expect-error number is not assignable to CustomVector
+  result.hitPos.x = 4;
+  result.hitPos.x = asCustomVector(4);
 });
 
 test("aabb2 overlap, very oblong", () => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     w: 100,
-    h: 1
+    h: 1,
   };
 
   const box2 = {
     cpos: { x: 50, y: 0 },
     w: 200,
-    h: 1
+    h: 1,
   };
 
   // The amount to move box2 to not overlap with box1.
-  const resolutionVector: AABBOverlapResult = {
-    resolve: v2(),
-    hitPos: v2(),
-    normal: v2()
-  };
+  const resolutionVector = createAABBOverlapResult();
 
   const isOverlapping = overlapAABBAABB(
     box1.cpos.x,
@@ -697,20 +703,16 @@ test("aabb2 overlap X", () => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     w: 10,
-    h: 20
+    h: 20,
   };
 
   const box2 = {
     cpos: { x: 2, y: 5 },
     w: 10,
-    h: 20
+    h: 20,
   };
 
-  const result: AABBOverlapResult = {
-    resolve: v2(),
-    hitPos: v2(),
-    normal: v2()
-  };
+  const result = createAABBOverlapResult();
 
   const isOverlapping = overlapAABBAABB(
     box1.cpos.x,
@@ -738,20 +740,16 @@ test("aabb2 overlap Y", () => {
   const box1 = {
     cpos: { x: 0, y: 0 },
     w: 20,
-    h: 10
+    h: 10,
   };
 
   const box2 = {
     cpos: { x: 2, y: 5 },
     w: 20,
-    h: 10
+    h: 10,
   };
 
-  const result: AABBOverlapResult = {
-    resolve: v2(),
-    hitPos: v2(),
-    normal: v2()
-  };
+  const result = createAABBOverlapResult();
 
   const isOverlapping = overlapAABBAABB(
     box1.cpos.x,
@@ -784,7 +782,7 @@ test("aabb collision-response", () => {
     mass: 1,
     restitution: 1,
     staticFriction: 0,
-    dynamicFriction: 0
+    dynamicFriction: 0,
   };
 
   const box2 = {
@@ -795,14 +793,10 @@ test("aabb collision-response", () => {
     mass: 1,
     restitution: 1,
     staticFriction: 0,
-    dynamicFriction: 0
+    dynamicFriction: 0,
   };
 
-  const collision: AABBOverlapResult = {
-    resolve: v2(),
-    hitPos: v2(),
-    normal: v2()
-  };
+  const collision = createAABBOverlapResult();
   const isOverlapping = overlapAABBAABB(
     box1.cpos.x,
     box1.cpos.y,
@@ -856,7 +850,7 @@ test("aabb collision-response: very inequal masses", () => {
     mass: 10000000000,
     restitution: 1,
     staticFriction: 0,
-    dynamicFriction: 0
+    dynamicFriction: 0,
   };
 
   const box2 = {
@@ -867,14 +861,10 @@ test("aabb collision-response: very inequal masses", () => {
     mass: 1,
     restitution: 1,
     staticFriction: 0,
-    dynamicFriction: 0
+    dynamicFriction: 0,
   };
 
-  const collision: AABBOverlapResult = {
-    resolve: v2(),
-    hitPos: v2(),
-    normal: v2()
-  };
+  const collision = createAABBOverlapResult();
   const isOverlapping = overlapAABBAABB(
     box1.cpos.x,
     box1.cpos.y,
@@ -928,7 +918,7 @@ test("aabb friction", () => {
     mass: 1,
     restitution: 1,
     staticFriction: 0.5,
-    dynamicFriction: 0.5
+    dynamicFriction: 0.5,
   };
 
   const box2 = {
@@ -939,14 +929,10 @@ test("aabb friction", () => {
     mass: 1,
     restitution: 1,
     staticFriction: 0.5,
-    dynamicFriction: 0.5
+    dynamicFriction: 0.5,
   };
 
-  const collision: AABBOverlapResult = {
-    resolve: v2(),
-    hitPos: v2(),
-    normal: v2()
-  };
+  const collision = createAABBOverlapResult();
 
   // TODO: no need for isOverlapping, just use a known collision normal
   // + already computed collision response ppos(s).

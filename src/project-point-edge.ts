@@ -1,14 +1,6 @@
-import {
-  Vector2,
-  sub,
-  v2,
-  normal,
-  dot,
-  distance,
-  set,
-} from "./v2";
+import { distance, dot, normal, set, sub, v2, Vector2 } from "./v2";
 
-export type PointEdgeProjection = {
+export type PointEdgeProjection<V2 extends Vector2> = {
   // distance between the point and the projected point on the line
   distance: number;
   // dot product between edge normal (perp of endpoint1 -> endpoint2) and normal
@@ -21,19 +13,21 @@ export type PointEdgeProjection = {
   // edge, > 1 means ahead of the edge endpoints.
   u: number;
   // The point in absolute space of the projection along the edge
-  projectedPoint: Vector2;
+  projectedPoint: V2;
   // The normal of the edge (endpoint1 -> endpoint2): Given v1(0,0) -> v2(10, 0), the normal will be (0, 1)
-  edgeNormal: Vector2;
+  edgeNormal: V2;
 };
 
 /**
  * Create a pre-made result object for tests.
  */
-export function createPointEdgeProjectionResult(): PointEdgeProjection {
+export function createPointEdgeProjectionResult<
+  V extends number
+>(): PointEdgeProjection<Vector2<V>> {
   return {
-    distance: 0,
+    distance: Number.MIN_SAFE_INTEGER,
     similarity: 0,
-    u: 0,
+    u: Number.MIN_SAFE_INTEGER,
     projectedPoint: v2(),
     edgeNormal: v2(),
   };
@@ -46,17 +40,18 @@ export function projectPointEdge(
   point: Vector2,
   endpoint1: Vector2,
   endpoint2: Vector2,
-  result: PointEdgeProjection
+  result: PointEdgeProjection<Vector2>
 ) {
   sub(edgeDelta, endpoint2, endpoint1);
   if (edgeDelta.x === 0 && edgeDelta.y === 0) {
-    throw new Error('ZeroLengthEdge');
+    throw new Error("ZeroLengthEdge");
   }
 
   // http://paulbourke.net/geometry/pointlineplane/
   // http://paulbourke.net/geometry/pointlineplane/DistancePoint.java
   const u =
-    ((point.x - endpoint1.x) * edgeDelta.x + (point.y - endpoint1.y) * edgeDelta.y) /
+    ((point.x - endpoint1.x) * edgeDelta.x +
+      (point.y - endpoint1.y) * edgeDelta.y) /
     (edgeDelta.x * edgeDelta.x + edgeDelta.y * edgeDelta.y);
 
   result.u = u;
@@ -74,7 +69,7 @@ export function projectPointEdge(
   //           |                        |
   //           | EdgeNorm               | perp
   //           |                       Point
-  // 
+  //
   // What is the similarity (dot product) between EdgeNorm and Perp?
   const edgeNorm = normal(result.edgeNormal, endpoint1, endpoint2);
   sub(perp, point, proj);

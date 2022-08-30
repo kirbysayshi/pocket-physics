@@ -1,16 +1,16 @@
 import scihalt from "science-halt";
 import {
-  Vector2,
-  v2,
   accelerate,
-  overlapAABBAABB,
-  AABBOverlapResult,
-  inertia,
   add,
-  scale,
   collisionResponseAABB,
+  createAABBOverlapResult,
+  inertia,
+  overlapAABBAABB,
+  scale,
   sub,
-  translate
+  translate,
+  v2,
+  Vector2,
 } from "../src";
 
 export const start = () => {
@@ -53,11 +53,7 @@ export const start = () => {
 
   const boxes: CollidableBox[] = [player, platform];
 
-  const collision: AABBOverlapResult = {
-    resolve: v2(),
-    hitPos: v2(),
-    normal: v2()
-  };
+  const collision = createAABBOverlapResult();
 
   let running = true;
   scihalt(() => (running = false));

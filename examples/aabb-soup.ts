@@ -1,17 +1,16 @@
 import scihalt from "science-halt";
 import {
+  accelerate,
   add,
+  collisionResponseAABB,
+  createAABBOverlapResult,
   distance,
+  inertia,
+  overlapAABBAABB,
   scale,
+  solveGravitation,
   sub,
   v2,
-  accelerate,
-  inertia,
-  solveGravitation,
-  overlapAABBAABB,
-  collisionResponseAABB,
-  AABBOverlapResult,
-  copy
 } from "../src/index";
 
 export const start = () => {
@@ -67,11 +66,7 @@ export const start = () => {
 
     const collisions = [];
     const handled = [];
-    const collision: AABBOverlapResult = {
-      resolve: v2(),
-      hitPos: v2(),
-      normal: v2()
-    };
+    const collision = createAABBOverlapResult();
 
     for (let i = 0; i < points.length; i++) {
       for (let j = i + 1; j < points.length; j++) {

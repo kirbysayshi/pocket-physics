@@ -1,13 +1,10 @@
-import { PointEdgeProjection, projectPointEdge } from "./project-point-edge";
+import {
+  createPointEdgeProjectionResult,
+  projectPointEdge,
+} from "./project-point-edge";
 import { v2 } from "./v2";
 
-const projection: PointEdgeProjection = {
-  distance: Number.MIN_SAFE_INTEGER,
-  similarity: 0,
-  u: Number.MIN_SAFE_INTEGER,
-  projectedPoint: v2(),
-  edgeNormal: v2(),
-};
+const projection = createPointEdgeProjectionResult();
 
 test("point above edge 2", () => {
   const ball = v2(0, 5);
